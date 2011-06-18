@@ -1,5 +1,4 @@
 # http://code.google.com/apis/visualization/documentation/reference.html
-from decimal import Decimal
 import math
 import random
 from utils import register_resource
@@ -55,16 +54,16 @@ def _percentage_expression_summary(data, average_by):
     else:
         genes_detected = float(data[('Genes', 'detected')]) / average_by
         genes_total = float(data[('Genes', 'total')]) / average_by
-        genes_percent = Decimal( "%.1f" % (genes_detected / genes_total * 100.0) ) 
+        genes_percent = genes_detected / genes_total * 100.0
         transcripts_detected = float(data[('Transcripts', 'detected')]) / average_by
         transcripts_total = float(data[('Transcripts', 'total')]) / average_by
-        transcripts_percent = Decimal( "%.1f" % (transcripts_detected / transcripts_total * 100.0 ) )
+        transcripts_percent = transcripts_detected / transcripts_total * 100.0
         exons_detected = float(data[('Exons', 'detected')]) / average_by
         exons_total = float(data[('Exons', 'total')]) / average_by
-        exons_percent = Decimal( "%.1f" % (exons_detected / exons_total * 100.0 ) )  
-        result.append( ('Genes', genes_total, genes_detected, genes_percent) ) 
-        result.append( ('Transcript', transcripts_total, transcripts_detected, transcripts_percent) )
-        result.append( ('Exons', exons_total, exons_detected, exons_percent) )
+        exons_percent = exons_detected / exons_total * 100.0
+        result.append( ('Genes', int(genes_total), int(genes_detected), genes_percent) )
+        result.append( ('Transcript', int(transcripts_total), int(transcripts_detected), transcripts_percent) )
+        result.append( ('Exons', int(exons_total), int(exons_detected), exons_percent) )
     return result
     
 @register_resource(resolution="run", partition=False)
@@ -117,7 +116,7 @@ def detected_genes(dbs, confs):
                     if detected is None:
                         row.append(None)
                     else:
-                        row.append(detected['detected'])
+                        row.append(int(detected['detected']))
                 if row[1] or row[2]:
                     results.append(row + [runid])
         results.sort()
@@ -306,7 +305,7 @@ where gene_id in ('%s')""" % (projectid, runid, "','".join(genes))
             gene_id, RPKM, LaneName = row[0], row[1], row[2]
             # Now sort them into the right lane, taking into account the position
             # of the gene in the reference lane
-            lane_rows[LaneName][genes.index(gene_id)] = Decimal( "%.0f" % RPKM)
+            lane_rows[LaneName][genes.index(gene_id)] = RPKM
 
     result = []
     # Put the rows into the table ordered by the lane name
@@ -337,7 +336,7 @@ limit 100""" % conf
     for gene_id, RPKM in rows:
         # Assemble the columns consisting of the gene names
         columns.append( (gene_id, 'number') )
-        rpkms.append(Decimal( "%.0f" % RPKM))
+        rpkms.append(RPKM)
 
     result = []
     result.append( [conf['laneid']] + rpkms )

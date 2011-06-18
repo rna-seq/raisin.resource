@@ -60,9 +60,9 @@ def _percentage_read_summary(data, average_by):
         unambiguous = float(data['unambiguous']) / average_by
         ambiguous = float(data['ambiguous']) / average_by
         total = float(data['total']) / average_by
-        result.append( ("Unique Reads", unique, Decimal("%.1f" % (unique / total  * 100.0))))
-        result.append( ("Unambiguous Reads", unambiguous, Decimal("%.1f" % (unambiguous / total * 100.0))))
-        result.append( ("Ambiguous Reads", ambiguous, Decimal("%.1f" % (ambiguous / total * 100.0))))
+        result.append( ("Unique Reads", int(unique), unique / total  * 100.0))
+        result.append( ("Unambiguous Reads", int(unambiguous), unambiguous / total * 100.0))
+        result.append( ("Ambiguous Reads", int(ambiguous), ambiguous / total * 100.0))
     return result
 
 @register_resource(resolution="read", partition=True)
@@ -86,7 +86,7 @@ def _partition_reads_containing_ambiguous_nucleotides(dbs, confs, partition_id):
     else:
         reads_containing_ambiguous_nucleotides = float(stats['reads_containing_ambiguous_nucleotides']) 
         total_number_of_reads = float(stats['total_number_of_reads']) 
-        percent =  Decimal("%.1f" % (reads_containing_ambiguous_nucleotides / total_number_of_reads * 100.0))
+        percent =  reads_containing_ambiguous_nucleotides / total_number_of_reads * 100.0
 
     return [partition_id, percent]
 
@@ -129,7 +129,7 @@ def _partition_reads_containing_only_unambiguous_nucleotides(dbs, confs, partiti
     else:
         reads_containing_only_unambiguous_nucleotides = float(stats['reads_containing_only_unambiguous_nucleotides']) 
         total_number_of_reads = float(stats['total_number_of_reads']) 
-        percent =  Decimal("%.1f" % (reads_containing_only_unambiguous_nucleotides / total_number_of_reads * 100.0))
+        percent =  reads_containing_only_unambiguous_nucleotides / total_number_of_reads * 100.0
 
     return [partition_id, percent]
 
@@ -174,7 +174,7 @@ def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
     else:
         unique_reads = float(stats['unique_reads']) 
         total_number_of_reads = float(stats['total_number_of_reads']) 
-        percent =  Decimal("%.1f" % (unique_reads / total_number_of_reads * 100.0))
+        percent =  unique_reads / total_number_of_reads * 100.0
 
     return [partition_id,  percent]
 
@@ -320,14 +320,14 @@ def quality_score_by_position(dbs, confs):
                 found = False
                 for r in result:
                     if r[0] == position and r[partition_index+1] == None:
-                        r[partition_index+1] = Decimal("%.2f" % mean)
+                        r[partition_index+1] = mean
                         found = True
                         break
                 if found:
                     pass
                 else:
                     line = [None] * partition_length
-                    line[partition_index] = Decimal("%.2f" % mean)
+                    line[partition_index] = mean
                     result.append([position] + line)
     
     chart['table_data'] = result
