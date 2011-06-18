@@ -1,7 +1,7 @@
 from rnaseq.box.boxes import get_lines
 from rnaseq.box.config import PICKLED    
-from big.resource.utils import register_resource
-from big.resource.utils import get_dashboard_db
+from raisin.resource.utils import register_resource
+from raisin.resource.utils import get_dashboard_db
 
 @register_resource(resolution="project", partition=False)        
 def info(dbs, confs):

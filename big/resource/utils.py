@@ -1,5 +1,5 @@
 from root import stats_registry
-from big.mysqldb import run_method_using_mysqldb
+from raisin.mysqldb import run_method_using_mysqldb
 from restish import http
 
 def get_rna_type_display_mapping(dbs):

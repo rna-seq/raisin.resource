@@ -1,15 +1,15 @@
 from utils import run
-from big.resource.utils import get_rna_type_display_mapping
-from big.resource.utils import get_cell_type_display_mapping
-from big.resource.utils import get_compartment_display_mapping
-from big.resource.utils import get_experiment_chart
-from big.resource.utils import get_experiment_id
-from big.resource.utils import get_experiment_dict
-from big.resource.utils import get_experiment_result
-from big.resource.utils import get_experiment_order_by
-from big.resource.utils import get_experiment_labels
-from big.resource.utils import get_experiment_where
-from big.resource.utils import register_resource
+from utils import get_rna_type_display_mapping
+from utils import get_cell_type_display_mapping
+from utils import get_compartment_display_mapping
+from utils import get_experiment_chart
+from utils import get_experiment_id
+from utils import get_experiment_dict
+from utils import get_experiment_result
+from utils import get_experiment_order_by
+from utils import get_experiment_labels
+from utils import get_experiment_where
+from utils import register_resource
 
 @register_resource(resolution=None, partition=False)      
 def experiment_info(dbs, confs):

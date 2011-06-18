@@ -21,7 +21,7 @@ import splicing
 import discovery
 import download
 
-from big.mysqldb import run_method_using_mysqldb
+from raisin.mysqldb import run_method_using_mysqldb
 from utils import get_configurations
 log = logging.getLogger(__name__)
 

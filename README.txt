@@ -1,6 +1,6 @@
-= big.resource =
+= raisin.resource =
 
-This module contains the root for the big.restish server, defining what resources
+This module contains the root for the raisin.restish server, defining what resources
 are available under which URI.
 
 It then dispatches to one of the classes containing the methods used to deliver the
