@@ -1,0 +1,238 @@
+from utils import get_rna_type_display_mapping
+from utils import get_cell_type_display_mapping
+from utils import get_compartment_display_mapping
+from utils import get_experiment_id
+from utils import get_experiment_where
+from utils import get_experiment_dict
+from utils import register_resource
+
+@register_resource(resolution="run", partition=False)
+def run_info(dbs, confs):
+    chart = {}
+    chart['table_description'] = [('Read Length',        'number'),
+                                  ('Mismatches',         'number'),
+                                  ('Description',        'string'),
+                                  ('Date',               'string'),
+                                  ('Cell Type',          'string'),
+                                  ('RNA Type',           'string'),
+                                  ('Compartment',        'string'),
+                                  ('Bio Replicate',      'string'),
+                                  ('Partition',          'string'),
+                                  ('Species',            'string'),
+                                  ('Annotation Version', 'string'),
+                                  ('Annotation Source',  'string'),
+                                  ('Genome Assembly',    'string'),
+                                  ('Genome Source',      'string'),
+                                  ('Genome Gender',      'string'),
+                                  ('UCSC Custom Track',  'string'),
+                                 ]
+    result = []
+    conf = confs['configurations'][0]
+    sql = """
+select experiment_id,
+       project_id,
+       species_id,
+       genome_id,
+       annotation_id,
+       template_file,
+       read_length,
+       mismatches,
+       exp_description,
+       expDate,
+       CellType,
+       RNAType,
+       Compartment,
+       Bioreplicate,
+       partition
+from experiments 
+where project_id='%(projectid)s'
+      and experiment_id='%(runid)s'""" % conf
+    cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    
+    species_id = rows[0][2]
+    genome_id = rows[0][3]
+    annotation_id = rows[0][4]        
+    result.append(int(rows[0][6]))
+    result.append(int(rows[0][7]))
+    result.append(rows[0][8])
+    result.append(str(rows[0][9]))
+    # Use labels instead of the raw values
+    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10], rows[0][10]))
+    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11], rows[0][11]))
+    result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
+    result.append(rows[0][13])
+    result.append(rows[0][14])
+    sql = """
+select species_id,
+       species,
+       genus,
+       sp_alias,
+       abbreviation
+from species_info 
+where species_id='%s'
+""" % species_id
+    cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    result.append(rows[0][1])
+    
+    sql = """
+select annotation_id, 
+       species_id,
+       annotation,
+       location,
+       version,
+       source
+from annotation_files where annotation_id='%s'
+""" % annotation_id
+    cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    result.append(rows[0][4])
+    result.append(rows[0][5])
+
+    sql = """
+select genome_id,
+       species_id,
+       genome,
+       location,
+       assembly,
+       source,
+       gender
+from genome_files where genome_id='%s'
+""" % genome_id
+    cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    result.append(rows[0][4])
+    result.append(rows[0][5])
+    result.append(rows[0][6])
+    if conf['runid'] == 'Ging001N':
+        result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
+    else:
+        result.append("")        
+    chart['table_data'] = [result,]
+    return chart
+
+@register_resource(resolution=None, partition=False)
+def project_runs(dbs, confs):
+    conf = confs['configurations'][0]
+    projectid = conf['projectid']
+    
+    chart = {}
+    chart['table_description'] = [('Experiment Id',            'string'),
+                                  ('Project Id',               'string'),
+                                  ('Species',                  'string'),
+                                  ('Genome file name',         'string'),
+                                  ('Genome file location',     'string'),
+                                  ('Genome assembly',          'string'),
+                                  ('Genome gender',            'string'),
+                                  ('Annotation file name',     'string'),
+                                  ('Annotation file location', 'string'),
+                                  ('Annotation version',       'string'),
+                                  ('Template File',            'string'),
+                                  ('Read Length',              'number'),
+                                  ('Mismatches',               'number'),
+                                  ('Experiment Description',   'string'),
+                                  ('Experiment Date',          'string'),
+                                  ('Cell Type',                'string'),
+                                  ('RNA Type',                 'string'),
+                                  ('Compartment',              'string'),
+                                  ('Bioreplicate',             'string'),
+                                  ('Partition',                'string'),
+                                  ('URL',                      'string'),
+                                  ('Annotation Version',       'string'),
+                                  ('Lab',                      'string'),
+                                 ]
+            
+    sql = """
+select project_id,
+       experiment_id,
+       species_info.species,
+       genome_files.genome,
+       genome_files.location,
+       genome_files.assembly,
+       genome_files.gender,
+       annotation_files.annotation,
+       annotation_files.location,
+       annotation_files.version,
+       template_file,
+       read_length,
+       mismatches,
+       exp_description,
+       expDate,
+       CellType,
+       RNAType,
+       Compartment,
+       Bioreplicate,
+       partition,
+       annotation_version,
+       lab
+from experiments,
+     species_info,
+     genome_files,
+     annotation_files
+where 
+      project_id='%s'
+and
+      experiments.species_id = species_info.species_id
+and
+      experiments.genome_id = genome_files.genome_id
+and 
+      experiments.annotation_id = annotation_files.annotation_id;
+""" % projectid
+    cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    results = []
+    for row in rows:
+        # Augment the information from the database with a url and a text
+        row = list(row)
+        experimentid = get_experiment_id(confs, 
+                                         {'projectid':row[1],
+                                          'cell_type':row[15],
+                                          'rna_type':row[16],
+                                          'compartment':row[17],
+                                          'bio_replicate':row[18],
+                                          'partition':row[19],
+                                          'annotation_version':row[20],
+                                          'lab':row[21]
+                                          } )
+        row.append('/project/%s/experiment/%s/run/%s/statistics/overview' % (projectid, experimentid, row[1]) )
+        results.append(row)
+    chart['table_data'] = results
+    return chart
+
+
+@register_resource(resolution=None, partition=False)
+def experiment_runs(dbs, confs):
+    chart = {}
+    chart['table_description'] = [('Project Id',               'string'),
+                                  ('Experiment Id',            'string'),
+                                  ('Run Id',                   'string'),
+                                  ('Run Url',                  'string'),
+                                 ]
+
+    projectid = confs['kw']['projectid']
+    experimentid = confs['kw']['experimentid']
+
+    meta = get_experiment_dict(confs)    
+    # Only return the experiment infos if this is an official project
+    sql = """
+select experiment_id
+from experiments
+%s""" % get_experiment_where(confs, meta)
+    cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    runids = [row[0] for row in rows]
+    results = []
+    for runid in runids:
+        results.append( (projectid, 
+                         experimentid, 
+                         runid,
+                         '/project/%s/experiment/%s/run/%s/statistics/overview' % (projectid, experimentid, runid) ) )
+    chart['table_data'] = results
+    return chart

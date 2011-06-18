@@ -1,0 +1,19 @@
+* text=auto !eol
+/README.txt -text
+big/__init__.py -text
+big/resource/__init__.py -text
+big/resource/discovery.py -text
+big/resource/download.py -text
+big/resource/experiment.py -text
+big/resource/expression.py -text
+big/resource/mapping.py -text
+big/resource/project.py -text
+big/resource/read.py -text
+big/resource/root.py -text
+big/resource/run.py -text
+big/resource/splicing.py -text
+big/resource/tests/test_resource.py -text
+big/resource/utils.py -text
+/setup.cfg -text
+/setup.py -text
+/version.txt -text
