@@ -1,5 +1,5 @@
-from rnaseq.box.boxes import get_lines
-from rnaseq.box.config import PICKLED    
+from raisin.box.boxes import get_lines
+from raisin.box.config import PICKLED    
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
 
