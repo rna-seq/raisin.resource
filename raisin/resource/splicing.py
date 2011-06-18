@@ -64,19 +64,19 @@ def _percentage_splicing_summary(data, average_by):
                 value['percent'] = None
             else:
                 total = float(value['total']) / average_by
-                value['percent'] = Decimal( "%.1f" % (detected / total * 100.0))
+                value['percent'] = detected / total * 100.0
             if not detected is None:
-                value['detected'] = Decimal("%f" % detected)
+                value['detected'] = detected
                 
         result = []
         result.append( ('Known Junctions', 
-                        data['Known']['detected'], 
+                        int(data['Known']['detected']), 
                         data['Known']['percent']) )
         result.append( ('Novel Junctions from Annotated Exons', 
-                        data['Novel']['detected'], 
+                        int(data['Novel']['detected']), 
                         data['Novel']['percent']) )
         result.append( ('Novel Junctions from Unannotated Exons', 
-                        data['Unannotated']['detected'], 
+                        int(data['Unannotated']['detected']), 
                         data['Unannotated']['percent']) )
     return result
 
