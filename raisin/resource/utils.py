@@ -7,6 +7,8 @@ def get_rna_type_display_mapping(dbs):
 select ucscName, displayName 
 from rnaExtract"""
     dashboard_db = get_dashboard_db(dbs, 'hg19')
+    if dashboard_db is None:
+        return {}
     cursor = dashboard_db.query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -26,6 +28,8 @@ select ucscName,
        displayName 
 from cell"""
     dashboard_db = get_dashboard_db(dbs, 'hg19')
+    if dashboard_db is None:
+        return {}
     cursor = dashboard_db.query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -39,6 +43,8 @@ def get_compartment_display_mapping(dbs):
 select ucscName, displayName 
 from localization"""
     dashboard_db = get_dashboard_db(dbs, 'hg19')
+    if dashboard_db is None:
+        return {}
     cursor = dashboard_db.query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -126,12 +132,14 @@ def get_experiment_order_by(confs):
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
     parameter_labels = confs['request'].environ['parameter_labels']
-    order_by = """order by
-      %s;"""
+    order_by = ""
     by = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         by.append(parameter_columns[parameter])
-    order_by = order_by % ',\n      '.join(by)
+    if by:
+        order_by = """
+order by
+    %s;""" % ',\n      '.join(by)
     return order_by
     
 def get_experiment_where(confs, meta):
@@ -458,6 +466,4 @@ def get_dashboard_db(dbs, hgversion):
         if project_dbs.has_key(db):
             dashboard_db = project_dbs[db]
             break
-    if dashboard_db is None:
-        raise AttributeError
     return dashboard_db
