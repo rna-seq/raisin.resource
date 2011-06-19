@@ -65,6 +65,7 @@ def get_experiment_id(confs, meta, separator = '-'):
     meta['rna_type'] = meta['rna_type'] or '@'
     meta['annotation_version'] = meta['annotation_version'] or '@'
     meta['lab'] = meta['lab'] or '@'
+    meta['read_length'] = str(meta['read_length']) or '@'
     experimentid_parts = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         experimentid_parts.append(meta[parameter])
@@ -281,7 +282,8 @@ select project_id,
        Bioreplicate,
        partition,
        annotation_version,
-       lab
+       lab,
+       read_length
 from experiments
 where 
       project_id='%(projectid)s'
@@ -303,6 +305,7 @@ where
                                               'partition':row[5],
                                               'annotation_version':row[6],
                                               'lab':row[7],
+                                              'read_length':row[8],
                                               } )
     experiments = list(set(results.values()))
     experiments.sort()
