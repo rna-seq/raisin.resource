@@ -169,8 +169,7 @@ select project_id,
        Bioreplicate,
        partition,
        annotation_version,
-       lab,
-       read_length       
+       lab       
 from experiments,
      species_info,
      genome_files,
@@ -200,7 +199,7 @@ and
                                           'partition':row[19],
                                           'annotation_version':row[20],
                                           'lab':row[21],
-                                          'read_length':row[22]
+                                          'read_length':row[11]
                                           } )
         row.append('/project/%s/experiment/%s/run/%s/statistics/overview' % (projectid, experimentid, row[1]) )
         results.append(row)
