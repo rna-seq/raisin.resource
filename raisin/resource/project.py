@@ -179,56 +179,56 @@ def rnadashboard(dbs, confs):
     sql = """
 SELECT sample.grantName, 
        cell.displayName as cellName,
-       sample.cell, 
+       sample.cell,
        cell.tier,
        localization.displayName as localization, 
        localization.ucscName,
-       rnaExtract.displayName as rnaExtract, 
-       rnaExtract.ucscName, 
-       technology.displayName as technology, 
-       technology.name, 
-       file.atUcsc, 
-       fileType.rawType, 
-       sample.replicate as bioRep, 
-       sample.id as sample, 
-       sample.internalName, 
-       experiment.lab as expLab, 
+       rnaExtract.displayName as rnaExtract,
+       rnaExtract.ucscName,
+       technology.displayName as technology,
+       technology.name,
+       file.atUcsc,
+       fileType.rawType,
+       sample.replicate as bioRep,
+       sample.id as sample,
+       sample.internalName,
+       experiment.lab as expLab,
        experiment.readType,
        experiment.insertLength,
        experiment.techReplicate as techRep,
        experiment.id as expId,
-       file.fileType, 
-       file.fileView,
+       file.fileType,
+       fileView.displayName,
        file.lab as endLab,
-       file.url, 
+       file.url,
        file.size,
        fileView.deNovo
-FROM sample, 
-     technology, 
-     file, 
-     experiment, 
+FROM sample,
+     technology,
+     file,
+     experiment,
      fileType,
      localization,
      rnaExtract,
      cell,
      fileView
-WHERE 
+WHERE
       fileType != 'BAI'
-AND 
+AND
       file.experiment_data_processing = experiment.id
-AND 
+AND
       file.fileType = fileType.name
 AND
       file.fileView = fileView.name
-AND 
+AND
       experiment.sampleName = sample.id
-AND 
+AND
       experiment.technology = technology.name
-AND 
+AND
       sample.localization = localization.ucscName
-AND 
+AND
       sample.rnaExtract = rnaExtract.ucscName
-AND 
+AND
       sample.cell = cell.ucscName"""
     cursor = dashboard_db.query(sql)
 
