@@ -53,9 +53,6 @@ from localization"""
         mapping[row[0]] = row[1]
     return mapping
 
-def get_experiment_id(confs, meta, separator = '-'):
-    raise AttributeError
-
 def get_parameter_list(confs, meta, separator = '-'):
     projectid = confs['kw']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
