@@ -25,6 +25,7 @@ def run_info(dbs, confs):
                                   ('Genome Source',      'string'),
                                   ('Genome Gender',      'string'),
                                   ('UCSC Custom Track',  'string'),
+                                  ('Paired',             'number'),
                                  ]
     result = []
     conf = confs['configurations'][0]
@@ -43,7 +44,8 @@ select experiment_id,
        RNAType,
        Compartment,
        Bioreplicate,
-       partition
+       partition,
+       paired
 from experiments 
 where project_id='%(projectid)s'
       and experiment_id='%(runid)s'""" % conf
@@ -64,6 +66,7 @@ where project_id='%(projectid)s'
     result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
+    result.append(rows[0][15])
     sql = """
 select species_id,
        species,
@@ -169,7 +172,8 @@ select project_id,
        Bioreplicate,
        partition,
        annotation_version,
-       lab       
+       lab,
+       paired
 from experiments,
      species_info,
      genome_files,
@@ -193,6 +197,7 @@ and
         # Augment the information from the database with a url and a text
         meta = {'projectid': row[0],
                 'runid': row[1],
+                'read_length':row[11],
                 'cell_type': row[15],
                 'rna_type': row[16],
                 'compartment': row[17],
@@ -200,12 +205,11 @@ and
                 'partition': row[19],
                 'annotation_version': row[20],
                 'lab': row[21],
-                'read_length': row[11],
+                'paired':row[22],
                 'parameter_list': get_parameter_list(confs, meta),
                 'parameter_values': get_parameter_values(confs, meta),
                 }
         results.append(list(row) + [url % meta])
-
     chart['table_data'] = results
     return chart
 
