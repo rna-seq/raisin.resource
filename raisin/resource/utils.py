@@ -78,11 +78,12 @@ def get_parameter_values(confs, meta, separator = '-'):
     meta['rna_type'] = meta['rna_type'] or '@'
     meta['annotation_version'] = meta['annotation_version'] or '@'
     meta['lab'] = meta['lab'] or '@'
-    meta['read_length'] = str(meta['read_length']) or '@'
+    meta['read_length'] = meta['read_length'] or '@'
+    meta['paired'] = meta['paired'] or '@'
     experimentid_parts = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         experimentid_parts.append(meta[parameter])
-    experimentid = separator.join(experimentid_parts)
+    experimentid = separator.join([str(part) for part in experimentid_parts])
     return experimentid
 
 def get_experiment_dict(confs):
@@ -293,7 +294,8 @@ select project_id,
        partition,
        annotation_version,
        lab,
-       read_length
+       read_length,
+       paired
 from experiments
 where 
       project_id='%(projectid)s'
@@ -316,6 +318,7 @@ where
                                               'annotation_version':row[6],
                                               'lab':row[7],
                                               'read_length':row[8],
+                                              'paired':row[8],
                                               } )
     experiments = list(set(results.values()))
     experiments.sort()
