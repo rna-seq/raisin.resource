@@ -76,7 +76,10 @@ def get_parameter_values(confs, meta, separator = '-'):
     meta['annotation_version'] = meta['annotation_version'] or '@'
     meta['lab'] = meta['lab'] or '@'
     meta['read_length'] = meta['read_length'] or '@'
-    meta['paired'] = meta['paired'] or '@'
+    if meta['paired'] in [0, 1]:
+        pass
+    else:
+        meta['paired'] = 0
     experimentid_parts = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         experimentid_parts.append(meta[parameter])
@@ -131,7 +134,10 @@ def get_experiment_result(confs, meta):
     parameter_labels = confs['request'].environ['parameter_labels']
     number_of_runs = len(meta)
     meta = meta[0]
-    experimentid_parts = [meta['projectid'], meta['parameter_list'], meta['parameter_values'], str(number_of_runs)]
+    experimentid_parts = [meta['projectid'], 
+                          meta['parameter_list'],
+                          meta['parameter_values'], 
+                          str(number_of_runs)]
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         experimentid_parts.append(meta[parameter])
     return experimentid_parts
