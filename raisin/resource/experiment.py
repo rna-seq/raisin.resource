@@ -345,7 +345,6 @@ and
                 'parameter_list': get_parameter_list(confs, meta),
                 'parameter_values': get_parameter_values(confs, meta),
                 }
-        experimentid = get_experiment_id(confs, meta)
         row.append(url % meta)
         results.append(row)
     chart['table_data'] = results
