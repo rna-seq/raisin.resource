@@ -3,6 +3,7 @@ import os.path
 import pickle
 import logging
 from gvizapi import gviz_api
+from gvizapi.gviz_api import DataTableException
 try:
     import json
 except ImportError, e:
@@ -310,7 +311,15 @@ class Resource(resource.Resource):
                                body
                               )
             else:    
-                body = table.ToJSon()
+                try:
+                    body = table.ToJSon()
+                except DataTableException:
+                    print self.method
+                    print data['table_description'] 
+                    print data['table_data']
+                    raise
+                except:
+                    raise
                 return http.ok([
                                 ('Content-type', 'text/javascript'),
                                 ('Content-Length', len(body) ),
