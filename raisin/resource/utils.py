@@ -305,18 +305,20 @@ where
         if results.has_key(row):
             pass
         else:
-            results[row] = get_experiment_id(confs, 
-                                             {'projectid':projectid,
-                                              'cell_type':row[1],
-                                              'rna_type':row[2],
-                                              'compartment':row[3],
-                                              'bio_replicate':row[4],
-                                              'partition':row[5],
-                                              'annotation_version':row[6],
-                                              'lab':row[7],
-                                              'read_length':row[8],
-                                              'paired':row[8],
-                                              } )
+            meta = {'projectid':projectid,
+                    'cell_type':row[1],
+                    'rna_type':row[2],
+                    'compartment':row[3],
+                    'bio_replicate':row[4],
+                    'partition':row[5],
+                    'annotation_version':row[6],
+                    'lab':row[7],
+                    'read_length':row[8],
+                    'paired':ord(row[9])
+                   }
+            meta['parameter_list'] = get_parameter_list(confs, meta)
+            meta['parameter_values'] = get_parameter_values(confs, meta)
+            results[row] = meta['parameter_values']
     experiments = list(set(results.values()))
     experiments.sort()
     return experiments
