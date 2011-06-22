@@ -17,6 +17,7 @@ def run_info(dbs, confs):
                                   ('Compartment',        'string'),
                                   ('Bio Replicate',      'string'),
                                   ('Partition',          'string'),
+                                  ('Paired',             'number'),
                                   ('Species',            'string'),
                                   ('Annotation Version', 'string'),
                                   ('Annotation Source',  'string'),
@@ -24,7 +25,6 @@ def run_info(dbs, confs):
                                   ('Genome Source',      'string'),
                                   ('Genome Gender',      'string'),
                                   ('UCSC Custom Track',  'string'),
-                                  ('Paired',             'number'),
                                  ]
     result = []
     conf = confs['configurations'][0]
@@ -65,7 +65,7 @@ where project_id='%(projectid)s'
     result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
-    result.append(rows[0][15])
+    result.append(ord(rows[0][15]))
     sql = """
 select species_id,
        species,
@@ -124,8 +124,8 @@ def project_runs(dbs, confs):
     projectid = conf['projectid']
     
     chart = {}
-    chart['table_description'] = [('Experiment Id',            'string'),
-                                  ('Project Id',               'string'),
+    chart['table_description'] = [('Project Id',               'string'),
+                                  ('Experiment Id',            'string'),
                                   ('Species',                  'string'),
                                   ('Genome file name',         'string'),
                                   ('Genome file location',     'string'),
@@ -147,6 +147,7 @@ def project_runs(dbs, confs):
                                   ('URL',                      'string'),
                                   ('Annotation Version',       'string'),
                                   ('Lab',                      'string'),
+                                  ('Paired',                   'number'),
                                  ]
             
     sql = """
@@ -204,10 +205,10 @@ and
                 'partition': row[19],
                 'annotation_version': row[20],
                 'lab': row[21],
-                'paired':row[22],
-                'parameter_list': get_parameter_list(confs, meta),
-                'parameter_values': get_parameter_values(confs, meta),
-                }
+                'paired':ord(row[22]),
+               }
+        meta['parameter_list'] = get_parameter_list(confs, meta)
+        meta['parameter_values'] = get_parameter_values(confs, meta)
         results.append(list(row) + [url % meta])
     chart['table_data'] = results
     return chart
