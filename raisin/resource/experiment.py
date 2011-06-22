@@ -328,22 +328,25 @@ and
     rows = cursor.fetchall()
     cursor.close()
     results = []
+    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/statistics/overview'
     for row in rows:
         # Augment the information from the database with a url and a text
         row = list(row)
-        experimentid = get_experiment_id(confs, 
-                                         {'projectid':row[1],
-                                          'read_length':row[11],
-                                          'cell_type':row[15],
-                                          'rna_type':row[16],
-                                          'compartment':row[17],
-                                          'bio_replicate':row[18],
-                                          'partition':row[19],
-                                          'annotation_version':row[20],
-                                          'lab':row[21],
-                                          'paired':ord(row[22]),
-                                          } )
-        row.append('/project/%s/experiment/%s/statistics/overview' % (row[0], experimentid) )            
+        meta = {'projectid':row[1],
+                'read_length':row[11],
+                'cell_type':row[15],
+                'rna_type':row[16],
+                'compartment':row[17],
+                'bio_replicate':row[18],
+                'partition':row[19],
+                'annotation_version':row[20],
+                'lab':row[21],
+                'paired':ord(row[22]),
+                'parameter_list': get_parameter_list(confs, meta),
+                'parameter_values': get_parameter_values(confs, meta),
+                }
+        experimentid = get_experiment_id(confs, meta)
+        row.append(url % meta)
         results.append(row)
     chart['table_data'] = results
     return chart
