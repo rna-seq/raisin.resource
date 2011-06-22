@@ -25,6 +25,7 @@ def experiment_info(dbs, confs):
                                   ('Compartment',        'string'),
                                   ('Bio Replicate',      'string'),
                                   ('Partition',          'string'),
+                                  ('Paired',             'number'),
                                   ('Species',            'string'),
                                   ('Annotation Version', 'string'),
                                   ('Annotation Source',  'string'),
@@ -55,7 +56,8 @@ select experiment_id,
        RNAType,
        Compartment,
        Bioreplicate,
-       partition
+       partition,
+       paired
 from experiments 
 %s""" % get_experiment_where(confs, meta)
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
@@ -79,6 +81,7 @@ from experiments
     result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
+    result.append(ord(rows[0][15]))
     
     sql = """
 select species_id,
@@ -212,6 +215,7 @@ def experiments_configurations(dbs, confs):
     Compartment:   Experiments may have been prepared from different cell compartments
     Bioreplicate:  Experiments are done for a bio replicate
     partition:     Experiments can be done for samples coming from different conditions
+    paired:        Experiments can be done for paired end
     """
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
@@ -222,6 +226,7 @@ def experiments_configurations(dbs, confs):
                                   ('Compartment',              'string'),
                                   ('Bio Replicate',            'string'),
                                   ('Partition',                'string'),
+                                  ('Paired',                   'number'),
                                  ]
 
     results = []
@@ -242,7 +247,8 @@ select project_id,
        RNAType,
        Compartment,
        Bioreplicate,
-       partition
+       partition,
+       paired
 from experiments;""" 
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
@@ -278,6 +284,7 @@ def project_experiments(dbs, confs):
                                   ('URL',                      'string'),
                                   ('Annotation Version',       'string'),
                                   ('Lab',                      'string'),
+                                  ('Paired',                   'number'),
                                  ]
             
     sql = """
@@ -302,7 +309,8 @@ select project_id,
        Bioreplicate,
        partition,
        annotation_version,
-       lab
+       lab,
+       paired
 from experiments,
      species_info,
      genome_files,
@@ -325,6 +333,7 @@ and
         row = list(row)
         experimentid = get_experiment_id(confs, 
                                          {'projectid':row[1],
+                                          'read_length':row[11],
                                           'cell_type':row[15],
                                           'rna_type':row[16],
                                           'compartment':row[17],
@@ -332,7 +341,7 @@ and
                                           'partition':row[19],
                                           'annotation_version':row[20],
                                           'lab':row[21],
-                                          'read_length':row[11],
+                                          'paired':ord(row[22]),
                                           } )
         row.append('/project/%s/experiment/%s/statistics/overview' % (row[0], experimentid) )            
         results.append(row)
@@ -372,7 +381,8 @@ select experiment_id,
        Bioreplicate,
        partition,
        annotation_version,
-       lab
+       lab,
+       paired
 from experiments,
      species_info,
      genome_files,
@@ -398,6 +408,7 @@ and
     for row in rows:
         meta = {}
         meta['projectid'] = conf['projectid']
+        meta['read_length'] = row[10]
         meta['cell_type'] = row[14]
         meta['rna_type'] = row[15]
         meta['compartment'] = row[16]
@@ -405,7 +416,7 @@ and
         meta['partition'] = row[18]
         meta['annotation_version'] = row[19]
         meta['lab'] = row[20]
-        meta['read_length'] = row[10]
+        meta['paired'] = ord(row[21])
         meta['parameter_list'] = get_parameter_list(confs, meta)
         meta['parameter_values'] = get_parameter_values(confs, meta)
 
