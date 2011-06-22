@@ -3,7 +3,8 @@ from utils import get_rna_type_display_mapping
 from utils import get_cell_type_display_mapping
 from utils import get_compartment_display_mapping
 from utils import get_experiment_chart
-from utils import get_experiment_id
+from utils import get_parameter_list
+from utils import get_parameter_values
 from utils import get_experiment_dict
 from utils import get_experiment_result
 from utils import get_experiment_order_by
@@ -14,7 +15,6 @@ from utils import register_resource
 @register_resource(resolution=None, partition=False)      
 def experiment_info(dbs, confs):
     conf = confs['configurations'][0]
-    experimentid = conf['experimentid']
     chart = {}
     chart['table_description'] = [('Read Length',        'number'),
                                   ('Mismatches',         'number'),
@@ -126,7 +126,7 @@ from genome_files where genome_id='%s'
     result.append(rows[0][4])
     result.append(rows[0][5])
     result.append(rows[0][6])
-    if experimentid == 'Ging001N':
+    if rows[0][0] == 'Ging001N':
         result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
     else:
         result.append("")        
@@ -398,7 +398,6 @@ and
     for row in rows:
         meta = {}
         meta['projectid'] = conf['projectid']
-        meta['experimentid'] = row[0]
         meta['cell_type'] = row[14]
         meta['rna_type'] = row[15]
         meta['compartment'] = row[16]
@@ -407,15 +406,16 @@ and
         meta['annotation_version'] = row[19]
         meta['lab'] = row[20]
         meta['read_length'] = row[10]
-        meta['experimentid'] = get_experiment_id(confs, meta)
+        meta['parameter_list'] = get_parameter_list(confs, meta)
+        meta['parameter_values'] = get_parameter_values(confs, meta)
 
         if not raw:
             get_experiment_labels(meta, rna_types, cell_types, compartments)
 
-        if experimentids.has_key(meta['experimentid']):
-            experimentids[meta['experimentid']].append(meta)
+        if experimentids.has_key(meta['parameter_values']):
+            experimentids[meta['parameter_values']].append(meta)
         else:
-            experimentids[meta['experimentid']] = [meta]
+            experimentids[meta['parameter_values']] = [meta]
 
     results = []
     for key, value in experimentids.items():    

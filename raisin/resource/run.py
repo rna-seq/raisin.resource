@@ -186,23 +186,26 @@ and
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
+
+    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/statistics/overview'
     results = []
     for row in rows:
         # Augment the information from the database with a url and a text
-        row = list(row)
-        experimentid = get_experiment_id(confs, 
-                                         {'projectid':row[1],
-                                          'cell_type':row[15],
-                                          'rna_type':row[16],
-                                          'compartment':row[17],
-                                          'bio_replicate':row[18],
-                                          'partition':row[19],
-                                          'annotation_version':row[20],
-                                          'lab':row[21],
-                                          'read_length':row[11]
-                                          } )
-        row.append('/project/%s/experiment/%s/run/%s/statistics/overview' % (projectid, experimentid, row[1]) )
-        results.append(row)
+        meta = {'projectid': row[0],
+                'runid': row[1],
+                'cell_type': row[15],
+                'rna_type': row[16],
+                'compartment': row[17],
+                'bio_replicate': row[18],
+                'partition': row[19],
+                'annotation_version': row[20],
+                'lab': row[21],
+                'read_length': row[11],
+                'parameter_list': get_parameter_list(confs, meta),
+                'parameter_values': get_parameter_values(confs, meta),
+                }
+        results.append(list(row) + [url % meta])
+
     chart['table_data'] = results
     return chart
 
@@ -210,15 +213,15 @@ and
 @register_resource(resolution=None, partition=False)
 def experiment_runs(dbs, confs):
     chart = {}
-    chart['table_description'] = [('Project Id',               'string'),
-                                  ('Experiment Id',            'string'),
-                                  ('Run Id',                   'string'),
-                                  ('Run Url',                  'string'),
+    chart['table_description'] = [('Project Id',       'string'),
+                                  ('Parameter List',   'string'),
+                                  ('Parameter Values', 'string'),
+                                  ('Run Id',           'string'),
+                                  ('Run Url',          'string'),
                                  ]
-
     projectid = confs['kw']['projectid']
-    experimentid = confs['kw']['experimentid']
-
+    parameter_list = confs['kw']['parameter_list']
+    parameter_values = confs['kw']['parameter_values']
     meta = get_experiment_dict(confs)    
     # Only return the experiment infos if this is an official project
     sql = """
@@ -230,10 +233,14 @@ from experiments
     cursor.close()
     runids = [row[0] for row in rows]
     results = []
+    url = '/project/%s/%s/%s/run/%s/statistics/overview' 
     for runid in runids:
         results.append( (projectid, 
-                         experimentid, 
+                         parameter_list,
+                         parameter_values,
                          runid,
-                         '/project/%s/experiment/%s/run/%s/statistics/overview' % (projectid, experimentid, runid) ) )
+                         url % (projectid, parameter_list, parameter_values, runid),
+                        )
+                      )
     chart['table_data'] = results
     return chart

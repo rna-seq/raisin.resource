@@ -54,6 +54,19 @@ from localization"""
     return mapping
 
 def get_experiment_id(confs, meta, separator = '-'):
+    raise AttributeError
+
+def get_parameter_list(confs, meta, separator = '-'):
+    projectid = confs['kw']['projectid']
+    parameter_mapping = confs['request'].environ['parameter_mapping']
+    parameter_labels = confs['request'].environ['parameter_labels']
+    experimentid_parts = []
+    for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
+        experimentid_parts.append(parameter)
+    experimentid = separator.join(experimentid_parts)
+    return experimentid
+
+def get_parameter_values(confs, meta, separator = '-'):
     projectid = confs['kw']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
@@ -77,21 +90,17 @@ def get_experiment_dict(confs):
     Make a dict out of an experiment id
     """
     projectid = confs['kw']['projectid']
-    experimentid = confs['kw']['experimentid']
+    parameter_list = confs['kw']['parameter_list']
+    parameter_values = confs['kw']['parameter_values']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
-    elements = experimentid.split('-')
+    elements = parameter_values.split('-')
     meta = {'projectid':projectid,
-            'experimentid':experimentid}
-    if len(elements) != len(parameter_mapping.get(projectid, parameter_labels.keys())):
-        print projectid, parameter_mapping
-        raise AttributeError, "The number of elements in the experimentid '%s' should be %s, but it is %s" % (experimentid, len(parameter_mapping), len(elements))
+            'parameter_list':parameter_list,
+            'parameter_values':parameter_values}
     i = 0
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
-        try:
-            meta[parameter] = elements[i]
-        except:
-            import pdb; pdb.set_trace()
+        meta[parameter] = elements[i]
         i = i + 1
     return meta
 
@@ -108,9 +117,10 @@ def get_experiment_chart(confs):
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
     chart = {}
-    chart['table_description'] = [('Project id',    'string'),
-                                  ('Experiment id', 'string'),
-                                  ('# Runs',        'string'),
+    chart['table_description'] = [('Project id',       'string'),
+                                  ('Parameter List',   'string'),
+                                  ('Parameter Values', 'string'),
+                                  ('# Runs',           'string'),
                                  ]
     # Either take the parameter mapping defined for the project or take all parameters
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
@@ -123,7 +133,7 @@ def get_experiment_result(confs, meta):
     parameter_labels = confs['request'].environ['parameter_labels']
     number_of_runs = len(meta)
     meta = meta[0]
-    experimentid_parts = [meta['projectid'], meta['experimentid'], str(number_of_runs)]
+    experimentid_parts = [meta['projectid'], meta['parameter_list'], meta['parameter_values'], str(number_of_runs)]
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         experimentid_parts.append(meta[parameter])
     return experimentid_parts

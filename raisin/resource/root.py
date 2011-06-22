@@ -63,10 +63,10 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/runs" % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
-    @resource.child('project/{projectid}/experiment/{experimentid}/runs')
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/runs')
     def experiment_runs(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get('experiment_runs', (None, None, None, None))
-        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/runs"  % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/runs"  % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiments/table')
@@ -123,34 +123,34 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s" % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
-    @resource.child('project/{projectid}/experiment/{experimentid}/run/{runid}')
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/run/{runid}')
     def run_info(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get('run_info', (None, None, None, None))
-        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/run/%(runid)s/info"  % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/info"  % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
-    @resource.child('project/{projectid}/experiment/{experimentid}')
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}')
     def experiment_info(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get('experiment_info', (None, None, None, None))
-        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/info"  % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/info"  % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
-    @resource.child('project/{projectid}/experiment/{experimentid}/statistics/{stattype}/{statid}')
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/statistics/{stattype}/{statid}')
     def experiment_statistics(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get(kw['statid'], (None, None, None, None))
-        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/statistics/%(stattype)s/%(statid)s" % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/statistics/%(stattype)s/%(statid)s" % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
-    @resource.child('project/{projectid}/experiment/{experimentid}/run/{runid}/statistics/{stattype}/{statid}')
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/run/{runid}/statistics/{stattype}/{statid}')
     def run_statistics(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get(kw['statid'], (None, None, None, None))
-        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/run/%(runid)s/statistics/%(stattype)s/%(statid)s" % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/statistics/%(stattype)s/%(statid)s" % kw
         return Resource(method, level, resolution, partition,  cachefilebase, **kw), segments
 
-    @resource.child('project/{projectid}/experiment/{experimentid}/run/{runid}/lane/{laneid}/statistics/{stattype}/{statid}')
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/run/{runid}/lane/{laneid}/statistics/{stattype}/{statid}')
     def lane_statistics(self, request, segments, **kw):
         method, level, resolution, partition = stats_registry.get(kw['statid'], (None, None, None, None))
-        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/run/%(runid)s/lane/%(laneid)s/statistics/%(stattype)s/%(statid)s" % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/lane/%(laneid)s/statistics/%(stattype)s/%(statid)s" % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
 class Resource(resource.Resource):
@@ -164,7 +164,10 @@ class Resource(resource.Resource):
         
         # Check the values passed in through the URL to avoid SQL injection
         for key, value in kw.items():
-            if key == 'experimentid':
+            if key == 'parameter_list':
+                if not value.replace('-', '').replace('_', '').replace('.', '').isalnum():
+                    raise AttributeError
+            elif key == 'parameter_values':
                 if not value.replace('-', '').replace('_', '').replace('.', '').isalnum():
                     raise AttributeError
             elif key == 'runid':
