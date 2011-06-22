@@ -1,7 +1,6 @@
 from utils import get_rna_type_display_mapping
 from utils import get_cell_type_display_mapping
 from utils import get_compartment_display_mapping
-from utils import get_experiment_id
 from utils import get_experiment_where
 from utils import get_experiment_dict
 from utils import register_resource
