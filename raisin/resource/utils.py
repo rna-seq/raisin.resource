@@ -88,21 +88,25 @@ def get_parameter_values(confs, meta, separator = '-'):
 
 def get_experiment_dict(confs):
     """
-    Make a dict out of an experiment id
+    Make a dict out of the parameters defined in parameter_list and parameter_values
     """
     projectid = confs['kw']['projectid']
-    parameter_list = confs['kw']['parameter_list']
-    parameter_values = confs['kw']['parameter_values']
+
+    parameter_list = confs['kw']['parameter_list'].split('-')
+    parameter_values = confs['kw']['parameter_values'].split('-')
+
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
-    elements = parameter_values.split('-')
+
     meta = {'projectid':projectid,
             'parameter_list':parameter_list,
             'parameter_values':parameter_values}
-    i = 0
+
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
-        meta[parameter] = elements[i]
-        i = i + 1
+        if parameter in parameter_list:
+            # Take the parameter out of the parameter_values from the same position
+            # as the parameter in the parameter_list.
+            meta[parameter] = parameter_values[parameter_list.index(parameter)]
     return meta
 
 def get_experiment_labels(meta, rna_types, cell_types, compartments):
@@ -162,6 +166,8 @@ def get_experiment_where(confs, meta):
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
     parameter_labels = confs['request'].environ['parameter_labels']
+    parameter_list = confs['kw']['parameter_list'].split('-')
+    parameter_values = confs['kw']['parameter_values'].split('-')
     where = """where 
     project_id='%s'
 and
@@ -170,7 +176,10 @@ order by
     experiment_id;"""
     ands = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
-        ands.append("%s = '%s'" % (parameter_columns[parameter], meta[parameter]))
+        if parameter in parameter_list:
+            # Take the parameter out of the parameter_values from the same position
+            # as the parameter in the parameter_list.
+            ands.append("%s = '%s'" % (parameter_columns[parameter], meta[parameter]))
     return where % (meta['projectid'], '\nand\n    '.join(ands))
 
 def get_experiment_runs(dbs, confs):
