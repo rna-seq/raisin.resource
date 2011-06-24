@@ -76,6 +76,12 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/experiments/table" % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
+    @resource.child('project/{projectid}/experiment/subset/{parameter_list}/{parameter_values}')
+    def project_experiment_subset(self, request, segments, **kw):
+        method, level, resolution, partition  = stats_registry.get('project_experiment_subset', (None, None, None, None))
+        cachefilebase = "project/%(projectid)s/experiment/subset/%(parameter_list)s/%(parameter_values)s" % kw
+        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+
     @resource.child('project/{projectid}/downloads')
     def project_downloads(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get('project_downloads', (None, None, None, None))
