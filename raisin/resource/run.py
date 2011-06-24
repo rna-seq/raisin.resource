@@ -235,7 +235,9 @@ def experiment_runs(dbs, confs):
     sql = """
 select experiment_id
 from experiments
-%s""" % get_experiment_where(confs, meta)
+%s
+order by 
+    experiment_id;""" % get_experiment_where(confs, meta)
     cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
