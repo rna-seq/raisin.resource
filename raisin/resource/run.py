@@ -1,8 +1,10 @@
 from utils import get_rna_type_display_mapping
 from utils import get_cell_type_display_mapping
 from utils import get_compartment_display_mapping
+from utils import get_parameter_list
 from utils import get_experiment_where
 from utils import get_experiment_dict
+from utils import get_parameter_values
 from utils import register_resource
 
 @register_resource(resolution="run", partition=False)
@@ -125,7 +127,7 @@ def project_runs(dbs, confs):
     
     chart = {}
     chart['table_description'] = [('Project Id',               'string'),
-                                  ('Experiment Id',            'string'),
+                                  ('Run Id',                   'string'),
                                   ('Species',                  'string'),
                                   ('Genome file name',         'string'),
                                   ('Genome file location',     'string'),
@@ -144,10 +146,10 @@ def project_runs(dbs, confs):
                                   ('Compartment',              'string'),
                                   ('Bioreplicate',             'string'),
                                   ('Partition',                'string'),
-                                  ('URL',                      'string'),
                                   ('Annotation Version',       'string'),
                                   ('Lab',                      'string'),
                                   ('Paired',                   'number'),
+                                  ('URL',                      'string'),
                                  ]
             
     sql = """
@@ -194,6 +196,8 @@ and
     url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/statistics/overview'
     results = []
     for row in rows:
+        row = list(row)
+        row[22] = ord(row[22])
         # Augment the information from the database with a url and a text
         meta = {'projectid': row[0],
                 'runid': row[1],
@@ -205,11 +209,11 @@ and
                 'partition': row[19],
                 'annotation_version': row[20],
                 'lab': row[21],
-                'paired':ord(row[22]),
+                'paired':row[22],
                }
         meta['parameter_list'] = get_parameter_list(confs, meta)
         meta['parameter_values'] = get_parameter_values(confs, meta)
-        results.append(list(row) + [url % meta])
+        results.append(row + [url % meta])
     chart['table_data'] = results
     return chart
 
