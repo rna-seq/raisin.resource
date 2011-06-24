@@ -170,7 +170,6 @@ def get_experiment_where(confs, meta):
     parameter_values = confs['kw']['parameter_values'].split('-')
     where = """where 
     project_id='%s'
-and
     %s
 order by 
     experiment_id;"""
