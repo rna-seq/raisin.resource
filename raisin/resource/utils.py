@@ -168,18 +168,17 @@ def get_experiment_where(confs, meta):
     parameter_labels = confs['request'].environ['parameter_labels']
     parameter_list = confs['kw']['parameter_list'].split('-')
     parameter_values = confs['kw']['parameter_values'].split('-')
-    where = """where 
-    project_id='%s'
-    %s
+    where = """where
+%s
 order by 
     experiment_id;"""
-    ands = []
+    ands = ["project_id='%s'" % meta['projectid']]
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         if parameter in parameter_list:
             # Take the parameter out of the parameter_values from the same position
             # as the parameter in the parameter_list.
             ands.append("%s = '%s'" % (parameter_columns[parameter], meta[parameter]))
-    return where % (meta['projectid'], '\nand\n    '.join(ands))
+    return where % ('\nand\n    '.join(ands))
 
 def get_experiment_runs(dbs, confs):
     meta = get_experiment_dict(confs)
