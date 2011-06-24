@@ -95,6 +95,9 @@ def get_experiment_dict(confs):
     parameter_list = confs['kw']['parameter_list'].split('-')
     parameter_values = confs['kw']['parameter_values'].split('-')
 
+    if len(parameter_list) != len(parameter_values):
+        raise AttributeError
+
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
 
