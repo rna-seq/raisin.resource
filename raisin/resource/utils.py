@@ -173,8 +173,7 @@ def get_experiment_where(confs, meta):
     parameter_values = confs['kw']['parameter_values'].split('-')
     where = """where
 %s
-order by 
-    experiment_id;"""
+"""
     ands = ["project_id='%s'" % meta['projectid']]
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         if parameter in parameter_list:
@@ -189,7 +188,9 @@ def get_experiment_runs(dbs, confs):
     sql = """
 select experiment_id
 from experiments
-%s""" % get_experiment_where(confs, meta)
+%s
+order by 
+    experiment_id;""" % get_experiment_where(confs, meta)
     cursor = dbs[confs['kw']['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
