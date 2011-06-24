@@ -253,7 +253,12 @@ from experiments;"""
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    return rows
+    results = []
+    for row in rows:
+        row = list(row)
+        row[8] = ord(row[8])
+        results.append(row) 
+    return results
 
 @register_resource(resolution='project', partition=False)
 def project_experiments(dbs, confs):
