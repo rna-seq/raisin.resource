@@ -266,8 +266,8 @@ def project_experiments(dbs, confs):
     projectid = conf['projectid']
 
     chart = {}
-    chart['table_description'] = [('Experiment Id',            'string'),
-                                  ('Project Id',               'string'),
+    chart['table_description'] = [('Project Id',               'string'),
+                                  ('Run Id',                   'string'),
                                   ('Species',                  'string'),
                                   ('Genome file name',         'string'),
                                   ('Genome file location',     'string'),
@@ -286,10 +286,10 @@ def project_experiments(dbs, confs):
                                   ('Compartment',              'string'),
                                   ('Bioreplicate',             'string'),
                                   ('Partition',                'string'),
-                                  ('URL',                      'string'),
                                   ('Annotation Version',       'string'),
                                   ('Lab',                      'string'),
                                   ('Paired',                   'number'),
+                                  ('URL',                      'string'),
                                  ]
             
     sql = """
@@ -337,6 +337,7 @@ and
     for row in rows:
         # Augment the information from the database with a url and a text
         row = list(row)
+        row[22] = ord(row[22])
         meta = {'projectid':row[1],
                 'read_length':row[11],
                 'cell_type':row[15],
@@ -346,10 +347,9 @@ and
                 'partition':row[19],
                 'annotation_version':row[20],
                 'lab':row[21],
-                'paired':ord(row[22]),
-                'parameter_list': get_parameter_list(confs, meta),
-                'parameter_values': get_parameter_values(confs, meta),
-                }
+                'paired':row[22]}
+        meta['parameter_list'] = get_parameter_list(confs, meta)
+        meta['parameter_values'] = get_parameter_values(confs, meta)
         row.append(url % meta)
         results.append(row)
     chart['table_data'] = results
