@@ -59,7 +59,9 @@ select experiment_id,
        partition,
        paired
 from experiments 
-%s""" % get_experiment_where(confs, meta)
+%s
+order by 
+    experiment_id;""" % get_experiment_where(confs, meta)
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -355,15 +357,19 @@ and
     chart['table_data'] = results
     return chart
 
-@register_resource(resolution='project', partition=False)    
-def project_experimentstableraw(dbs, confs):
-    return _project_experimentstable(dbs, confs, raw=True)
-    
-@register_resource(resolution='project', partition=False)    
-def project_experimentstable(dbs, confs):
-    return _project_experimentstable(dbs, confs, raw=False)
+@register_resource(resolution='project', partition=False)
+def project_experiment_subset(dbs, confs):
+    return _project_experimentstable(dbs, confs, raw=True, where=True)
 
-def _project_experimentstable(dbs, confs, raw=True):
+@register_resource(resolution='project', partition=False)
+def project_experimentstableraw(dbs, confs):
+    return _project_experimentstable(dbs, confs, raw=True, where=False)
+    
+@register_resource(resolution='project', partition=False)
+def project_experimentstable(dbs, confs):
+    return _project_experimentstable(dbs, confs, raw=False, where=False)
+
+def _project_experimentstable(dbs, confs, raw=True, where=False):
     chart = get_experiment_chart(confs)
     conf = confs['configurations'][0]
     # Only return the experiment infos if this is an official project
@@ -394,15 +400,31 @@ from experiments,
      species_info,
      genome_files,
      annotation_files
-where 
+"""
+    if where:
+        meta = get_experiment_dict(confs)
+        sql = """%s
+%s
+and
+""" % (sql, get_experiment_where(confs, meta))
+    else:
+        sql = """%s
+where
+    project_id = '%s'
+and
+""" % (sql, conf['projectid'])
+
+    sql = """%s
       experiments.species_id = species_info.species_id
 and
       experiments.genome_id = genome_files.genome_id
 and 
       experiments.annotation_id = annotation_files.annotation_id
-and   
-      project_id = '%s'
-%s""" % (conf['projectid'], get_experiment_order_by(confs))
+""" % sql
+
+    sql = """%s
+%s""" % (sql, get_experiment_order_by(confs))
+
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
