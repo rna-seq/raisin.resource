@@ -235,7 +235,7 @@ def gene_expression_levels(dbs, confs):
     """
     Implement a greedy strategy of getting just enough of the top rpkms from any lane to be 
     sure to be able to finish the selection of at least 100 genes.
-    The selection process gives each lane a chance to contribute using a round robin strategy.
+    The selection process gives each lane a chance to contribute using randomization strategy.
     Minimally, a lane may contribute 0 genes, which is the case when we have not found
     any gene from this lane after 100 rounds.
     Maximally, a lane can contribute 100 genes if all of the top genes come from one
@@ -250,100 +250,87 @@ def gene_expression_levels(dbs, confs):
     """
     chart = {}
 
-    lanes = [conf['laneid'] for conf in confs['configurations']]
-
-    projectid = confs['configurations'][0]['projectid']
-    runid = confs['configurations'][0]['runid']
-
-    by_lane = {}
+    top_genes = {}
     for conf in confs['configurations']:
-        lane = lane_gene_expression_levels(dbs, conf)
-        # Just take out the names of the top genes
-        lane['table_description'].reverse()
-        lane['table_description'].pop()
-        by_lane[conf['laneid']] = lane['table_description']
-        
+        top_genes[(conf['runid'], conf['laneid'])] =  _top_gene_expression_levels(dbs, conf)
+        # Reverse because then the items are popped starting with the highest expressed
+        top_genes[(conf['runid'], conf['laneid'])].reverse()
+
+    # Compose the random seed from the laneids
+    random.seed(tuple([conf['laneid'] for conf in confs['configurations']]))
+
+    # These keys can be used to select from the top genes
+    runid_laneid_keys = top_genes.keys()
+    
     genes = []
-    lanes_to_poll = lanes * 100
-    lanes_to_poll.reverse()
-    result = []
     while len(genes) < 100:
-        laneid = lanes_to_poll.pop()
+        # Take out a random runid and laneid to choose the next gene candidate
+        runid, laneid = random.choice(runid_laneid_keys)
         try:
-            gene, ignore = by_lane[laneid].pop()
+            gene = top_genes[(runid, laneid)].pop()
         except IndexError:
             # This lane does not provide any more values
             continue
         if not gene in genes:
             genes.append(gene)
-        
+
+    print genes
+    
     columns = [('Gene Name', 'string'),]
     # Assemble the columns consisting of the gene names
     for gene in genes:
         columns.append( (gene, 'number') )
-
     chart['table_description'] = columns
 
-    lane_rows = {}
-    for lane in lanes:
-        lane_rows[lane] = [0] * 100
-             
-    # For each gene, we need the value for all the lanes
-    sql = """
-select gene_id, 
-       RPKM, 
-       LaneName 
-from %s_%s_gene_RPKM 
-where gene_id in ('%s')""" % (projectid, runid, "','".join(genes))
-    cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
-    rows = cursor.fetchall()
-    cursor.close()
-
-    for row in rows:
-        if row[2] in lanes:
-            # get the RPKM for all genes and lanes
-            gene_id, RPKM, LaneName = row[0], row[1], row[2]
-            # Now sort them into the right lane, taking into account the position
-            # of the gene in the reference lane
-            lane_rows[LaneName][genes.index(gene_id)] = RPKM
-
     result = []
-    # Put the rows into the table ordered by the lane name
-    for lane in lanes:
-        result.append([lane] + lane_rows[lane])
+    for conf in confs['configurations']:
+        selected = _selected_gene_expression_levels(dbs, conf, genes)
+        ordered = []
+        for gene in genes:
+            ordered.append(selected.get(gene, None))
+        result.append(["%(runid)s %(laneid)s" % conf] + ordered)
 
     chart['table_data'] = result
     return chart
 
-def lane_gene_expression_levels(dbs, conf):
+def _top_gene_expression_levels(dbs, conf):
     chart = {}
-        
-    # Get the Top genes for all lanes limited by 100*#lanes
+    # Get the Top 100 genes for a lane
     sql = """
-select gene_id,
-       RPKM
-from %(projectid)s_%(runid)s_gene_RPKM 
-where LaneName = '%(laneid)s'
-order by RPKM desc 
+select 
+    gene_id
+from 
+    %(projectid)s_%(runid)s_gene_RPKM 
+where 
+    LaneName = '%(laneid)s'
+order by 
+    RPKM desc 
 limit 100""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
-    # Assemble the list of genes
     rows = cursor.fetchall()
     cursor.close()
+    return [row[0] for row in rows]
 
-    columns = [('Gene Name', 'string'),]
-    rpkms = []
-    for gene_id, RPKM in rows:
-        # Assemble the columns consisting of the gene names
-        columns.append( (gene_id, 'number') )
-        rpkms.append(RPKM)
-
-    result = []
-    result.append( [conf['laneid']] + rpkms )
-
-    chart['table_description'] = columns
-    chart['table_data'] = result
-    return chart
+def _selected_gene_expression_levels(dbs, conf, genes):
+    # For each gene, we need the value for all the lanes
+    sql = """
+select 
+    gene_id,
+    RPKM 
+from
+    %(projectid)s_%(runid)s_gene_RPKM 
+where
+    LaneName = '%(laneid)s'""" % conf
+    sql = """%s
+and
+    gene_id in ('%s')""" % (sql, "','".join(genes))
+    cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    result = {}
+    for row in rows:
+        result[row[0]] = row[1]
+    return result
 
 @register_resource(resolution="lane", partition=False)
 def top_genes(dbs, confs, dumper=None):
