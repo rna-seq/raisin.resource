@@ -130,6 +130,12 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s" % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/rnadashboard/{hgversion}/results')
+    def rnadashboard_results(self, request, segments, **kw):
+        method, level, resolution, partition  = stats_registry.get('rnadashboard_results', (None, None, None, None))
+        cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/results" % kw
+        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/run/{runid}')
     def run_info(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get('run_info', (None, None, None, None))
