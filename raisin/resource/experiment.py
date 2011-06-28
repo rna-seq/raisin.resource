@@ -335,7 +335,7 @@ and
     rows = cursor.fetchall()
     cursor.close()
     results = []
-    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/statistics/overview'
+    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/statistics/experiments'
     for row in rows:
         # Augment the information from the database with a url and a text
         row = list(row)
