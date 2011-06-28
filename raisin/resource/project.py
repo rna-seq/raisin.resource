@@ -32,7 +32,7 @@ def projects(dbs, confs):
                                  ]
     results = []
     for projectid in dbs.keys():
-        results.append( (projectid, '/project/%s/' % projectid) )
+        results.append( (projectid, '/project/%s/statistics/experiments/' % projectid) )
     chart['table_data'] = results
     return chart
     
@@ -299,6 +299,11 @@ def rnadashboard_results(dbs, confs):
     description.append(('Experiment Id',            'string'))
 
     chart['table_description'] = description
+
+    # XXX Only ENCODE has dashboard
+    if not confs['configurations'][0]['projectid'] == 'ENCODE':
+        chart['table_data'] = []
+        return chart
 
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])    
 
