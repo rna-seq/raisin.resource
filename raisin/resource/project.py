@@ -2,6 +2,7 @@ from raisin.box.boxes import get_lines
 from raisin.box.config import PICKLED    
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
+from raisin.resource.utils import get_experiment_dict
 
 @register_resource(resolution="project", partition=False)        
 def info(dbs, confs):
@@ -263,5 +264,125 @@ def project_downloads(dbs, confs):
         table.append( [filename % id, title, category, ftp % (projectid, id)] )
     
     chart['table_data'] = table
+    return chart
+        
+        
+@register_resource(resolution=None, partition=False) 
+def rnadashboard_results(dbs, confs):
+    chart = {}
+    description = []
+    description.append(('File Type',                'string'))
+    description.append(('File View',                'string'))
+    description.append(('File Lab',                 'string'))
+    description.append(('File URL',                 'string'))
+    description.append(('File Size',                'string'))
+    description.append(('File View de novo',        'number'))
+    description.append(('Sample Grant Name',        'string'))
+    description.append(('Cell Type',                'string'))
+    description.append(('Cell Type Id',             'string'))
+    description.append(('Tier',                     'number'))
+    description.append(('Localization',             'string'))
+    description.append(('Localization Id',          'string'))
+    description.append(('RNA Extract',              'string'))
+    description.append(('RNA Extract Id',           'string'))
+    description.append(('Technology',               'string'))
+    description.append(('Technology Id',            'string'))
+    description.append(('File at UCSC',             'number'))
+    description.append(('File Raw Type',            'number'))
+    description.append(('Sample Replicate',         'number'))
+    description.append(('Sample Id',                'string'))
+    description.append(('Sample Internal Name',     'string'))
+    description.append(('Experiment Lab',           'string'))
+    description.append(('Experiment Read Type',     'string'))
+    description.append(('Experiment Insert Length', 'string'))
+    description.append(('Experiment Tech Replicate','number'))
+    description.append(('Experiment Id',            'string'))
+
+    chart['table_description'] = description
+
+    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])    
+
+    wheres = ""
+    meta = get_experiment_dict(confs)
+    if meta.has_key('cell_type'):
+        wheres = wheres + """
+AND  
+    sample.cell = '%(cell_type)s'""" % meta
+
+    if meta.has_key('compartment'):
+        wheres = wheres + """
+AND  
+    sample.localization = '%(compartment)s'""" % meta
+
+    if meta.has_key('rna_type'):
+        wheres = wheres + """
+AND  
+    sample.rnaExtract = '%(rna_type)s'""" % meta
+
+    if meta.has_key('lab'):
+        wheres = wheres + """
+AND  
+    file.lab = '%(lab)s'""" % meta
+
+    sql = """
+SELECT file.fileType,
+       fileView.displayName,
+       file.lab as endLab,
+       file.url,
+       file.size,
+       fileView.deNovo,
+       sample.grantName, 
+       cell.displayName as cellName,
+       sample.cell,
+       cell.tier,
+       localization.displayName as localization, 
+       localization.ucscName,
+       rnaExtract.displayName as rnaExtract,
+       rnaExtract.ucscName,
+       technology.displayName as technology,
+       technology.name,
+       file.atUcsc,
+       fileType.rawType,
+       sample.replicate as bioRep,
+       sample.id as sample,
+       sample.internalName,
+       experiment.lab as expLab,
+       experiment.readType,
+       experiment.insertLength,
+       experiment.techReplicate as techRep,
+       experiment.id as expId
+FROM sample,
+     technology,
+     file,
+     experiment,
+     fileType,
+     localization,
+     rnaExtract,
+     cell,
+     fileView
+WHERE
+      fileType != 'BAI'
+AND
+      file.experiment_data_processing = experiment.id
+AND
+      file.fileType = fileType.name
+AND
+      file.fileView = fileView.name
+AND
+      experiment.sampleName = sample.id
+AND
+      experiment.technology = technology.name
+AND
+      sample.localization = localization.ucscName
+AND
+      sample.rnaExtract = rnaExtract.ucscName
+AND
+      sample.cell = cell.ucscName
+%s""" % wheres
+    cursor = dashboard_db.query(sql)
+
+    rows = cursor.fetchall()
+    cursor.close()
+    chart['table_data'] = rows
     return chart
         
