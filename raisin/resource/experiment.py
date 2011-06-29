@@ -488,9 +488,14 @@ def project_experiment_subset_selection(dbs, confs):
                 subsets.append(parameter) 
 
     variations = {}
+    variation_count = {}
     for experiment_list in experimentids.values():
-        for experiment in experiment_list:
-            for parameter in parameter_mapping[projectid]:
+        for parameter in parameter_mapping[projectid]:
+            if variation_count.has_key(parameter):
+                variation_count[parameter].append(experiment_list[0][parameter])
+            else:
+                variation_count[parameter] = [experiment_list[0][parameter]]
+            for experiment in experiment_list:
                 if parameter in experiment:
                     if variations.has_key(parameter):
                         variations[parameter].add(experiment[parameter])
@@ -505,18 +510,21 @@ def project_experiment_subset_selection(dbs, confs):
                 links.append(('%s-%s' % (confs['kw']['parameter_list'], subset), 
                               '%s-%s' % (confs['kw']['parameter_values'], variation),
                               parameter_labels[subset][0],
-                              variation
+                              variation,
+                              subset,
                               ))
     
     chart = {}
     chart['table_description'] = [('Project',               'string'),
                                   ('Parameter Names',       'string'),
                                   ('Parameter Values',      'string'),
-                                  ('Parameter Name',        'string'),
+                                  ('Parameter Type',        'string'),
                                   ('Parameter Value',       'string'),
+                                  ('Subset',                'string'),
+                                  ('Number',                'number'),
                                  ]    
     chart['table_data'] = []
-    for names, values, name, value in links:
-        chart['table_data'].append ( (projectid,  names, values, name, str(value)) )
+    for names, values, name, value, subset in links:
+        chart['table_data'].append ( (projectid,  names, values, name, str(value), variation_count[subset].count(value)) )
 
     return chart
