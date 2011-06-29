@@ -520,11 +520,10 @@ def project_experiment_subset_selection(dbs, confs):
                                   ('Parameter Values',      'string'),
                                   ('Parameter Type',        'string'),
                                   ('Parameter Value',       'string'),
-                                  ('Subset',                'string'),
-                                  ('Number',                'number'),
+                                  ('Number of experiments for this Parameter Value', 'string'),
                                  ]    
     chart['table_data'] = []
     for names, values, name, value, subset in links:
-        chart['table_data'].append ( (projectid,  names, values, name, str(value), variation_count[subset].count(value)) )
+        chart['table_data'].append ( (projectid,  names, values, name, str(value), str(variation_count[subset].count(value))) )
 
     return chart
