@@ -371,6 +371,15 @@ def project_experimentstable(dbs, confs):
 
 def _project_experimentstable(dbs, confs, raw=True, where=False):
     chart = get_experiment_chart(confs)
+    experimentids = _project_experimentstable_experiments(dbs, confs, raw, where)
+    results = []
+    for key, value in experimentids.items():    
+        results.append(get_experiment_result(confs, value))
+    results.sort()
+    chart['table_data'] = results
+    return chart
+
+def _project_experimentstable_experiments(dbs, confs, raw=True, where=False):
     conf = confs['configurations'][0]
     # Only return the experiment infos if this is an official project
     sql = """
@@ -456,12 +465,58 @@ and
             experimentids[meta['parameter_values']].append(meta)
         else:
             experimentids[meta['parameter_values']] = [meta]
+    return experimentids
+    
+@register_resource(resolution='project', partition=False)
+def project_experiment_subset_selection(dbs, confs):
+    experimentids = _project_experimentstable_experiments(dbs, confs, raw=True, where=True)    
+    conf = confs['configurations'][0]
+    projectid = conf['projectid']
+    table = _project_experimentstable(dbs, confs, raw=True, where=True)
+    meta = get_experiment_dict(confs)
+    parameter_mapping = confs['request'].environ['parameter_mapping']
+    parameter_labels = confs['request'].environ['parameter_labels']
 
-    results = []
-    for key, value in experimentids.items():    
-        results.append(get_experiment_result(confs, value))
+    subsets = []
+    supersets = []
+    for parameter in parameter_mapping[projectid]:
+        if parameter in meta['parameter_list']:
+            if meta.has_key(parameter):
+                supersets.append(parameter) 
+        else:
+            if not meta.has_key(parameter):
+                subsets.append(parameter) 
 
-    results.sort()
+    variations = {}
+    for experiment_list in experimentids.values():
+        for experiment in experiment_list:
+            for parameter in parameter_mapping[projectid]:
+                if parameter in experiment:
+                    if variations.has_key(parameter):
+                        variations[parameter].add(experiment[parameter])
+                    else:
+                        variations[parameter] = set([experiment[parameter]])
 
-    chart['table_data'] = results
+    links = []
+
+    for subset in subsets:
+        if len(variations[subset]) > 1:
+            for variation in variations[subset]:
+                links.append(('%s-%s' % (confs['kw']['parameter_list'], subset), 
+                              '%s-%s' % (confs['kw']['parameter_values'], variation),
+                              parameter_labels[subset][0],
+                              variation
+                              ))
+    
+    chart = {}
+    chart['table_description'] = [('Project',               'string'),
+                                  ('Parameter Names',       'string'),
+                                  ('Parameter Values',      'string'),
+                                  ('Parameter Name',        'string'),
+                                  ('Parameter Value',       'string'),
+                                 ]    
+    chart['table_data'] = []
+    for names, values, name, value in links:
+        chart['table_data'].append ( (projectid,  names, values, name, str(value)) )
+
     return chart
