@@ -83,8 +83,10 @@ order by
     result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
-    result.append(ord(rows[0][15]))
-    
+    result.append(rows[0][15])
+    if not result[-1] is None:
+        result[-1] = ord(result[-1])
+
     sql = """
 select species_id,
        species,
@@ -258,7 +260,8 @@ from experiments;"""
     results = []
     for row in rows:
         row = list(row)
-        row[8] = ord(row[8])
+        if not row[8] is None:
+            row[8] = ord(row[8])
         results.append(row) 
     return results
 
@@ -339,8 +342,9 @@ and
     for row in rows:
         # Augment the information from the database with a url and a text
         row = list(row)
-        row[22] = ord(row[22])
-        meta = {'projectid':row[1],
+        if not row[22] is None:
+            row[22] = ord(row[22])
+        meta = {'projectid':row[0],
                 'read_length':row[11],
                 'cell_type':row[15],
                 'rna_type':row[16],
@@ -454,7 +458,9 @@ and
         meta['partition'] = row[18]
         meta['annotation_version'] = row[19]
         meta['lab'] = row[20]
-        meta['paired'] = ord(row[21])
+        meta['paired'] = row[21]
+        if not meta['paired'] is None:
+            meta['paired'] = ord(meta['paired'])
         meta['parameter_list'] = get_parameter_list(confs, meta)
         meta['parameter_values'] = get_parameter_values(confs, meta)
 
