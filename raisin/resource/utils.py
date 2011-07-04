@@ -183,15 +183,24 @@ def get_experiment_where(confs, meta):
     return where % ('\nand\n    '.join(ands))
 
 def get_experiment_runs(dbs, confs):
-    meta = get_experiment_dict(confs)
-    # Only return the experiment infos if this is an official project
-    sql = """
-select experiment_id
-from experiments
-%s
-order by 
-    experiment_id;""" % get_experiment_where(confs, meta)
-    cursor = dbs[confs['kw']['projectid']]['RNAseqPipelineCommon'].query(sql)
+    if confs['kw'].has_key('parameter_values'):
+        meta = get_experiment_dict(confs)
+        sql = """
+    select experiment_id
+    from experiments
+    %s
+    order by 
+        experiment_id;""" % get_experiment_where(confs, meta)
+        cursor = dbs[confs['kw']['projectid']]['RNAseqPipelineCommon'].query(sql)
+    else:
+        sql = """
+    select experiment_id
+    from experiments
+    where project_id = '%s'
+    order by 
+        experiment_id;""" % confs['kw']['projectid']
+        cursor = dbs[confs['kw']['projectid']]['RNAseqPipelineCommon'].query(sql)
+    
     rows = cursor.fetchall()
     cursor.close()
     runids = [row[0] for row in rows]
@@ -331,8 +340,10 @@ where
                     'annotation_version':row[6],
                     'lab':row[7],
                     'read_length':row[8],
-                    'paired':ord(row[9])
+                    'paired':row[9],
                    }
+            if not meta['paired'] is None:
+                meta['paired'] = ord(meta['paired'])
             meta['parameter_list'] = get_parameter_list(confs, meta)
             meta['parameter_values'] = get_parameter_values(confs, meta)
             results[row] = meta['parameter_values']
