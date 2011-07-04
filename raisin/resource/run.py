@@ -67,7 +67,9 @@ where project_id='%(projectid)s'
     result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
-    result.append(ord(rows[0][15]))
+    result.append(rows[0][15])
+    if not result[-1] is None:
+        result[-1] = ord(result[-1])
     sql = """
 select species_id,
        species,
@@ -197,7 +199,8 @@ and
     results = []
     for row in rows:
         row = list(row)
-        row[22] = ord(row[22])
+        if not row[22] is None:
+            row[22] = ord(row[22])
         # Augment the information from the database with a url and a text
         meta = {'projectid': row[0],
                 'runid': row[1],
