@@ -3,7 +3,6 @@
 raisin/__init__.py -text
 raisin/resource/__init__.py -text
 raisin/resource/discovery.py -text
-raisin/resource/download.py -text
 raisin/resource/experiment.py -text
 raisin/resource/expression.py -text
 raisin/resource/mapping.py -text
