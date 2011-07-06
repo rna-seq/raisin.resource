@@ -20,7 +20,6 @@ import mapping
 import expression
 import splicing
 import discovery
-import download
 
 from raisin.mysqldb import run_method_using_mysqldb
 from utils import get_configurations
@@ -92,12 +91,6 @@ class Root(resource.Resource):
     def project_downloads(self, request, segments, **kw):
         method, level, resolution, partition  = stats_registry.get('project_downloads', (None, None, None, None))
         cachefilebase = "project/%(projectid)s/downloads" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
-
-    @resource.child('project/{projectid}/download/{downloadid}')
-    def project_download(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get(kw['downloadid'], (None, None, None, None))
-        cachefilebase = "project/%(projectid)s/download/%(downloadid)s" % kw
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiments/tableraw')
@@ -199,9 +192,6 @@ class Resource(resource.Resource):
                 if not value.replace('_', '').isalnum():
                     raise AttributeError
             elif key == 'statid':
-                if not value in stats_registry:
-                    raise AttributeError, value
-            elif key == 'downloadid':
                 if not value in stats_registry:
                     raise AttributeError, value
             elif key == 'stattype':
