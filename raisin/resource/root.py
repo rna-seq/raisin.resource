@@ -168,6 +168,7 @@ class Root(resource.Resource):
 class Resource(resource.Resource):
 
     def __init__(self, method, level, resolution, partition, cachefilebase, **kw):
+        self.dbs = {}
         self.method = method
         self.level = level
         self.resolution = resolution
@@ -215,9 +216,6 @@ class Resource(resource.Resource):
         if not self.method:
             # The method needs to be set at least
             return http.not_found([('Content-type', 'text/javascript')],'')
-
-        # Inject the dbs if they are present
-        self.dbs = {}
     
         # Users are not logging in to the restish server. Most requests necessitate a projectid,
         # and the requests that don't are not specific to any project.
@@ -271,53 +269,26 @@ class Resource(resource.Resource):
             print "The method is not yet implemented, it has returned a None value"
             # The method needs to be set at least
             return http.not_found([('Content-type', 'text/javascript')],'')
-    
+
+        accept_header = request.headers.get('Accept', 'text/javascript')
+        body = None
+        
         # Different results are returned depending on whether this is a table 
         if data.has_key('table_description') and data.has_key('table_data'):
             #print "Extract table info and return info"
             # This chart is using the google visualization library
             table = gviz_api.DataTable( data['table_description'] )
             table.AppendData( data['table_data'] )
-            if request.headers.get('Accept', None) == 'text/plain':
+            if accept_header == 'text/plain':
                 body = table.ToJSonResponse()
-                return http.ok([
-                                ('Content-type', 'text/plain'), 
-                                ('Content-Length', len(body) ),
-                               ],
-                               body
-                              )
-            elif request.headers.get('Accept', None) == 'text/html':
+            elif accept_header == 'text/html':
                 body = table.ToHtml()
-                return http.ok([
-                                ('Content-type', 'text/html'),
-                                ('Content-Length', len(body) ),
-                               ],
-                               body
-                              )
-            elif request.headers.get('Accept', None) == 'text/csv':
+            elif accept_header == 'text/csv':
                 body = table.ToCsv()
-                return http.ok([
-                                ('Content-type', 'text/csv'),
-                                ('Content-Length', len(body) ),
-                               ],
-                               body
-                              )
-            elif request.headers.get('Accept', None) == 'text/tab-separated-values':
+            elif accept_header == 'text/tab-separated-values':
                 body = table.ToTsvExcel()
-                return http.ok([
-                                ('Content-type', 'text/tab-separated-values'),
-                                ('Content-Length', len(body) ),
-                               ],
-                               body
-                              )
-            elif request.headers.get('Accept', None) == 'text/x-python-pickled-dict':
+            elif accept_header == 'text/x-python-pickled-dict':
                 body = pickle.dumps(data)
-                return http.ok([
-                                ('Content-type', 'text/x-python-pickled-dict'),
-                                ('Content-Length', len(body) ),
-                               ], 
-                               body
-                              )
             else:    
                 try:
                     body = table.ToJSon()
@@ -328,26 +299,11 @@ class Resource(resource.Resource):
                     raise
                 except:
                     raise
-                return http.ok([
-                                ('Content-type', 'text/javascript'),
-                                ('Content-Length', len(body) ),
-                               ],
-                               body
-                              )                  
         else:
             if request.headers.get('Accept', None) == 'text/x-python-pickled-dict':
                 body = pickle.dumps(data)
-                return http.ok([
-                                ('Content-type', 'text/x-python-pickled-dict'),
-                                ('Content-Length', len(body) ),
-                               ], 
-                               body
-                              )
             else:    
                 body = json.dumps(data)
-                return http.ok([
-                                ('Content-type', 'text/javascript'),
-                                ('Content-Length', len(body) ),
-                               ],
-                               body
-                              )
+
+        headers = [('Content-type', accept_header), ('Content-Length', len(body))]
+        return http.ok(headers, body)
