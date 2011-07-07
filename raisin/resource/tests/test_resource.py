@@ -1,6 +1,7 @@
 import sys
 import unittest
-  
+from raisin.resource import root
+
 class ResourceTest(unittest.TestCase):    
     def setUp(self):
         unittest.TestCase.setUp(self)
