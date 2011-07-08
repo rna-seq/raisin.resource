@@ -1,13 +1,11 @@
-from decimal import Decimal
 from utils import register_resource
-from utils import merge
 from utils import aggregate
 
 @register_resource(resolution="read", partition=False)
 def read_summary(dbs, confs):
     chart = {}
 
-    stats, failed = aggregate(dbs, confs['configurations'], _read_summary, lambda x,y: x+y)
+    stats, failed = aggregate(dbs, confs['configurations'], _read_summary, lambda x, y: x+y)
 
     average_by = len(confs['configurations']) - failed
     
@@ -79,7 +77,7 @@ def reads_containing_ambiguous_nucleotides(dbs, confs):
     return chart
     
 def _partition_reads_containing_ambiguous_nucleotides(dbs, confs, partition_id):
-    stats, failed = aggregate(dbs, confs, _reads_containing_ambiguous_nucleotides, lambda x,y: x+y)
+    stats, failed = aggregate(dbs, confs, _reads_containing_ambiguous_nucleotides, lambda x, y: x+y)
 
     if len(confs) - failed == 0:
         percent = None
@@ -122,7 +120,7 @@ def reads_containing_only_unambiguous_nucleotides(dbs, confs):
     return chart
     
 def _partition_reads_containing_only_unambiguous_nucleotides(dbs, confs, partition_id):
-    stats, failed = aggregate(dbs, confs, _reads_containing_only_unambiguous_nucleotides, lambda x,y: x+y)
+    stats, failed = aggregate(dbs, confs, _reads_containing_only_unambiguous_nucleotides, lambda x, y: x+y)
 
     if len(confs) - failed == 0:
         percent = None
@@ -165,7 +163,7 @@ def average_percentage_of_unique_reads(dbs, confs):
     return chart
     
 def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
-    stats, failed = aggregate(dbs, confs, _average_percentage_of_unique_reads, lambda x,y: x+y)
+    stats, failed = aggregate(dbs, confs, _average_percentage_of_unique_reads, lambda x, y: x+y)
 
     average_by = len(confs) - failed
     
@@ -204,7 +202,7 @@ def total_ambiguous_and_unambiguous_reads(dbs, confs):
                                   ('Unambiguous', 'number'),
                                   ('Ambiguous', 'number'),
                                  ]
-    total = [0,0,0]
+    total = [0, 0, 0, ]
     result = []
     for partition_id, partition_confs in confs['configurations'].items():
         line = _partition_total_ambiguous_and_unambiguous_reads(dbs, partition_confs, partition_id)
@@ -219,7 +217,7 @@ def total_ambiguous_and_unambiguous_reads(dbs, confs):
     return chart
 
 def _partition_total_ambiguous_and_unambiguous_reads(dbs, confs, partition_id):
-    stats, failed = aggregate(dbs, confs, _total_ambiguous_and_unambiguous_reads, lambda x,y: x+y)
+    stats, failed = aggregate(dbs, confs, _total_ambiguous_and_unambiguous_reads, lambda x, y: x+y)
 
     if failed:
         unambiguous = None
@@ -269,7 +267,7 @@ def average_and_average_unique_reads(dbs, confs):
     return chart
 
 def _partition_average_and_average_unique_reads(dbs, confs, partition_id):
-    stats, failed = aggregate(dbs, confs, _average_and_average_unique_reads, lambda x,y: x+y)
+    stats, failed = aggregate(dbs, confs, _average_and_average_unique_reads, lambda x, y: x+y)
 
     average_by = len(confs) - failed
     
@@ -304,7 +302,7 @@ where
 @register_resource(resolution="read", partition=True)
 def quality_score_by_position(dbs, confs):
     chart = {}
-    description = [('Number', 'number'),]
+    description = [('Number', 'number'), ]
     partition_keys = confs['configurations'].keys()
     partition_keys.sort()
     for partition in partition_keys:
@@ -354,7 +352,7 @@ order by
 @register_resource(resolution="read", partition=True)
 def ambiguous_bases_per_position(dbs, confs):
     chart = {}
-    description = [('Number', 'number'),]
+    description = [('Number', 'number'), ]
     partition_keys = confs['configurations'].keys()
     partition_keys.sort()
     for partition in partition_keys:
