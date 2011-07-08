@@ -89,7 +89,7 @@ def exon_inclusion_profile(dbs, confs):
         description.append((partition, 'number'))
     chart['table_description'] = description
 
-    all = []
+    coords = []
     partition_length = len(partition_keys)
     for partition in partition_keys:
         index = partition_keys.index(partition)
@@ -97,10 +97,10 @@ def exon_inclusion_profile(dbs, confs):
             stats, failed = run(dbs, _exon_inclusion_profile, partition_conf)
             if not failed:
                 for x, y in stats:
-                    all.append( (index, x, y) )
+                    coords.append( (index, x, y) )
     
     result = []
-    for index, x, y in all:
+    for index, x, y in coords:
         found = False
         for r in result:
             if r[0] == x and r[index+1] == None:
