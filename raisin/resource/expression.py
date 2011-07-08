@@ -9,7 +9,7 @@ from utils import run
 def expression_summary(dbs, confs):
     chart = {}
 
-    stats, failed = aggregate(dbs, confs['configurations'], _expression_summary, lambda x,y: x+y)
+    stats, failed = aggregate(dbs, confs['configurations'], _expression_summary, lambda x, y: x+y)
 
     average_by = len(confs['configurations']) - failed
     
@@ -96,7 +96,7 @@ def detected_genes(dbs, confs):
         biotypes = list(biotypes)
         biotypes.sort()
         
-        description = [('Type',            'string'),]
+        description = [('Type',            'string'), ]
     
         #c:[{v:'miRNA'},{v:'NOVEL'},{v:27}]
     
@@ -112,7 +112,7 @@ def detected_genes(dbs, confs):
             for biotype in biotypes:
                 row = [biotype]
                 for reliability in reliabilities:
-                    detected = stats.get((runid, biotype,reliability),None)
+                    detected = stats.get((runid, biotype, reliability), None)
                     if detected is None:
                         row.append(None)
                     else:
@@ -146,7 +146,7 @@ group by type, reliability;
 @register_resource(resolution="lane", partition=True)
 def gene_expression_profile(dbs, confs):
     chart = {}
-    description = [('Number', 'number'),]
+    description = [('Number', 'number'), ]
     partition_keys = confs['configurations'].keys()
     partition_keys.sort()
     for partition in partition_keys:
@@ -275,7 +275,7 @@ def gene_expression_levels(dbs, confs):
 
     print genes
     
-    columns = [('Gene Name', 'string'),]
+    columns = [('Gene Name', 'string'), ]
     # Assemble the columns consisting of the gene names
     for gene in genes:
         columns.append( (gene, 'number') )
