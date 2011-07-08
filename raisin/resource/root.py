@@ -1,4 +1,3 @@
-import sys
 import os.path
 import pickle
 import logging
@@ -37,7 +36,7 @@ class Root(resource.Resource):
     def experiments(self, request, segments, **kw):
         key = 'experiments'
         cachefilebase = "experiments"
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('experiments_configurations')
     def experiments_configurations(self, request, segments, **kw):
