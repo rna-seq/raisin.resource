@@ -286,7 +286,7 @@ class Resource(resource.Resource):
             elif accept_header == 'text/csv':
                 body = table.ToCsv()
             elif accept_header == 'text/tab-separated-values':
-                body = table.ToTsvExcel()
+                body = table.ToCsv(separator="\t")
             elif accept_header == 'text/x-python-pickled-dict':
                 body = pickle.dumps(data)
             else:    
