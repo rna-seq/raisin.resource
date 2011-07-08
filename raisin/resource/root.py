@@ -29,145 +29,146 @@ class Root(resource.Resource):
 
     @resource.child('projects')
     def projects(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_projects', (None, None, None, None))
+        key = "project_projects"
         cachefilebase = "projects"
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
         
     @resource.child('experiments')
     def experiments(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('experiments', (None, None, None, None))
+        key = 'experiments'
         cachefilebase = "experiments"
         return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
 
     @resource.child('experiments_configurations')
     def experiments_configurations(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('experiments_configurations', (None, None, None, None))
+        key = 'experiments_configurations'
         cachefilebase = 'experiments_configurations'
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}')
     def project_info(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_info', (None, None, None, None))
+        key = 'project_info'
         cachefilebase = "project/%(projectid)s/info" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiments')
     def project_experiments(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_experiments', (None, None, None, None))
+        key = 'project_experiments'
         cachefilebase = "project/%(projectid)s/experiments" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/runs')
     def project_runs(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_runs', (None, None, None, None))
+        key = 'project_runs'
         cachefilebase = "project/%(projectid)s/runs" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/runs')
     def experiment_runs(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('experiment_runs', (None, None, None, None))
+        key = 'experiment_runs'
         cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/runs"  % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiments/table')
     def project_experimentstable(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_experimentstable', (None, None, None, None))
+        key =  'project_experimentstable'
         cachefilebase = "project/%(projectid)s/experiments/table" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiment/subset/{parameter_list}/{parameter_values}')
     def project_experiment_subset(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_experiment_subset', (None, None, None, None))
+        key = 'project_experiment_subset'
         cachefilebase = "project/%(projectid)s/experiment/subset/%(parameter_list)s/%(parameter_values)s" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiment/subset/selection/{parameter_list}/{parameter_values}')
     def project_experiment_subset_selection(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_experiment_subset_selection', (None, None, None, None))
+        key = 'project_experiment_subset_selection'
         cachefilebase = "project/%(projectid)s/experiment/subset/selection/%(parameter_list)s/%(parameter_values)s" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/downloads')
     def project_downloads(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_downloads', (None, None, None, None))
+        key = 'project_downloads'
         cachefilebase = "project/%(projectid)s/downloads" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiments/tableraw')
     def project_experimentstableraw(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('project_experimentstableraw', (None, None, None, None))
+        key = 'project_experimentstableraw'
         cachefilebase = "project/%(projectid)s/experiments/tableraw" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/rnadashboard/{hgversion}/technologies')
     def rnadashboard_technologies(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('rnadashboard_technologies', (None, None, None, None))
+        key = 'rnadashboard_technologies'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/technologies" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
         
     @resource.child('project/{projectid}/rnadashboard/{hgversion}/rna_fractions')
     def rnadashboard_rna_fractions(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('rnadashboard_rna_fractions', (None, None, None, None))
+        key = 'rnadashboard_rna_fractions'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/rna_fractions" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/rnadashboard/{hgversion}/compartments')
     def rnadashboard_compartments(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('rnadashboard_compartments', (None, None, None, None))
+        key = 'rnadashboard_compartments'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/compartments" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/rnadashboard/{hgversion}/files')
     def rnadashboard_files(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('rnadashboard_files', (None, None, None, None))
+        key = 'rnadashboard_files'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/files" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/rnadashboard/{hgversion}')
     def rnadashboard(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('rnadashboard', (None, None, None, None))
+        key = 'rnadashboard'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/rnadashboard/{hgversion}/results')
     def rnadashboard_results(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('rnadashboard_results', (None, None, None, None))
+        key = 'rnadashboard_results'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/results" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/run/{runid}')
     def run_info(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('run_info', (None, None, None, None))
+        key = 'run_info'
         cachefilebase = "project/%(projectid)s/run/%(runid)s/info"  % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}')
     def experiment_info(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get('experiment_info', (None, None, None, None))
+        key = 'experiment_info'
         cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/info"  % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/statistics/{stattype}/{statid}')
     def experiment_statistics(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get(kw['statid'], (None, None, None, None))
+        key = kw['statid']
         cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/statistics/%(stattype)s/%(statid)s" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/run/{runid}/statistics/{stattype}/{statid}')
     def run_statistics(self, request, segments, **kw):
-        method, level, resolution, partition  = stats_registry.get(kw['statid'], (None, None, None, None))
+        key = kw['statid']
         cachefilebase = "project/%(projectid)s/run/%(runid)s/statistics/%(stattype)s/%(statid)s" % kw
-        return Resource(method, level, resolution, partition,  cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/run/{runid}/lane/{laneid}/statistics/{stattype}/{statid}')
     def lane_statistics(self, request, segments, **kw):
-        method, level, resolution, partition = stats_registry.get(kw['statid'], (None, None, None, None))
+        key = kw['statid']
         cachefilebase = "project/%(projectid)s/run/%(runid)s/lane/%(laneid)s/statistics/%(stattype)s/%(statid)s" % kw
-        return Resource(method, level, resolution, partition, cachefilebase, **kw), segments
+        return Resource(key, cachefilebase, **kw), segments
 
 class Resource(resource.Resource):
 
-    def __init__(self, method, level, resolution, partition, cachefilebase, **kw):
+    def __init__(self, key, cachefilebase, **kw):
+        method, level, resolution, partition  = stats_registry.get(key, (None, None, None, None))
         self.dbs = {}
         self.method = method
         self.level = level
