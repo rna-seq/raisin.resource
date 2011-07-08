@@ -260,8 +260,8 @@ def project_downloads(dbs, confs):
     filename = "%s.csv"
 
     table = []
-    for title, category, id in stats:
-        table.append( [filename % id, title, category, ftp % (projectid, id)] )
+    for title, category, key in stats:
+        table.append( [filename % key, title, category, ftp % (projectid, key)] )
     
     chart['table_data'] = table
     return chart
