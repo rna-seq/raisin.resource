@@ -72,7 +72,7 @@ def detected_genes(dbs, confs):
 
     def adding(x, y):
         return {'detected': x['detected'] + y['detected'],
-                'type': x['type'],
+                'biotype': x['biotype'],
                 'reliability': x['reliability'],
                 }
                 
@@ -82,19 +82,19 @@ def detected_genes(dbs, confs):
         chart['table_description'] = ['Type']
         chart['table_data'] = [[None]]
     else:
-        types = set()
+        biotypes = set()
         reliabilities = set()
         runids = set()
-        for runid, type, reliability in stats.keys():
+        for runid, biotype, reliability in stats.keys():
             runids.add(runid)
             reliabilities.add(reliability)
-            types.add(type)
+            biotypes.add(biotype)
         runids = list(runids)
         runids.sort()
         reliabilities = list(reliabilities)
         reliabilities.sort()
-        types = list(types)
-        types.sort()
+        biotypes = list(biotypes)
+        biotypes.sort()
         
         description = [('Type',            'string'),]
     
@@ -109,10 +109,10 @@ def detected_genes(dbs, confs):
     
         results = []
         for runid in runids:
-            for type in types:
-                row = [type]
+            for biotype in biotypes:
+                row = [biotype]
                 for reliability in reliabilities:
-                    detected = stats.get((runid, type,reliability),None)
+                    detected = stats.get((runid, biotype,reliability),None)
                     if detected is None:
                         row.append(None)
                     else:
@@ -140,7 +140,7 @@ group by type, reliability;
         if cells.has_key((conf['runid'], row[0], row[1])):
             raise AttributeError
         else:
-            cells[(conf['runid'], row[0], row[1])] = {'type':row[0], 'reliability':row[1], 'detected':row[2]}
+            cells[(conf['runid'], row[0], row[1])] = {'biotype':row[0], 'reliability':row[1], 'detected':row[2]}
     return cells
 
 @register_resource(resolution="lane", partition=True)
