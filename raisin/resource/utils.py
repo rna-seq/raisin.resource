@@ -237,7 +237,7 @@ def configurations_for_level(request, dbs, configurations, level):
         else:
             for item in items:
                 configuration = kw.copy()
-                configuration["%sid"%level] = item 
+                configuration["%sid" % level] = item 
                 configurations_for_level.append(configuration)
     return configurations_for_level
 
