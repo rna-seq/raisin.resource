@@ -153,10 +153,9 @@ def gene_expression_profile(dbs, confs):
         description.append((partition, 'number'))
     chart['table_description'] = description
 
-    distribution = {}
+    coords = {}
 
     datapoints = 0
-    all = []
     partition_length = len(partition_keys)
     for partition in partition_keys:
         index = partition_keys.index(partition)
@@ -165,20 +164,20 @@ def gene_expression_profile(dbs, confs):
             if not failed:
                 for x, y in stats:
                     datapoints = datapoints + 1
-                    if distribution.has_key(y):
-                        distribution[y].append( (index, x, y) )
+                    if coords.has_key(y):
+                        coords[y].append( (index, x, y) )
                     else:
-                        distribution[y] = [(index, x, y) ]
+                        coords[y] = [(index, x, y) ]
 
     sample = []
     if confs['level']['id'] in ['lane', 'run'] or datapoints < 4000:
         # no random sampling
-        for y, values in distribution.items():
+        for y, values in coords.items():
             sample = sample + values
     else:
         # There are a lot of entries for x between 1 and 10
         # This population can be sampled in order to reduce the dataset
-        for y, values in distribution.items():
+        for y, values in coords.items():
             # take a random sample of items if the dataset is too big
             if len(values) > 1:
                 # Divide the number of values by the logaritm to get a sample size that reflects the 
