@@ -119,7 +119,7 @@ from genome_files where genome_id='%s'
         result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
     else:
         result.append("")        
-    chart['table_data'] = [result,]
+    chart['table_data'] = [result, ]
     return chart
 
 @register_resource(resolution=None, partition=False)
