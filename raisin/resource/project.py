@@ -1,5 +1,3 @@
-from raisin.box.boxes import get_lines
-from raisin.box.config import PICKLED    
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
 from raisin.resource.utils import get_experiment_dict
