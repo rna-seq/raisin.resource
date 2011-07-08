@@ -66,7 +66,6 @@ def get_parameter_list(confs, meta, separator = '-'):
 def get_parameter_values(confs, meta, separator = '-'):
     projectid = confs['kw']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
-    parameter_columns = confs['request'].environ['parameter_columns']
     parameter_labels = confs['request'].environ['parameter_labels']
     meta['partition'] = meta['partition'] or '@'
     meta['bio_replicate'] = meta['bio_replicate'] or '1'
@@ -170,7 +169,6 @@ def get_experiment_where(confs, meta):
     parameter_columns = confs['request'].environ['parameter_columns']
     parameter_labels = confs['request'].environ['parameter_labels']
     parameter_list = confs['kw']['parameter_list'].split('-')
-    parameter_values = confs['kw']['parameter_values'].split('-')
     where = """where
 %s
 """
@@ -363,7 +361,6 @@ order by
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    result = []
     laneids = [r[0] for r in rows]
     return laneids
 
@@ -385,7 +382,6 @@ order by
     return readids
 
 def run(dbs, method, conf):
-    stats = None
     failed = 0
     data = run_method_using_mysqldb(method, dbs, conf, http.not_found)
     if data == http.not_found:
@@ -421,7 +417,7 @@ def collect(dbs, confs, method, strategy, **kw):
                 results.append(strategy(conf, line))
     return results
     
-def merge(d1, d2, strategy=lambda x,y:y):
+def merge(d1, d2, strategy=lambda x, y:y):
     """
     http://stackoverflow.com/questions/38987/how-can-i-merge-two-python-dictionaries-as-a-single-expression
     
@@ -444,7 +440,7 @@ def merge(d1, d2, strategy=lambda x,y:y):
 
     """
     result = dict(d1)
-    for k,v in d2.iteritems():
+    for k, v in d2.iteritems():
         if k in result:
             result[k] = strategy(result[k], v)
         else:
