@@ -257,7 +257,7 @@ def gene_expression_levels(dbs, confs):
         top_genes[(conf['runid'], conf['laneid'])].reverse()
 
     # Compose the random seed from the laneids
-    random.seed(tuple([conf['laneid'] for conf in confs['configurations']]))
+    random.seed(tuple([c['laneid'] for c in confs['configurations']]))
 
     # These keys can be used to select from the top genes
     runid_laneid_keys = top_genes.keys()
