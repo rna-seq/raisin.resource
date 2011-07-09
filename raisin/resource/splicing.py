@@ -135,16 +135,16 @@ where LaneName = "%(laneid)s"
 @register_resource(resolution="run", partition=False)
 def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
     chart = {}
-    chart['table_description'] =  [('chr',                  'string'), 
-                                   ('start',                'number'), 
-                                   ('end',                  'number'), 
-                                   ('Exonic',               'number'), 
-                                   ('Inclusion Junctions',  'number'),
-                                   ('Exclusion Junctions',  'number'),
-                                   ('Inclusion Percentage', 'number'),
-                                   ('Run Id',               'string'),
-                                   ('Lane Id',              'string'),
-                                  ]
+    chart['table_description'] = [('chr',                  'string'),
+                                  ('start',                'number'),
+                                  ('end',                  'number'),
+                                  ('Exonic',               'number'),
+                                  ('Inclusion Junctions',  'number'),
+                                  ('Exclusion Junctions',  'number'),
+                                  ('Inclusion Percentage', 'number'),
+                                  ('Run Id',               'string'),
+                                  ('Lane Id',              'string'),
+                                 ]
 
     if dumper is None:
         pass
