@@ -398,4 +398,3 @@ order by
     rows = cursor.fetchall()
     cursor.close()
     return rows
-    
