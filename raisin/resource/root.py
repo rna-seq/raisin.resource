@@ -65,7 +65,7 @@ class Root(resource.Resource):
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/runs')
     def experiment_runs(self, request, segments, **kw):
         key = 'experiment_runs'
-        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/runs"  % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/runs" % kw
         return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/experiments/table')
@@ -137,13 +137,13 @@ class Root(resource.Resource):
     @resource.child('project/{projectid}/run/{runid}')
     def run_info(self, request, segments, **kw):
         key = 'run_info'
-        cachefilebase = "project/%(projectid)s/run/%(runid)s/info"  % kw
+        cachefilebase = "project/%(projectid)s/run/%(runid)s/info" % kw
         return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}')
     def experiment_info(self, request, segments, **kw):
         key = 'experiment_info'
-        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/info"  % kw
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/info" % kw
         return Resource(key, cachefilebase, **kw), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/statistics/{stattype}/{statid}')
@@ -167,7 +167,7 @@ class Root(resource.Resource):
 class Resource(resource.Resource):
 
     def __init__(self, key, cachefilebase, **kw):
-        method, level, resolution, partition  = stats_registry.get(key, (None, None, None, None))
+        method, level, resolution, partition = stats_registry.get(key, (None, None, None, None))
         self.dbs = {}
         self.method = method
         self.level = level
@@ -194,7 +194,7 @@ class Resource(resource.Resource):
                     raise AttributeError
             elif key == 'statid':
                 if not value in stats_registry:
-                    raise AttributeError, value
+                    raise AttributeError(value)
             elif key == 'stattype':
                 if not value in ('read', 'mapping', 'expression', 'splicing', 'discovery'):
                     raise AttributeError                
