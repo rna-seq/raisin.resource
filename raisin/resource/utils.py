@@ -115,11 +115,11 @@ def get_experiment_dict(confs):
 
 def get_experiment_labels(meta, rna_types, cell_types, compartments):
     if meta['cell_type']  in cell_types:
-        meta['cell_type']  = cell_types[meta['cell_type'] ]
-    if meta['rna_type']  in rna_types:
-        meta['rna_type']  = rna_types[meta['rna_type'] ]
-    if meta['compartment']  in compartments:
-        meta['compartment']  = compartments[meta['compartment'] ]
+        meta['cell_type'] = cell_types[meta['cell_type'] ]
+    if meta['rna_type'] in rna_types:
+        meta['rna_type'] = rna_types[meta['rna_type'] ]
+    if meta['compartment'] in compartments:
+        meta['compartment'] = compartments[meta['compartment'] ]
 
 def get_experiment_chart(confs):
     projectid = confs['kw']['projectid']
@@ -497,9 +497,9 @@ class register_resource(object):
                 stats_registry[key] = value
 
 def get_dashboard_db(dbs, hgversion):
-    if hgversion  == 'hg19':
+    if hgversion == 'hg19':
         db = 'hg19_RNA_dashboard'
-    elif hgversion  == 'hg18':
+    elif hgversion == 'hg18':
         db = 'hg18_RNA_dashboard'
     else:
         raise AttributeError
