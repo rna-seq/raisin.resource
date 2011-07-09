@@ -115,11 +115,11 @@ def get_experiment_dict(confs):
 
 def get_experiment_labels(meta, rna_types, cell_types, compartments):
     if meta['cell_type']  in cell_types:
-        meta['cell_type'] = cell_types[meta['cell_type'] ]
+        meta['cell_type'] = cell_types[meta['cell_type']]
     if meta['rna_type'] in rna_types:
-        meta['rna_type'] = rna_types[meta['rna_type'] ]
+        meta['rna_type'] = rna_types[meta['rna_type']]
     if meta['compartment'] in compartments:
-        meta['compartment'] = compartments[meta['compartment'] ]
+        meta['compartment'] = compartments[meta['compartment']]
 
 def get_experiment_chart(confs):
     projectid = confs['kw']['projectid']
