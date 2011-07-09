@@ -70,7 +70,7 @@ class Root(resource.Resource):
 
     @resource.child('project/{projectid}/experiments/table')
     def project_experimentstable(self, request, segments, **kw):
-        key =  'project_experimentstable'
+        key = 'project_experimentstable'
         cachefilebase = "project/%(projectid)s/experiments/table" % kw
         return Resource(key, cachefilebase, **kw), segments
 
