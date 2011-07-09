@@ -9,7 +9,7 @@ from utils import run
 def expression_summary(dbs, confs):
     chart = {}
 
-    stats, failed = aggregate(dbs, confs['configurations'], _expression_summary, lambda x, y: x+y)
+    stats, failed = aggregate(dbs, confs['configurations'], _expression_summary, lambda x, y: x + y)
 
     average_by = len(confs['configurations']) - failed
     
@@ -132,7 +132,7 @@ select type,
 from %(projectid)s_%(runid)s_detected_genes
 group by type, reliability;
 """ % conf
-    cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql )
+    cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     cells = {}        
@@ -167,7 +167,7 @@ def gene_expression_profile(dbs, confs):
                     if coords.has_key(y):
                         coords[y].append( (index, x, y) )
                     else:
-                        coords[y] = [(index, x, y) ]
+                        coords[y] = [(index, x, y)]
 
     sample = []
     if confs['level']['id'] in ['lane', 'run'] or datapoints < 4000:
@@ -196,8 +196,8 @@ def gene_expression_profile(dbs, confs):
         y = int(y)
         found = False
         for r in result:
-            if r[0] == x and r[index+1] == None:
-                r[index+1] = y
+            if r[0] == x and r[index + 1] == None:
+                r[index + 1] = y
                 found = True
                 break
         if found:
@@ -251,7 +251,7 @@ def gene_expression_levels(dbs, confs):
 
     top_genes = {}
     for conf in confs['configurations']:
-        top_genes[(conf['runid'], conf['laneid'])] =  _top_gene_expression_levels(dbs, conf)
+        top_genes[(conf['runid'], conf['laneid'])] = _top_gene_expression_levels(dbs, conf)
         # Reverse because then the items are popped starting with the highest expressed
         top_genes[(conf['runid'], conf['laneid'])].reverse()
 
