@@ -41,7 +41,7 @@ where
     rows = cursor.fetchall()
     cursor.close()
     data = {'total':rows[0][0],
-            'unambiguous' : rows[0][1],
+            'unambiguous': rows[0][1],
             'ambiguous': rows[0][2],
             'unique': rows[0][3],
            }
@@ -58,7 +58,7 @@ def _percentage_read_summary(data, average_by):
         unambiguous = float(data['unambiguous']) / average_by
         ambiguous = float(data['ambiguous']) / average_by
         total = float(data['total']) / average_by
-        result.append( ("Unique Reads", int(unique), unique / total  * 100.0))
+        result.append( ("Unique Reads", int(unique), unique / total * 100.0))
         result.append( ("Unambiguous Reads", int(unambiguous), unambiguous / total * 100.0))
         result.append( ("Ambiguous Reads", int(ambiguous), ambiguous / total * 100.0))
     return result
@@ -246,7 +246,7 @@ where
     rows = cursor.fetchall()
     cursor.close()
     data = {'total':rows[0][0],
-            'unambiguous' : rows[0][1],
+            'unambiguous': rows[0][1],
             'ambiguous': rows[0][2],
            }
     return data
@@ -295,7 +295,7 @@ where
     rows = cursor.fetchall()
     cursor.close()
     data = {'total':rows[0][0],
-            'unique' : rows[0][1],
+            'unique': rows[0][1],
            }
     return data
 
