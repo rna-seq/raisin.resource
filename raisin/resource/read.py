@@ -84,7 +84,7 @@ def _partition_reads_containing_ambiguous_nucleotides(dbs, confs, partition_id):
     else:
         reads_containing_ambiguous_nucleotides = float(stats['reads_containing_ambiguous_nucleotides']) 
         total_number_of_reads = float(stats['total_number_of_reads']) 
-        percent =  reads_containing_ambiguous_nucleotides / total_number_of_reads * 100.0
+        percent = reads_containing_ambiguous_nucleotides / total_number_of_reads * 100.0
 
     return [partition_id, percent]
 
@@ -127,7 +127,7 @@ def _partition_reads_containing_only_unambiguous_nucleotides(dbs, confs, partiti
     else:
         reads_containing_only_unambiguous_nucleotides = float(stats['reads_containing_only_unambiguous_nucleotides']) 
         total_number_of_reads = float(stats['total_number_of_reads']) 
-        percent =  reads_containing_only_unambiguous_nucleotides / total_number_of_reads * 100.0
+        percent = reads_containing_only_unambiguous_nucleotides / total_number_of_reads * 100.0
 
     return [partition_id, percent]
 
@@ -172,7 +172,7 @@ def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
     else:
         unique_reads = float(stats['unique_reads']) 
         total_number_of_reads = float(stats['total_number_of_reads']) 
-        percent =  unique_reads / total_number_of_reads * 100.0
+        percent = unique_reads / total_number_of_reads * 100.0
 
     return [partition_id,  percent]
 
