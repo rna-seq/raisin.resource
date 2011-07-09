@@ -5,7 +5,7 @@ from utils import aggregate
 def mapping_summary(dbs, confs):
     chart = {}
                       
-    stats, failed = aggregate(dbs, confs['configurations'], _mapping_summary, lambda x, y: x+y)
+    stats, failed = aggregate(dbs, confs['configurations'], _mapping_summary, lambda x, y: x + y)
 
     average_by = len(confs['configurations']) - failed
 
@@ -97,7 +97,7 @@ def mapped_reads(dbs, confs, tableid):
     return chart
     
 def _mapped_reads(dbs, confs, partition, tableid):
-    stats, failed = aggregate(dbs, confs, _raw_mapped_reads, lambda x, y: x+y, tableid=tableid)
+    stats, failed = aggregate(dbs, confs, _raw_mapped_reads, lambda x, y: x + y, tableid=tableid)
 
     average_by = len(confs) - failed
     
