@@ -218,4 +218,3 @@ limit 20;""" % conf
     rows = cursor.fetchall()
     cursor.close()
     return list(rows)
-
