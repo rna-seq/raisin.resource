@@ -40,7 +40,7 @@ where
     if rows:
         total, unique, mapped = rows[0]
         data = {'total': total,
-                'unique' : unique,
+                'unique': unique,
                 'multimapped': mapped - unique,
                 'unmapped': total - mapped,
                }
@@ -59,7 +59,7 @@ def _percentage_mapping_summary(data, average_by):
         multimapped = float(data['multimapped']) / average_by
         unmapped = float(data['unmapped']) / average_by
         total = float(data['total']) / average_by
-        result.append( ("Uniquely Mapped Reads", int(unique), unique / total  * 100.0))
+        result.append( ("Uniquely Mapped Reads", int(unique), unique / total * 100.0))
         result.append( ("Multi-Mapped Reads", int(multimapped), multimapped / total * 100.0))
         result.append( ("Unmapped Reads", int(unmapped), unmapped / total * 100.0))
     return result
@@ -134,4 +134,3 @@ where
     else:
         data = {}
     return data
-
