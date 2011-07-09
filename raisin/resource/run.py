@@ -7,6 +7,7 @@ from utils import get_experiment_dict
 from utils import get_parameter_values
 from utils import register_resource
 
+
 @register_resource(resolution="run", partition=False)
 def run_info(dbs, confs):
     chart = {}
@@ -47,16 +48,16 @@ select experiment_id,
        Bioreplicate,
        partition,
        paired
-from experiments 
+from experiments
 where project_id='%(projectid)s'
       and experiment_id='%(runid)s'""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    
+
     species_id = rows[0][2]
     genome_id = rows[0][3]
-    annotation_id = rows[0][4]        
+    annotation_id = rows[0][4]
     result.append(int(rows[0][6]))
     result.append(int(rows[0][7]))
     result.append(rows[0][8])
@@ -76,16 +77,16 @@ select species_id,
        genus,
        sp_alias,
        abbreviation
-from species_info 
+from species_info
 where species_id='%s'
 """ % species_id
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     result.append(rows[0][1])
-    
+
     sql = """
-select annotation_id, 
+select annotation_id,
        species_id,
        annotation,
        location,
@@ -118,15 +119,16 @@ from genome_files where genome_id='%s'
     if conf['runid'] == 'Ging001N':
         result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
     else:
-        result.append("")        
+        result.append("")
     chart['table_data'] = [result, ]
     return chart
+
 
 @register_resource(resolution=None, partition=False)
 def project_runs(dbs, confs):
     conf = confs['configurations'][0]
     projectid = conf['projectid']
-    
+
     chart = {}
     chart['table_description'] = [('Project Id',               'string'),
                                   ('Run Id',                   'string'),
@@ -153,7 +155,7 @@ def project_runs(dbs, confs):
                                   ('Paired',                   'number'),
                                   ('URL',                      'string'),
                                  ]
-            
+
     sql = """
 select project_id,
        experiment_id,
@@ -182,13 +184,13 @@ from experiments,
      species_info,
      genome_files,
      annotation_files
-where 
+where
       project_id='%s'
 and
       experiments.species_id = species_info.species_id
 and
       experiments.genome_id = genome_files.genome_id
-and 
+and
       experiments.annotation_id = annotation_files.annotation_id;
 """ % projectid
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
@@ -204,7 +206,7 @@ and
         # Augment the information from the database with a url and a text
         meta = {'projectid': row[0],
                 'runid': row[1],
-                'read_length':row[11],
+                'read_length': row[11],
                 'cell_type': row[15],
                 'rna_type': row[16],
                 'compartment': row[17],
@@ -212,7 +214,7 @@ and
                 'partition': row[19],
                 'annotation_version': row[20],
                 'lab': row[21],
-                'paired':row[22],
+                'paired': row[22],
                }
         meta['parameter_list'] = get_parameter_list(confs, meta)
         meta['parameter_values'] = get_parameter_values(confs, meta)
@@ -233,27 +235,27 @@ def experiment_runs(dbs, confs):
     projectid = confs['kw']['projectid']
     parameter_list = confs['kw']['parameter_list']
     parameter_values = confs['kw']['parameter_values']
-    meta = get_experiment_dict(confs)    
+    meta = get_experiment_dict(confs)
     # Only return the experiment infos if this is an official project
     sql = """
 select experiment_id
 from experiments
 %s
-order by 
+order by
     experiment_id;""" % get_experiment_where(confs, meta)
     cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     runids = [row[0] for row in rows]
     results = []
-    url = '/project/%s/%s/%s/run/%s/statistics/overview' 
+    url = '/project/%s/%s/%s/run/%s/statistics/overview'
     for runid in runids:
-        results.append( (projectid, 
-                         parameter_list,
-                         parameter_values,
-                         runid,
-                         url % (projectid, parameter_list, parameter_values, runid),
-                        )
+        results.append((projectid,
+                        parameter_list,
+                        parameter_values,
+                        runid,
+                        url % (projectid, parameter_list, parameter_values, runid),
+                       )
                       )
     chart['table_data'] = results
     return chart

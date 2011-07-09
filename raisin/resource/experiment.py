@@ -12,7 +12,8 @@ from utils import get_experiment_labels
 from utils import get_experiment_where
 from utils import register_resource
 
-@register_resource(resolution=None, partition=False)      
+
+@register_resource(resolution=None, partition=False)
 def experiment_info(dbs, confs):
     conf = confs['configurations'][0]
     chart = {}
@@ -58,9 +59,9 @@ select experiment_id,
        Bioreplicate,
        partition,
        paired
-from experiments 
+from experiments
 %s
-order by 
+order by
     experiment_id;""" % get_experiment_where(confs, meta)
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
@@ -72,7 +73,7 @@ order by
 
     species_id = rows[0][2]
     genome_id = rows[0][3]
-    annotation_id = rows[0][4]        
+    annotation_id = rows[0][4]
     result.append(int(rows[0][6]))
     result.append(int(rows[0][7]))
     result.append(rows[0][8])
@@ -93,17 +94,16 @@ select species_id,
        genus,
        sp_alias,
        abbreviation
-from species_info 
+from species_info
 where species_id='%s'
 """ % species_id
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     result.append(rows[0][1])
-    
 
     sql = """
-select annotation_id, 
+select annotation_id,
        species_id,
        annotation,
        location,
@@ -136,9 +136,10 @@ from genome_files where genome_id='%s'
     if rows[0][0] == 'Ging001N':
         result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
     else:
-        result.append("")        
+        result.append("")
     chart['table_data'] = [result, ]
     return chart
+
 
 @register_resource(resolution=None, partition=False)
 def experiments(dbs, confs):
@@ -156,19 +157,20 @@ def experiments(dbs, confs):
                                   ('Annotation file name',     'string'),
                                   ('Annotation file location', 'string'),
                                   ('Annotation version',       'string'),
-                                  ('Template file',            'string'), 
-                                  ('Mismatches',               'number'), 
+                                  ('Template file',            'string'),
+                                  ('Mismatches',               'number'),
                                   ('Description',              'string'),
                                  ]
-                                 
+
     results = []
     for projectid in dbs.keys():
-        rows, failed = run(dbs, _experiments, {'projectid':projectid})
+        rows, failed = run(dbs, _experiments, {'projectid': projectid})
         if not failed:
             results = results + list(rows)
 
     chart['table_data'] = results
     return chart
+
 
 def _experiments(dbs, conf):
     # Only return the experiment infos if this is an official project
@@ -190,27 +192,28 @@ from experiments,
      species_info,
      genome_files,
      annotation_files
-where 
+where
       project_id = '%(projectid)s'
 and
       experiments.species_id = species_info.species_id
 and
       experiments.genome_id = genome_files.genome_id
-and 
+and
       experiments.annotation_id = annotation_files.annotation_id
-order by 
+order by
      experiment_id;""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     return rows
-    
+
+
 @register_resource(resolution=None, partition=False)
 def experiments_configurations(dbs, confs):
     """
     The experiments (read: pipeline runs) have a number of configuration parameters that define
     them uniquely.
-    
+
     project_id:    Defines what project this experiment was made for
     experiment_id: Unique identifier of the experiment
     read_length:   Experiments in a project can have different read lengths
@@ -235,12 +238,13 @@ def experiments_configurations(dbs, confs):
 
     results = []
     for projectid in dbs.keys():
-        rows, failed = run(dbs, _experiments_configurations, {'projectid':projectid})
+        rows, failed = run(dbs, _experiments_configurations, {'projectid': projectid})
         if not failed:
             results = results + list(rows)
 
     chart['table_data'] = results
     return chart
+
 
 def _experiments_configurations(dbs, conf):
     sql = """
@@ -253,7 +257,7 @@ select project_id,
        Bioreplicate,
        partition,
        paired
-from experiments;""" 
+from experiments;"""
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -262,8 +266,9 @@ from experiments;"""
         row = list(row)
         if not row[8] is None:
             row[8] = ord(row[8])
-        results.append(row) 
+        results.append(row)
     return results
+
 
 @register_resource(resolution='project', partition=False)
 def project_experiments(dbs, confs):
@@ -296,7 +301,7 @@ def project_experiments(dbs, confs):
                                   ('Paired',                   'number'),
                                   ('URL',                      'string'),
                                  ]
-            
+
     sql = """
 select project_id,
        experiment_id,
@@ -325,13 +330,13 @@ from experiments,
      species_info,
      genome_files,
      annotation_files
-where 
+where
       project_id='%s'
 and
       experiments.species_id = species_info.species_id
 and
       experiments.genome_id = genome_files.genome_id
-and 
+and
       experiments.annotation_id = annotation_files.annotation_id;
 """ % projectid
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
@@ -344,16 +349,16 @@ and
         row = list(row)
         if not row[22] is None:
             row[22] = ord(row[22])
-        meta = {'projectid':row[0],
-                'read_length':row[11],
-                'cell_type':row[15],
-                'rna_type':row[16],
-                'compartment':row[17],
-                'bio_replicate':row[18],
-                'partition':row[19],
-                'annotation_version':row[20],
-                'lab':row[21],
-                'paired':row[22]}
+        meta = {'projectid': row[0],
+                'read_length': row[11],
+                'cell_type': row[15],
+                'rna_type': row[16],
+                'compartment': row[17],
+                'bio_replicate': row[18],
+                'partition': row[19],
+                'annotation_version': row[20],
+                'lab': row[21],
+                'paired': row[22]}
         meta['parameter_list'] = get_parameter_list(confs, meta)
         meta['parameter_values'] = get_parameter_values(confs, meta)
         row.append(url % meta)
@@ -361,27 +366,32 @@ and
     chart['table_data'] = results
     return chart
 
+
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset(dbs, confs):
     return _project_experimentstable(dbs, confs, raw=True, where=True)
 
+
 @register_resource(resolution='project', partition=False)
 def project_experimentstableraw(dbs, confs):
     return _project_experimentstable(dbs, confs, raw=True, where=False)
-    
+
+
 @register_resource(resolution='project', partition=False)
 def project_experimentstable(dbs, confs):
     return _project_experimentstable(dbs, confs, raw=False, where=False)
+
 
 def _project_experimentstable(dbs, confs, raw=True, where=False):
     chart = get_experiment_chart(confs)
     experimentids = _project_experimentstable_experiments(dbs, confs, raw, where)
     results = []
-    for key, value in experimentids.items():    
+    for key, value in experimentids.items():
         results.append(get_experiment_result(confs, value))
     results.sort()
     chart['table_data'] = results
     return chart
+
 
 def _project_experimentstable_experiments(dbs, confs, raw=True, where=False):
     conf = confs['configurations'][0]
@@ -431,7 +441,7 @@ and
       experiments.species_id = species_info.species_id
 and
       experiments.genome_id = genome_files.genome_id
-and 
+and
       experiments.annotation_id = annotation_files.annotation_id
 """ % sql
 
@@ -446,7 +456,7 @@ and
     rna_types = get_rna_type_display_mapping(dbs)
     cell_types = get_cell_type_display_mapping(dbs)
     compartments = get_compartment_display_mapping(dbs)
-        
+
     for row in rows:
         meta = {}
         meta['projectid'] = conf['projectid']
@@ -467,15 +477,16 @@ and
         if not raw:
             get_experiment_labels(meta, rna_types, cell_types, compartments)
 
-        if experimentids.has_key(meta['parameter_values']):
+        if meta['parameter_values'] in experimentids:
             experimentids[meta['parameter_values']].append(meta)
         else:
             experimentids[meta['parameter_values']] = [meta]
     return experimentids
-    
+
+
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset_selection(dbs, confs):
-    experimentids = _project_experimentstable_experiments(dbs, confs, raw=True, where=True)    
+    experimentids = _project_experimentstable_experiments(dbs, confs, raw=True, where=True)
     conf = confs['configurations'][0]
     projectid = conf['projectid']
     table = _project_experimentstable(dbs, confs, raw=True, where=True)
@@ -487,23 +498,23 @@ def project_experiment_subset_selection(dbs, confs):
     supersets = []
     for parameter in parameter_mapping[projectid]:
         if parameter in meta['parameter_list']:
-            if meta.has_key(parameter):
-                supersets.append(parameter) 
+            if parameter in meta:
+                supersets.append(parameter)
         else:
-            if not meta.has_key(parameter):
-                subsets.append(parameter) 
+            if not parameter in meta:
+                subsets.append(parameter)
 
     variations = {}
     variation_count = {}
     for experiment_list in experimentids.values():
         for parameter in parameter_mapping[projectid]:
-            if variation_count.has_key(parameter):
+            if parameter in variation_count:
                 variation_count[parameter].append(experiment_list[0][parameter])
             else:
                 variation_count[parameter] = [experiment_list[0][parameter]]
             for experiment in experiment_list:
                 if parameter in experiment:
-                    if variations.has_key(parameter):
+                    if parameter in variations:
                         variations[parameter].add(experiment[parameter])
                     else:
                         variations[parameter] = set([experiment[parameter]])
@@ -513,13 +524,13 @@ def project_experiment_subset_selection(dbs, confs):
     for subset in subsets:
         if len(variations[subset]) > 1:
             for variation in variations[subset]:
-                links.append(('%s-%s' % (confs['kw']['parameter_list'], subset), 
+                links.append(('%s-%s' % (confs['kw']['parameter_list'], subset),
                               '%s-%s' % (confs['kw']['parameter_values'], variation),
                               parameter_labels[subset][0],
                               variation,
                               subset,
                               ))
-    
+
     chart = {}
     chart['table_description'] = [('Project',               'string'),
                                   ('Parameter Names',       'string'),
@@ -527,9 +538,9 @@ def project_experiment_subset_selection(dbs, confs):
                                   ('Parameter Type',        'string'),
                                   ('Parameter Value',       'string'),
                                   ('Number of experiments for this Parameter Value', 'string'),
-                                 ]    
+                                 ]
     chart['table_data'] = []
     for names, values, name, value, subset in links:
-        chart['table_data'].append ( (projectid,  names, values, name, str(value), str(variation_count[subset].count(value))) )
+        chart['table_data'].append((projectid, names, values, name, str(value), str(variation_count[subset].count(value))))
 
     return chart

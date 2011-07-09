@@ -2,7 +2,8 @@ from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
 from raisin.resource.utils import get_experiment_dict
 
-@register_resource(resolution="project", partition=False)        
+
+@register_resource(resolution="project", partition=False)
 def info(dbs, confs):
     conf = confs['configurations'][0]
     chart = {}
@@ -13,7 +14,7 @@ def info(dbs, confs):
     sql = """
 select proj_description,
        species
-from projects 
+from projects
 where project_id='%(projectid)s';
 """ % conf
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
@@ -21,8 +22,9 @@ where project_id='%(projectid)s';
     cursor.close()
     chart['table_data'] = rows
     return chart
-        
-@register_resource(resolution="project", partition=False)        
+
+
+@register_resource(resolution="project", partition=False)
 def projects(dbs, confs):
     chart = {}
     chart['table_description'] = [('Project Id', 'string'),
@@ -30,31 +32,32 @@ def projects(dbs, confs):
                                  ]
     results = []
     for projectid in dbs.keys():
-        results.append( (projectid, '/project/%s/statistics/experiments/' % projectid) )
+        results.append((projectid, '/project/%s/statistics/experiments/' % projectid))
     chart['table_data'] = results
     return chart
-    
-@register_resource(resolution=None, partition=False) 
+
+
+@register_resource(resolution=None, partition=False)
 def rnadashboard_technologies(dbs, confs):
     chart = {}
     chart['table_description'] = [('Id',          'string'),
-                                  ('Title',       'string'), 
-                                  ('Description', 'string'), 
-                                  ('URL',         'string'), 
+                                  ('Title',       'string'),
+                                  ('Description', 'string'),
+                                  ('URL',         'string'),
                                  ]
 
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
-             
+
     sql = """
-select name, 
+select name,
        displayName,
        description,
        descriptionUrl
-from technology"""   
+from technology"""
     cursor = dashboard_db.query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    
+
     def escape(html):
         """Returns the given HTML with ampersands, quotes and carets encoded."""
         return html.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#39;')
@@ -65,46 +68,48 @@ from technology"""
 
     results = []
     for row in rows:
-        results.append( (row[0], row[1], escape(row[2]), row[3]) )
+        results.append((row[0], row[1], escape(row[2]), row[3]))
     chart['table_data'] = results
     return chart
 
-@register_resource(resolution=None, partition=False) 
+
+@register_resource(resolution=None, partition=False)
 def rnadashboard_rna_fractions(dbs, confs):
     chart = {}
     chart['table_description'] = [('Id',           'string'),
-                                  ('Title',        'string'), 
-                                  ('Description',  'string'), 
+                                  ('Title',        'string'),
+                                  ('Description',  'string'),
                                  ]
 
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
-                                                               
+
     sql = """
-select ucscName, 
-       displayName, 
-       description 
-from rnaExtract"""                              
+select ucscName,
+       displayName,
+       description
+from rnaExtract"""
     cursor = dashboard_db.query(sql)
 
     rows = cursor.fetchall()
     cursor.close()
     chart['table_data'] = rows
     return chart
-    
-@register_resource(resolution=None, partition=False) 
+
+
+@register_resource(resolution=None, partition=False)
 def rnadashboard_compartments(dbs, confs):
     chart = {}
     chart['table_description'] = [('Id',           'string'),
-                                  ('Title',        'string'), 
-                                  ('Description',  'string'), 
+                                  ('Title',        'string'),
+                                  ('Description',  'string'),
                                  ]
-                                 
+
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
-                           
+
     sql = """
 select ucscName,
        displayName,
-       description 
+       description
 from localization"""
     cursor = dashboard_db.query(sql)
 
@@ -113,27 +118,28 @@ from localization"""
     chart['table_data'] = rows
     return chart
 
-@register_resource(resolution=None, partition=False) 
+
+@register_resource(resolution=None, partition=False)
 def rnadashboard_files(dbs, confs):
     """
-    See 
+    See
         http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html
     and
-        http://genome-test.cse.ucsc.edu/cgi-bin/hgEncodeVocab?type=%22typeOfTerm%22 
+        http://genome-test.cse.ucsc.edu/cgi-bin/hgEncodeVocab?type=%22typeOfTerm%22
 
     for more info about file attributes.
     """
     chart = {}
     chart['table_description'] = [('Url',        'string'),
-                                  ('Attributes', 'string'), 
+                                  ('Attributes', 'string'),
                                  ]
-                                 
+
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
-                           
+
     sql = """
-select file.url, 
-       file.allAttributes 
-from 
+select file.url,
+       file.allAttributes
+from
     file
 """
     cursor = dashboard_db.query(sql)
@@ -142,45 +148,46 @@ from
     chart['table_data'] = rows
     return chart
 
-@register_resource(resolution=None, partition=False) 
+
+@register_resource(resolution=None, partition=False)
 def rnadashboard(dbs, confs):
     chart = {}
-    chart['table_description'] = [('Sample Grant Name',        'string'),
-                                  ('Cell Type',                'string'), 
-                                  ('Cell Type Id',             'string'), 
-                                  ('Tier',                     'number'),
-                                  ('Localization',             'string'),
-                                  ('Localization Id',          'string'),
-                                  ('RNA Extract',              'string'), 
-                                  ('RNA Extract Id',           'string'),
-                                  ('Technology',               'string'),
-                                  ('Technology Id',            'string'),
-                                  ('File at UCSC',             'number'),
-                                  ('File Raw Type',            'number'),
-                                  ('Sample Replicate',         'number'),
-                                  ('Sample Id',                'string'),
-                                  ('Sample Internal Name',     'string'),
-                                  ('Experiment Lab',           'string'),
-                                  ('Experiment Read Type',     'string'),
-                                  ('Experiment Insert Length', 'string'),
-                                  ('Experiment Tech Replicate','number'),
-                                  ('Experiment Id',            'string'),
-                                  ('File Type',                'string'),
-                                  ('File View',                'string'),
-                                  ('File Lab',                 'string'),
-                                  ('File URL',                 'string'),
-                                  ('File Size',                'string'),
-                                  ('File View de novo',        'number'),
+    chart['table_description'] = [('Sample Grant Name',         'string'),
+                                  ('Cell Type',                 'string'),
+                                  ('Cell Type Id',              'string'),
+                                  ('Tier',                      'number'),
+                                  ('Localization',              'string'),
+                                  ('Localization Id',           'string'),
+                                  ('RNA Extract',               'string'),
+                                  ('RNA Extract Id',            'string'),
+                                  ('Technology',                'string'),
+                                  ('Technology Id',             'string'),
+                                  ('File at UCSC',              'number'),
+                                  ('File Raw Type',             'number'),
+                                  ('Sample Replicate',          'number'),
+                                  ('Sample Id',                 'string'),
+                                  ('Sample Internal Name',      'string'),
+                                  ('Experiment Lab',            'string'),
+                                  ('Experiment Read Type',      'string'),
+                                  ('Experiment Insert Length',  'string'),
+                                  ('Experiment Tech Replicate', 'number'),
+                                  ('Experiment Id',             'string'),
+                                  ('File Type',                 'string'),
+                                  ('File View',                 'string'),
+                                  ('File Lab',                  'string'),
+                                  ('File URL',                  'string'),
+                                  ('File Size',                 'string'),
+                                  ('File View de novo',         'number'),
                                  ]
-                                 
+
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
 
     sql = """
-SELECT sample.grantName, 
+SELECT sample.grantName,
        cell.displayName as cellName,
        sample.cell,
        cell.tier,
-       localization.displayName as localization, 
+       localization.displayName as localization,
        localization.ucscName,
        rnaExtract.displayName as rnaExtract,
        rnaExtract.ucscName,
@@ -237,7 +244,7 @@ AND
     return chart
 
 
-@register_resource(resolution="project", partition=False)        
+@register_resource(resolution="project", partition=False)
 def project_downloads(dbs, confs):
     projectid = confs['configurations'][0]['projectid']
     chart = {}
@@ -246,7 +253,7 @@ def project_downloads(dbs, confs):
                                   ('Measurement',             'string'),
                                   ('.csv File Download Link', 'string'),
                                  ]
-                                 
+
     stats = (("Gene", "Expression (RPKM)", "gene_expression_rpkm"),
              ("Transcript", "Expression (RPKM)", "transcript_expression_rpkm"),
              ("Exon", "Expression (RPKM)", "exon_expression_rpkm"),
@@ -259,42 +266,42 @@ def project_downloads(dbs, confs):
 
     table = []
     for title, category, key in stats:
-        table.append( [filename % key, title, category, ftp % (projectid, key)] )
-    
+        table.append([filename % key, title, category, ftp % (projectid, key)])
+
     chart['table_data'] = table
     return chart
-        
-        
-@register_resource(resolution=None, partition=False) 
+
+
+@register_resource(resolution=None, partition=False)
 def rnadashboard_results(dbs, confs):
     chart = {}
     description = []
-    description.append(('File Type',                'string'))
-    description.append(('File View',                'string'))
-    description.append(('File Lab',                 'string'))
-    description.append(('File URL',                 'string'))
-    description.append(('File Size',                'string'))
-    description.append(('File View de novo',        'number'))
-    description.append(('Sample Grant Name',        'string'))
-    description.append(('Cell Type',                'string'))
-    description.append(('Cell Type Id',             'string'))
-    description.append(('Tier',                     'number'))
-    description.append(('Localization',             'string'))
-    description.append(('Localization Id',          'string'))
-    description.append(('RNA Extract',              'string'))
-    description.append(('RNA Extract Id',           'string'))
-    description.append(('Technology',               'string'))
-    description.append(('Technology Id',            'string'))
-    description.append(('File at UCSC',             'number'))
-    description.append(('File Raw Type',            'number'))
-    description.append(('Sample Replicate',         'number'))
-    description.append(('Sample Id',                'string'))
-    description.append(('Sample Internal Name',     'string'))
-    description.append(('Experiment Lab',           'string'))
-    description.append(('Experiment Read Type',     'string'))
-    description.append(('Experiment Insert Length', 'string'))
-    description.append(('Experiment Tech Replicate','number'))
-    description.append(('Experiment Id',            'string'))
+    description.append(('File Type',                 'string'))
+    description.append(('File View',                 'string'))
+    description.append(('File Lab',                  'string'))
+    description.append(('File URL',                  'string'))
+    description.append(('File Size',                 'string'))
+    description.append(('File View de novo',         'number'))
+    description.append(('Sample Grant Name',         'string'))
+    description.append(('Cell Type',                 'string'))
+    description.append(('Cell Type Id',              'string'))
+    description.append(('Tier',                      'number'))
+    description.append(('Localization',              'string'))
+    description.append(('Localization Id',           'string'))
+    description.append(('RNA Extract',               'string'))
+    description.append(('RNA Extract Id',            'string'))
+    description.append(('Technology',                'string'))
+    description.append(('Technology Id',             'string'))
+    description.append(('File at UCSC',              'number'))
+    description.append(('File Raw Type',             'number'))
+    description.append(('Sample Replicate',          'number'))
+    description.append(('Sample Id',                 'string'))
+    description.append(('Sample Internal Name',      'string'))
+    description.append(('Experiment Lab',            'string'))
+    description.append(('Experiment Read Type',      'string'))
+    description.append(('Experiment Insert Length',  'string'))
+    description.append(('Experiment Tech Replicate', 'number'))
+    description.append(('Experiment Id',             'string'))
 
     chart['table_description'] = description
 
@@ -303,28 +310,28 @@ def rnadashboard_results(dbs, confs):
         chart['table_data'] = []
         return chart
 
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])    
+    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
 
     wheres = ""
     meta = get_experiment_dict(confs)
-    if meta.has_key('cell_type'):
+    if 'cell_type' in meta:
         wheres = wheres + """
-AND  
+AND
     sample.cell = '%(cell_type)s'""" % meta
 
-    if meta.has_key('compartment'):
+    if 'compartment' in meta:
         wheres = wheres + """
-AND  
+AND
     sample.localization = '%(compartment)s'""" % meta
 
-    if meta.has_key('rna_type'):
+    if 'rna_type' in meta:
         wheres = wheres + """
-AND  
+AND
     sample.rnaExtract = '%(rna_type)s'""" % meta
 
-    if meta.has_key('lab'):
+    if 'lab' in meta:
         wheres = wheres + """
-AND  
+AND
     file.lab = '%(lab)s'""" % meta
 
     sql = """
@@ -334,11 +341,11 @@ SELECT file.fileType,
        file.url,
        file.size,
        fileView.deNovo,
-       sample.grantName, 
+       sample.grantName,
        cell.displayName as cellName,
        sample.cell,
        cell.tier,
-       localization.displayName as localization, 
+       localization.displayName as localization,
        localization.ucscName,
        rnaExtract.displayName as rnaExtract,
        rnaExtract.ucscName,

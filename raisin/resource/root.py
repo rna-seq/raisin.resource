@@ -24,6 +24,7 @@ from raisin.mysqldb import run_method_using_mysqldb
 from utils import get_configurations
 log = logging.getLogger(__name__)
 
+
 class Root(resource.Resource):
 
     @resource.child('projects')
@@ -31,7 +32,7 @@ class Root(resource.Resource):
         key = "project_projects"
         cachefilebase = "projects"
         return Resource(key, cachefilebase, **kw), segments
-        
+
     @resource.child('experiments')
     def experiments(self, request, segments, **kw):
         key = 'experiments'
@@ -103,7 +104,7 @@ class Root(resource.Resource):
         key = 'rnadashboard_technologies'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/technologies" % kw
         return Resource(key, cachefilebase, **kw), segments
-        
+
     @resource.child('project/{projectid}/rnadashboard/{hgversion}/rna_fractions')
     def rnadashboard_rna_fractions(self, request, segments, **kw):
         key = 'rnadashboard_rna_fractions'
@@ -164,6 +165,7 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/run/%(runid)s/lane/%(laneid)s/statistics/%(stattype)s/%(statid)s" % kw
         return Resource(key, cachefilebase, **kw), segments
 
+
 class Resource(resource.Resource):
 
     def __init__(self, key, cachefilebase, **kw):
@@ -174,7 +176,7 @@ class Resource(resource.Resource):
         self.resolution = resolution
         self.partition = partition
         self.cachefilebase = cachefilebase
-        
+
         # Check the values passed in through the URL to avoid SQL injection
         for key, value in kw.items():
             if key == 'parameter_list':
@@ -197,30 +199,30 @@ class Resource(resource.Resource):
                     raise AttributeError(value)
             elif key == 'stattype':
                 if not value in ('read', 'mapping', 'expression', 'splicing', 'discovery'):
-                    raise AttributeError                
+                    raise AttributeError
             elif key == 'hgversion':
                 if not value in ['hg18', 'hg19']:
-                    raise AttributeError                
+                    raise AttributeError
             else:
                 raise AttributeError
-        log.info(kw) 
+        log.info(kw)
         # The statid and stattype are only needed for routing, but are superfluous for the method
         self.kw = kw.copy()
-        if kw.has_key('statid'):
+        if 'statid' in kw:
             del self.kw['statid']
-        if kw.has_key('stattype'):
+        if 'stattype' in kw:
             del self.kw['stattype']
 
     @resource.GET()
     def show(self, request):
         if not self.method:
             # The method needs to be set at least
-            return http.not_found([('Content-type', 'text/javascript')],'')
-    
+            return http.not_found([('Content-type', 'text/javascript')], '')
+
         # Users are not logging in to the restish server. Most requests necessitate a projectid,
         # and the requests that don't are not specific to any project.
         projectid = self.kw.get('projectid', None)
-        
+
         # Inject the project specific project databases
         self.dbs = request.environ['dbs']
 
@@ -240,7 +242,7 @@ class Resource(resource.Resource):
             if os.path.isfile(picklecachefile):
                 print "Read pickle cache file", picklecachefile
                 data = pickle.loads(open(picklecachefile, 'r').read())
-    
+
         # If the data was not found, get it out of the databases if that is defined
         if data is None:
             # Get the configurations for the given level of detail
@@ -268,17 +270,17 @@ class Resource(resource.Resource):
         if data is None:
             print "The method is not yet implemented, it has returned a None value"
             # The method needs to be set at least
-            return http.not_found([('Content-type', 'text/javascript')],'')
+            return http.not_found([('Content-type', 'text/javascript')], '')
 
         accept_header = request.headers.get('Accept', 'text/javascript')
         body = None
-        
-        # Different results are returned depending on whether this is a table 
-        if data.has_key('table_description') and data.has_key('table_data'):
+
+        # Different results are returned depending on whether this is a table
+        if 'table_description' in data and 'table_data' in data:
             #print "Extract table info and return info"
             # This chart is using the google visualization library
-            table = gviz_api.DataTable( data['table_description'] )
-            table.AppendData( data['table_data'] )
+            table = gviz_api.DataTable(data['table_description'])
+            table.AppendData(data['table_data'])
             if accept_header == 'text/plain':
                 body = table.ToJSonResponse()
             elif accept_header == 'text/html':
@@ -289,12 +291,12 @@ class Resource(resource.Resource):
                 body = table.ToCsv(separator="\t")
             elif accept_header == 'text/x-python-pickled-dict':
                 body = pickle.dumps(data)
-            else:    
+            else:
                 try:
                     body = table.ToJSon()
                 except DataTableException:
                     print self.method
-                    print data['table_description'] 
+                    print data['table_description']
                     print data['table_data']
                     raise
                 except:
@@ -302,7 +304,7 @@ class Resource(resource.Resource):
         else:
             if request.headers.get('Accept', None) == 'text/x-python-pickled-dict':
                 body = pickle.dumps(data)
-            else:    
+            else:
                 body = json.dumps(data)
 
         headers = [('Content-type', accept_header), ('Content-Length', len(body))]

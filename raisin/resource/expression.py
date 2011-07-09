@@ -5,6 +5,7 @@ from utils import register_resource
 from utils import aggregate
 from utils import run
 
+
 @register_resource(resolution="run", partition=False)
 def expression_summary(dbs, confs):
     chart = {}
@@ -12,28 +13,29 @@ def expression_summary(dbs, confs):
     stats, failed = aggregate(dbs, confs['configurations'], _expression_summary, lambda x, y: x + y)
 
     average_by = len(confs['configurations']) - failed
-    
+
     if average_by == 1:
         resolution_info = ''
     if average_by == 0:
         resolution_info = 'For one %s' % confs['resolution']['id']
     else:
         resolution_info = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
-    
-    chart['table_description'] = [(resolution_info, 'string'), 
-                                  ('Total',    'number'), 
-                                  ('Detected', 'number'), 
+
+    chart['table_description'] = [(resolution_info, 'string'),
+                                  ('Total',    'number'),
+                                  ('Detected', 'number'),
                                   ('Percent',  'number'),
                                  ]
 
     chart['table_data'] = _percentage_expression_summary(stats, average_by)
     return chart
 
+
 def _expression_summary(dbs, conf):
     # Down_GFD1_expression_summary
     sql = """
-select type, 
-       total, 
+select type,
+       total,
        detected
 from %(projectid)s_%(runid)s_expression_summary""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
@@ -45,12 +47,13 @@ from %(projectid)s_%(runid)s_expression_summary""" % conf
         result[(feature_type, 'detected')] = detected
     return result
 
+
 def _percentage_expression_summary(data, average_by):
     result = []
     if data is None:
-        result.append( ('Genes', None, None) )
-        result.append( ('Transcript', None, None) )
-        result.append( ('Exons', None, None) )
+        result.append(('Genes', None, None))
+        result.append(('Transcript', None, None))
+        result.append(('Exons', None, None))
     else:
         genes_detected = float(data[('Genes', 'detected')]) / average_by
         genes_total = float(data[('Genes', 'total')]) / average_by
@@ -61,11 +64,12 @@ def _percentage_expression_summary(data, average_by):
         exons_detected = float(data[('Exons', 'detected')]) / average_by
         exons_total = float(data[('Exons', 'total')]) / average_by
         exons_percent = exons_detected / exons_total * 100.0
-        result.append( ('Genes', int(genes_total), int(genes_detected), genes_percent) )
-        result.append( ('Transcript', int(transcripts_total), int(transcripts_detected), transcripts_percent) )
-        result.append( ('Exons', int(exons_total), int(exons_detected), exons_percent) )
+        result.append(('Genes', int(genes_total), int(genes_detected), genes_percent))
+        result.append(('Transcript', int(transcripts_total), int(transcripts_detected), transcripts_percent))
+        result.append(('Exons', int(exons_total), int(exons_detected), exons_percent))
     return result
-    
+
+
 @register_resource(resolution="run", partition=False)
 def detected_genes(dbs, confs):
     chart = {}
@@ -75,9 +79,9 @@ def detected_genes(dbs, confs):
                 'biotype': x['biotype'],
                 'reliability': x['reliability'],
                 }
-                
+
     stats, failed = aggregate(dbs, confs['configurations'], _detected_genes, strategy=adding)
-    
+
     if stats is None:
         chart['table_description'] = ['Type']
         chart['table_data'] = [[None]]
@@ -95,18 +99,18 @@ def detected_genes(dbs, confs):
         reliabilities.sort()
         biotypes = list(biotypes)
         biotypes.sort()
-        
+
         description = [('Type',            'string'), ]
-    
+
         #c:[{v:'miRNA'},{v:'NOVEL'},{v:27}]
-    
+
         for reliability in reliabilities:
             description.append((reliability, 'number'))
 
         description.append((confs['resolution']['title'], 'string'))
-        
+
         chart['table_description'] = description
-    
+
         results = []
         for runid in runids:
             for biotype in biotypes:
@@ -126,22 +130,23 @@ def detected_genes(dbs, confs):
 
 def _detected_genes(dbs, conf):
     sql = """
-select type, 
-       reliability, 
-       sum(detected) 
+select type,
+       reliability,
+       sum(detected)
 from %(projectid)s_%(runid)s_detected_genes
 group by type, reliability;
 """ % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    cells = {}        
+    cells = {}
     for row in rows:
-        if cells.has_key((conf['runid'], row[0], row[1])):
+        if (conf['runid'], row[0], row[1]) in cells:
             raise AttributeError
         else:
-            cells[(conf['runid'], row[0], row[1])] = {'biotype':row[0], 'reliability':row[1], 'detected':row[2]}
+            cells[(conf['runid'], row[0], row[1])] = {'biotype': row[0], 'reliability': row[1], 'detected': row[2]}
     return cells
+
 
 @register_resource(resolution="lane", partition=True)
 def gene_expression_profile(dbs, confs):
@@ -164,8 +169,8 @@ def gene_expression_profile(dbs, confs):
             if not failed:
                 for x, y in stats:
                     datapoints = datapoints + 1
-                    if coords.has_key(y):
-                        coords[y].append( (index, x, y) )
+                    if y in coords:
+                        coords[y].append((index, x, y))
                     else:
                         coords[y] = [(index, x, y)]
 
@@ -180,7 +185,7 @@ def gene_expression_profile(dbs, confs):
         for y, values in coords.items():
             # take a random sample of items if the dataset is too big
             if len(values) > 1:
-                # Divide the number of values by the logaritm to get a sample size that reflects the 
+                # Divide the number of values by the logaritm to get a sample size that reflects the
                 # size of the population
                 # y:1 5677 -> 656
                 # y:6 260 -> 46
@@ -213,15 +218,16 @@ def gene_expression_profile(dbs, confs):
         chart['table_data'] = [[None] * len(chart['table_description'])]
     return chart
 
+
 def _gene_expression_profile(dbs, conf):
     chart = {}
     sql = """
-select 
-    rpkm, 
-    support 
-from 
-    %(projectid)s_%(runid)s_gene_RPKM_dist 
-where 
+select
+    rpkm,
+    support
+from
+    %(projectid)s_%(runid)s_gene_RPKM_dist
+where
     LaneName = '%(laneid)s'
 """ % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
@@ -229,17 +235,18 @@ where
     cursor.close()
     return rows
 
+
 @register_resource(resolution="lane", partition=False)
 def gene_expression_levels(dbs, confs):
     """
-    Implement a greedy strategy of getting just enough of the top rpkms from any lane to be 
+    Implement a greedy strategy of getting just enough of the top rpkms from any lane to be
     sure to be able to finish the selection of at least 100 genes.
     The selection process gives each lane a chance to contribute using randomization strategy.
     Minimally, a lane may contribute 0 genes, which is the case when we have not found
     any gene from this lane after 100 rounds.
     Maximally, a lane can contribute 100 genes if all of the top genes come from one
     lane.
-    On average, given a random distribution of top rpkms across the lanes, each lane is 
+    On average, given a random distribution of top rpkms across the lanes, each lane is
     given an equal chance of contributing a gene.
     In the worst case, the maximum amount of data points we need is 100*#lanes, which is only
     going to be the case when all lanes have the same genes and are found in alternating order.
@@ -260,7 +267,7 @@ def gene_expression_levels(dbs, confs):
 
     # These keys can be used to select from the top genes
     runid_laneid_keys = top_genes.keys()
-    
+
     genes = []
     while len(genes) < 100:
         # Take out a random runid and laneid to choose the next gene candidate
@@ -274,11 +281,11 @@ def gene_expression_levels(dbs, confs):
             genes.append(gene)
 
     print genes
-    
+
     columns = [('Gene Name', 'string'), ]
     # Assemble the columns consisting of the gene names
     for gene in genes:
-        columns.append( (gene, 'number') )
+        columns.append((gene, 'number'))
     chart['table_description'] = columns
 
     result = []
@@ -292,32 +299,34 @@ def gene_expression_levels(dbs, confs):
     chart['table_data'] = result
     return chart
 
+
 def _top_gene_expression_levels(dbs, conf):
     chart = {}
     # Get the Top 100 genes for a lane
     sql = """
-select 
+select
     gene_id
-from 
-    %(projectid)s_%(runid)s_gene_RPKM 
-where 
+from
+    %(projectid)s_%(runid)s_gene_RPKM
+where
     LaneName = '%(laneid)s'
-order by 
-    RPKM desc 
+order by
+    RPKM desc
 limit 100""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     return [row[0] for row in rows]
 
+
 def _selected_gene_expression_levels(dbs, conf, genes):
     # For each gene, we need the value for all the lanes
     sql = """
-select 
+select
     gene_id,
-    RPKM 
+    RPKM
 from
-    %(projectid)s_%(runid)s_gene_RPKM 
+    %(projectid)s_%(runid)s_gene_RPKM
 where
     LaneName = '%(laneid)s'""" % conf
     sql = """%s
@@ -331,11 +340,12 @@ and
         result[row[0]] = row[1]
     return result
 
+
 @register_resource(resolution="lane", partition=False)
 def top_genes(dbs, confs, dumper=None):
     chart = {}
-    chart['table_description'] = [('Gene Id', 'string'), 
-                                  ('Length', 'number'), 
+    chart['table_description'] = [('Gene Id', 'string'),
+                                  ('Length', 'number'),
                                   ('Strand (+/-)', 'string'),
                                   ('Locus', 'string'),
                                   ('# Exons', 'number'),
@@ -349,7 +359,7 @@ def top_genes(dbs, confs, dumper=None):
         pass
     else:
         dumper.writeheader(chart['table_description'])
-                                 
+
     result = []
     for conf in confs['configurations']:
         if dumper is None:
@@ -358,7 +368,7 @@ def top_genes(dbs, confs, dumper=None):
             stats, failed = run(dbs, _all_genes, conf)
         if not failed:
             for row in stats:
-                line = row + (conf['runid'], conf['laneid']) 
+                line = row + (conf['runid'], conf['laneid'])
                 if dumper is None:
                     result.append(line)
                 else:
@@ -367,40 +377,42 @@ def top_genes(dbs, confs, dumper=None):
         if dumper is None:
             result = sorted(result, key=lambda row: row[6])
             result.reverse()
-            chart['table_data'] = result[:20]        
+            chart['table_data'] = result[:20]
         else:
             chart['table_data'] = result
     else:
         chart['table_data'] = [[None] * len(chart['table_description'])]
     return chart
 
+
 def _all_genes(dbs, conf):
     sql = """
-select gene_id, 
+select gene_id,
        length,
        strand,
        locus,
        no_exons,
        no_transcripts,
        %(laneid)s
-from 
+from
     %(projectid)s_%(runid)s_top_genes_expressed""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     return rows
-    
+
+
 def _top_genes(dbs, conf):
     sql = """
-select * from ( 
-select gene_id, 
+select * from (
+select gene_id,
        length,
        strand,
        locus,
        no_exons,
        no_transcripts,
        %(laneid)s
-from 
+from
     %(projectid)s_%(runid)s_top_genes_expressed
 order by
     %(laneid)s desc
@@ -411,11 +423,12 @@ limit 20;""" % conf
     cursor.close()
     return rows
 
+
 @register_resource(resolution="lane", partition=False)
 def top_transcripts(dbs, confs, dumper=None):
     chart = {}
-    chart['table_description'] = [('Gene Id', 'string'), 
-                                  ('Length', 'number'), 
+    chart['table_description'] = [('Gene Id', 'string'),
+                                  ('Length', 'number'),
                                   ('Strand (+/-)', 'string'),
                                   ('Locus', 'string'),
                                   ('# Exons', 'number'),
@@ -437,51 +450,53 @@ def top_transcripts(dbs, confs, dumper=None):
             stats, failed = run(dbs, _all_transcripts, conf)
         if not failed:
             for row in stats:
-                line = row + (conf['runid'], conf['laneid']) 
+                line = row + (conf['runid'], conf['laneid'])
                 if dumper is None:
                     result.append(line)
                 else:
                     dumper.writerow(line)
-                
+
     if dumper is None:
         pass
     else:
         dumper.close()
         return
-                
+
     if result:
         result = sorted(result, key=lambda row: row[5])
         result.reverse()
-        chart['table_data'] = result[:20]        
+        chart['table_data'] = result[:20]
     else:
         chart['table_data'] = [[None] * len(chart['table_description'])]
     return chart
 
+
 def _all_transcripts(dbs, conf):
     sql = """
-select transcript_id, 
+select transcript_id,
        length,
        strand,
        locus,
        no_exons,
        %(laneid)s
-from 
+from
     %(projectid)s_%(runid)s_top_transcripts_expressed""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     return rows
 
+
 def _top_transcripts(dbs, conf):
     sql = """
-select * from ( 
-select transcript_id, 
+select * from (
+select transcript_id,
        length,
        strand,
        locus,
        no_exons,
        %(laneid)s
-from 
+from
     %(projectid)s_%(runid)s_top_transcripts_expressed
 order by
     %(laneid)s desc
@@ -491,12 +506,13 @@ limit 20;""" % conf
     rows = cursor.fetchall()
     cursor.close()
     return rows
-    
+
+
 @register_resource(resolution="lane", partition=False)
 def top_exons(dbs, confs, dumper=None):
     chart = {}
-    description = [('Exon Id', 'string'), 
-                   ('Length', 'number'), 
+    description = [('Exon Id', 'string'),
+                   ('Length', 'number'),
                    ('Strand (+/-)', 'string'),
                    ('Locus', 'string'),
                    ('Expression Value', 'number'),
@@ -518,7 +534,7 @@ def top_exons(dbs, confs, dumper=None):
             stats, failed = run(dbs, _all_exons, conf)
         if not failed:
             for row in stats:
-                line = row + (conf['runid'], conf['laneid']) 
+                line = row + (conf['runid'], conf['laneid'])
                 if dumper is None:
                     result.append(line)
                 else:
@@ -533,36 +549,38 @@ def top_exons(dbs, confs, dumper=None):
     if result:
         result = sorted(result, key=lambda row: row[4])
         result.reverse()
-        chart['table_data'] = result[:20]        
+        chart['table_data'] = result[:20]
     else:
         chart['table_data'] = [[None] * len(chart['table_description'])]
     return chart
 
+
 def _all_exons(dbs, conf):
     sql = """
-select 
+select
     exon_id,
     length,
     strand,
     locus,
     %(laneid)s
-from 
+from
     %(projectid)s_%(runid)s_top_exons_expressed""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     return rows
 
+
 def _top_exons(dbs, conf):
     sql = """
-select * from ( 
-select 
+select * from (
+select
     exon_id,
     length,
     strand,
     locus,
     %(laneid)s
-from 
+from
     %(projectid)s_%(runid)s_top_exons_expressed
 order by
     %(laneid)s desc
