@@ -388,4 +388,3 @@ AND
     cursor.close()
     chart['table_data'] = rows
     return chart
-        
