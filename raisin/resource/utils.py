@@ -53,7 +53,8 @@ from localization"""
         mapping[row[0]] = row[1]
     return mapping
 
-def get_parameter_list(confs, meta, separator = '-'):
+
+def get_parameter_list(confs, meta, separator='-'):
     projectid = confs['kw']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -63,7 +64,8 @@ def get_parameter_list(confs, meta, separator = '-'):
     experimentid = separator.join(experimentid_parts)
     return experimentid
 
-def get_parameter_values(confs, meta, separator = '-'):
+
+def get_parameter_values(confs, meta, separator='-'):
     projectid = confs['kw']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -231,13 +233,15 @@ def configurations_for_level(request, dbs, configurations, level):
         elif level == 'read':
             items, failed = run(dbs, get_lane_reads, kw)
         if failed:
-            pass # Failed to get information for this configuration
+            # Failed to get information for this configuration
+            pass 
         else:
             for item in items:
                 configuration = kw.copy()
                 configuration["%sid" % level] = item 
                 configurations_for_level.append(configuration)
     return configurations_for_level
+
 
 def partition_configurations(configurations, level):
     partition_id = '%sid' % level
@@ -248,6 +252,7 @@ def partition_configurations(configurations, level):
         else:
             partition_configurations[configuration[partition_id]] = [configuration]
     return partition_configurations
+
 
 def get_configurations(request, level, resolution, partition, dbs, **kw):
     level_titles = {'project':    'Project Id',
@@ -402,7 +407,7 @@ def aggregate(dbs, confs, method, strategy, **kw):
             if stats is None:
                 stats = data
             else:
-                stats = merge(stats, data, strategy = strategy)
+                stats = merge(stats, data, strategy=strategy)
     return stats, failed
 
 def collect(dbs, confs, method, strategy, **kw):
