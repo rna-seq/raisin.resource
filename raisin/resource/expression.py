@@ -220,7 +220,6 @@ def gene_expression_profile(dbs, confs):
 
 
 def _gene_expression_profile(dbs, conf):
-    chart = {}
     sql = """
 select
     rpkm,
@@ -301,7 +300,6 @@ def gene_expression_levels(dbs, confs):
 
 
 def _top_gene_expression_levels(dbs, conf):
-    chart = {}
     # Get the Top 100 genes for a lane
     sql = """
 select
