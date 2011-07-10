@@ -10,7 +10,6 @@ def info(dbs, confs):
     chart['table_description'] = [('Project Description', 'string'),
                                   ('Species',             'string'),
                                  ]
-    info = {}
     sql = """
 select proj_description,
        species
