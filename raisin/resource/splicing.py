@@ -125,7 +125,6 @@ def exon_inclusion_profile(dbs, confs):
 
 
 def _exon_inclusion_profile(dbs, conf):
-    chart = {}
     sql = """
 select incl_percent,
        support
