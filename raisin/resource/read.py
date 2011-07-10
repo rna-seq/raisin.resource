@@ -179,7 +179,7 @@ def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
     average_by = len(confs) - failed
 
     if average_by == 0:
-        unique = None
+        percent = None
     else:
         unique_reads = float(stats['unique_reads'])
         total_number_of_reads = float(stats['total_number_of_reads'])
@@ -352,7 +352,6 @@ def quality_score_by_position(dbs, confs):
 
 
 def _quality_score_by_position(dbs, conf):
-    chart = {}
     sql = """
 select
     position,
@@ -404,7 +403,6 @@ def ambiguous_bases_per_position(dbs, confs):
 
 
 def _ambiguous_bases_per_position(dbs, conf):
-    chart = {}
     sql = """
 select
     position,
