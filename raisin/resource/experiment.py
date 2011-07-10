@@ -489,7 +489,6 @@ def project_experiment_subset_selection(dbs, confs):
     experimentids = _project_experimentstable_experiments(dbs, confs, raw=True, where=True)
     conf = confs['configurations'][0]
     projectid = conf['projectid']
-    table = _project_experimentstable(dbs, confs, raw=True, where=True)
     meta = get_experiment_dict(confs)
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
