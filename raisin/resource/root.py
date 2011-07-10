@@ -219,10 +219,6 @@ class Resource(resource.Resource):
             # The method needs to be set at least
             return http.not_found([('Content-type', 'text/javascript')], '')
 
-        # Users are not logging in to the restish server. Most requests necessitate a projectid,
-        # and the requests that don't are not specific to any project.
-        projectid = self.kw.get('projectid', None)
-
         # Inject the project specific project databases
         self.dbs = request.environ['dbs']
 
