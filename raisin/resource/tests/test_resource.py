@@ -10,8 +10,8 @@ class ResourceTest(unittest.TestCase):
     def tearDown(self):
         unittest.TestCase.tearDown(self)
 
-    def test_dummy_db_does_get_added_to_the_registry(self):
-        self.failUnless(DBS[None] == self.dummy_db)
+    def test_stats_registry(self):
+        self.failUnless(root.stats_registry != {})
 
 
 # make the test suite.
@@ -25,7 +25,7 @@ def suite():
 def test_main():
     testsuite = suite()
     runner = unittest.TextTestRunner(sys.stdout, verbosity=2)
-    result = runner.run(testsuite)
+    runner.run(testsuite)
 
 
 if __name__ == "__main__":
