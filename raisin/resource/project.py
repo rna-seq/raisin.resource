@@ -304,10 +304,8 @@ def rnadashboard_results(dbs, confs):
 
     chart['table_description'] = description
 
-    # XXX Only ENCODE has dashboard
     if not confs['configurations'][0]['projectid'] == 'ENCODE':
-        chart['table_data'] = []
-        return chart
+        return None
 
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
 
