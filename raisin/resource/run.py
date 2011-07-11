@@ -197,7 +197,7 @@ and
     rows = cursor.fetchall()
     cursor.close()
 
-    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/statistics/overview'
+    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/tab/overview'
     results = []
     for row in rows:
         row = list(row)
@@ -248,7 +248,7 @@ order by
     cursor.close()
     runids = [row[0] for row in rows]
     results = []
-    url = '/project/%s/%s/%s/run/%s/statistics/overview'
+    url = '/project/%s/%s/%s/run/%s/tab/overview'
     for runid in runids:
         results.append((projectid,
                         parameter_list,
