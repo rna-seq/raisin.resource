@@ -248,7 +248,7 @@ AND
         result = list(row)
         if row[10] == 1:
             if not result[-1] is None:
-                end = result[-1] + datetime.timedelta(9*365/12)
+                end = result[-1] + datetime.timedelta(9 * 365 / 12)
                 if end > datetime.date.today():
                     result[-1] = "%s-%s-%s" % (end.year, end.month, end.day)
                 else:
@@ -414,7 +414,7 @@ AND
         result = list(row)
         if row[17] == 1:
             if not result[0] is None:
-                end = result[0] + datetime.timedelta(9*365/12)
+                end = result[0] + datetime.timedelta(9 * 365 / 12)
                 if end > datetime.date.today():
                     result[0] = "%s-%s-%s" % (end.year, end.month, end.day)
                 else:
