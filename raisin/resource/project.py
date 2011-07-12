@@ -1,3 +1,4 @@
+import datetime
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
 from raisin.resource.utils import get_experiment_dict
@@ -177,6 +178,7 @@ def rnadashboard(dbs, confs):
                                   ('File URL',                  'string'),
                                   ('File Size',                 'string'),
                                   ('File View de novo',         'number'),
+                                  ('Restricted until',          'string'),
                                  ]
 
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
@@ -207,7 +209,8 @@ SELECT sample.grantName,
        file.lab as endLab,
        file.url,
        file.size,
-       fileView.deNovo
+       fileView.deNovo,
+       file.dateSubmitted
 FROM sample,
      technology,
      file,
@@ -239,7 +242,21 @@ AND
 
     rows = cursor.fetchall()
     cursor.close()
-    chart['table_data'] = rows
+
+    results = []
+    for row in rows:
+        result = list(row)
+        if row[10] == 1:
+            if not result[-1] is None:
+                end = result[-1] + datetime.timedelta(9*365/12)
+                if end > datetime.date.today():
+                    result[-1] = "%s-%s-%s" % (end.year, end.month, end.day)
+                else:
+                    result[-1] = None
+        else:
+            result[-1] = 'To be decided'
+        results.append(result)
+    chart['table_data'] = results
     return chart
 
 
@@ -275,6 +292,7 @@ def project_downloads(dbs, confs):
 def rnadashboard_results(dbs, confs):
     chart = {}
     description = []
+    description.append(('Restricted until',          'string'))
     description.append(('File Type',                 'string'))
     description.append(('File View',                 'string'))
     description.append(('File Lab',                  'string'))
@@ -332,7 +350,8 @@ AND
     file.lab = '%(lab)s'""" % meta
 
     sql = """
-SELECT file.fileType,
+SELECT file.dateSubmitted,
+       file.fileType,
        fileView.displayName,
        file.lab as endLab,
        file.url,
@@ -387,8 +406,21 @@ AND
       sample.cell = cell.ucscName
 %s""" % wheres
     cursor = dashboard_db.query(sql)
-
     rows = cursor.fetchall()
     cursor.close()
-    chart['table_data'] = rows
+
+    results = []
+    for row in rows:
+        result = list(row)
+        if row[17] == 1:
+            if not result[0] is None:
+                end = result[0] + datetime.timedelta(9*365/12)
+                if end > datetime.date.today():
+                    result[0] = "%s-%s-%s" % (end.year, end.month, end.day)
+                else:
+                    result[0] = None
+        else:
+            result[0] = 'To be decided'
+        results.append(result)
+    chart['table_data'] = results
     return chart
