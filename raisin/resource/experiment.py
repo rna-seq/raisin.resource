@@ -544,5 +544,5 @@ def project_experiment_subset_selection(dbs, confs):
 
     if len(chart['table_data']) == 0:
         chart['table_data'].append([None] * len(chart['table_description']))
-    
+
     return chart
