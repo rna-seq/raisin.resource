@@ -542,4 +542,7 @@ def project_experiment_subset_selection(dbs, confs):
     for names, values, name, value, subset in links:
         chart['table_data'].append((projectid, names, values, name, str(value), str(variation_count[subset].count(value))))
 
+    if len(chart['table_data']) == 0:
+        chart['table_data'].append([None] * len(chart['table_description']))
+    
     return chart
