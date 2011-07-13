@@ -4,9 +4,14 @@ import logging
 from gvizapi import gviz_api
 from gvizapi.gviz_api import DataTableException
 try:
-    import json
-except ImportError, e:
     import simplejson as json
+except ImportError:
+    try:
+        import json
+    except:
+        print 'Unable to find json module!'
+        raise
+
 from restish import http, resource
 
 stats_registry = {}
