@@ -21,9 +21,15 @@ def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
     def strategy(conf, row):
         return (row[: -1] + (conf['runid'], row[-1]))
     if dumper is None:
-        stats = collect(dbs, confs['configurations'], _top_novel_junctions_from_annotated_exons, strategy)
+        stats = collect(dbs,
+                        confs['configurations'],
+                        _top_novel_junctions_from_annotated_exons,
+                        strategy)
     else:
-        stats = collect(dbs, confs['configurations'], _all_novel_junctions_from_annotated_exons, strategy)
+        stats = collect(dbs,
+                        confs['configurations'],
+                        _all_novel_junctions_from_annotated_exons,
+                        strategy)
 
     if dumper is None:
         pass
@@ -97,9 +103,15 @@ def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
     def strategy(conf, row):
         return (row[:-1] + (conf['runid'], row[-1]))
     if dumper is None:
-        stats = collect(dbs, confs['configurations'], _top_novel_junctions_from_unannotated_exons, strategy)
+        stats = collect(dbs,
+                        confs['configurations'],
+                        _top_novel_junctions_from_unannotated_exons,
+                        strategy)
     else:
-        stats = collect(dbs, confs['configurations'], _all_novel_junctions_from_unannotated_exons, strategy)
+        stats = collect(dbs,
+                        confs['configurations'],
+                        _all_novel_junctions_from_unannotated_exons,
+                        strategy)
 
     if dumper is None:
         pass
