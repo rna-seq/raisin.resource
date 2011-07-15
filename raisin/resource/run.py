@@ -12,6 +12,7 @@ from utils import register_resource
 
 @register_resource(resolution="run", partition=False)
 def run_info(dbs, confs):
+    """Collect some general information about a run"""
     chart = {}
     chart['table_description'] = [('Read Length',        'number'),
                                   ('Mismatches',         'number'),
@@ -65,9 +66,12 @@ where project_id='%(projectid)s'
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10], rows[0][10]))
-    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11], rows[0][11]))
-    result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
+    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10], 
+                                                         rows[0][10]))
+    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11], 
+                                                        rows[0][11]))
+    result.append(get_compartment_display_mapping(dbs).get(rows[0][12], 
+                                                           rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
     result.append(rows[0][15])
@@ -119,7 +123,12 @@ from genome_files where genome_id='%s'
     result.append(rows[0][5])
     result.append(rows[0][6])
     if conf['runid'] == 'Ging001N':
-        result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
+        result.append(("http://genome.ucsc.edu/cgi-bin/hgTracks"
+                       "?org=human"
+                       "&hgct_customText="
+                       "ftp://ftp.encode.crg.cat"
+                       "/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
+                     )
     else:
         result.append("")
     chart['table_data'] = [result, ]
@@ -128,6 +137,7 @@ from genome_files where genome_id='%s'
 
 @register_resource(resolution=None, partition=False)
 def project_runs(dbs, confs):
+    """Compile the list of runs for the project"""
     conf = confs['configurations'][0]
     projectid = conf['projectid']
 
@@ -199,7 +209,9 @@ and
     rows = cursor.fetchall()
     cursor.close()
 
-    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/run/%(runid)s/tab/overview'
+    url = ('/project/%(projectid)s/'
+           '%(parameter_list)s/%(parameter_values)s/'
+           'run/%(runid)s/tab/overview')
     results = []
     for row in rows:
         row = list(row)
@@ -227,6 +239,7 @@ and
 
 @register_resource(resolution=None, partition=False)
 def experiment_runs(dbs, confs):
+    """Compile the list of runs for the experiment"""
     chart = {}
     chart['table_description'] = [('Project Id',       'string'),
                                   ('Parameter List',   'string'),
@@ -256,7 +269,10 @@ order by
                         parameter_list,
                         parameter_values,
                         runid,
-                        url % (projectid, parameter_list, parameter_values, runid),
+                        url % (projectid, 
+                               parameter_list, 
+                               parameter_values, 
+                               runid),
                        )
                       )
     chart['table_data'] = results
