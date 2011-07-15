@@ -234,9 +234,9 @@ def experiment_runs(dbs, confs):
                                   ('Run Id',           'string'),
                                   ('Run Url',          'string'),
                                  ]
-    projectid = confs['kw']['projectid']
-    parameter_list = confs['kw']['parameter_list']
-    parameter_values = confs['kw']['parameter_values']
+    projectid = confs['kwargs']['projectid']
+    parameter_list = confs['kwargs']['parameter_list']
+    parameter_values = confs['kwargs']['parameter_values']
     meta = get_experiment_dict(confs)
     # Only return the experiment infos if this is an official project
     sql = """
