@@ -22,13 +22,13 @@ def splicing_summary(dbs, confs):
     average_by = len(confs['configurations']) - failed
 
     if average_by == 0:
-        resolution_info = ''
+        label = ''
     elif average_by == 1:
-        resolution_info = 'For one set of %ss' % confs['resolution']['id']
+        label = 'For one set of %ss' % confs['resolution']['id']
     else:
-        resolution_info = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
+        label = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
 
-    chart['table_description'] = [(resolution_info, 'string'),
+    chart['table_description'] = [(label, 'string'),
                                   ('Total', 'number'),
                                   ('Percent', 'number'),
                                  ]
