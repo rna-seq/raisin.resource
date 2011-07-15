@@ -17,6 +17,7 @@ from utils import register_resource
 
 @register_resource(resolution=None, partition=False)
 def experiment_info(dbs, confs):
+    """XXX Needs refactoring"""
     conf = confs['configurations'][0]
     chart = {}
     chart['table_description'] = [('Read Length',        'number'),
@@ -81,9 +82,12 @@ order by
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10], rows[0][10]))
-    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11], rows[0][11]))
-    result.append(get_compartment_display_mapping(dbs).get(rows[0][12], rows[0][12]))
+    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10], 
+                                                         rows[0][10]))
+    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11], 
+                                                        rows[0][11]))
+    result.append(get_compartment_display_mapping(dbs).get(rows[0][12], 
+                                                           rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
     result.append(rows[0][15])
@@ -136,6 +140,7 @@ from genome_files where genome_id='%s'
     result.append(rows[0][5])
     result.append(rows[0][6])
     if rows[0][0] == 'Ging001N':
+        # XXX Need to produce the BAM files for visualisation in UCSC Browser
         result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
     else:
         result.append("")
@@ -240,7 +245,9 @@ def experiments_configurations(dbs, confs):
 
     results = []
     for projectid in dbs.keys():
-        rows, failed = run(dbs, _experiments_configurations, {'projectid': projectid})
+        rows, failed = run(dbs, 
+                           _experiments_configurations, 
+                           {'projectid': projectid})
         if not failed:
             results = results + list(rows)
 
@@ -345,7 +352,9 @@ and
     rows = cursor.fetchall()
     cursor.close()
     results = []
-    url = '/project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/tab/experiments'
+    url = '/project/%(projectid)s/'
+    url += '%(parameter_list)s/%(parameter_values)s'
+    url += '/tab/experiments'
     for row in rows:
         # Augment the information from the database with a url and a text
         row = list(row)
@@ -386,9 +395,12 @@ def project_experimentstable(dbs, confs):
 
 def _project_experimentstable(dbs, confs, raw=True, where=False):
     chart = get_experiment_chart(confs)
-    experimentids = _project_experimentstable_experiments(dbs, confs, raw, where)
+    experimentids = _project_experimentstable_experiments(dbs, 
+                                                          confs, 
+                                                          raw, 
+                                                          where)
     results = []
-    for key, value in experimentids.items():
+    for value in experimentids.values():
         results.append(get_experiment_result(confs, value))
     results.sort()
     chart['table_data'] = results
@@ -488,7 +500,11 @@ and
 
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset_selection(dbs, confs):
-    experimentids = _project_experimentstable_experiments(dbs, confs, raw=True, where=True)
+    """XXX Needs refactoring"""
+    experimentids = _project_experimentstable_experiments(dbs, 
+                                                          confs, 
+                                                          raw=True, 
+                                                          where=True)
     conf = confs['configurations'][0]
     projectid = conf['projectid']
     meta = get_experiment_dict(confs)
@@ -523,26 +539,35 @@ def project_experiment_subset_selection(dbs, confs):
     links = []
 
     for subset in subsets:
-        if len(variations[subset]) > 1:
-            for variation in variations[subset]:
-                links.append(('%s-%s' % (confs['kw']['parameter_list'], subset),
-                              '%s-%s' % (confs['kw']['parameter_values'], variation),
-                              parameter_labels[subset][0],
-                              variation,
-                              subset,
-                              ))
+        # If there is variation for this subset, add links 
+        if len(variations[subset]) < 2:
+            continue
+        for variation in variations[subset]:
+            link = ('%s-%s' % (confs['kw']['parameter_list'], subset),
+                   '%s-%s' % (confs['kw']['parameter_values'], variation),
+                   parameter_labels[subset][0],
+                   variation,
+                   subset,
+                  )
+            links.append(link)
 
     chart = {}
-    chart['table_description'] = [('Project',               'string'),
-                                  ('Parameter Names',       'string'),
-                                  ('Parameter Values',      'string'),
-                                  ('Parameter Type',        'string'),
-                                  ('Parameter Value',       'string'),
-                                  ('Number of experiments for this Parameter Value', 'string'),
-                                 ]
+    description = [('Project',                              'string'),
+                   ('Parameter Names',                      'string'),
+                   ('Parameter Values',                     'string'),
+                   ('Parameter Type',                       'string'),
+                   ('Parameter Value',                      'string'),
+                   ('Experiments for this Parameter Value', 'string'),
+                  ]
+    chart['table_description'] = description
     chart['table_data'] = []
     for names, values, name, value, subset in links:
-        chart['table_data'].append((projectid, names, values, name, str(value), str(variation_count[subset].count(value))))
+        chart['table_data'].append((projectid, 
+                                    names, 
+                                    values, 
+                                    name, 
+                                    str(value), 
+                                    str(variation_count[subset].count(value))))
 
     if len(chart['table_data']) == 0:
         chart['table_data'].append([None] * len(chart['table_description']))
