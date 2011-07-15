@@ -6,6 +6,7 @@ from utils import aggregate
 
 @register_resource(resolution="read", partition=False)
 def mapping_summary(dbs, confs):
+    """Overview of the results after mapping"""
     chart = {}
 
     stats, failed = aggregate(dbs, 
@@ -33,6 +34,7 @@ def mapping_summary(dbs, confs):
 
 
 def _mapping_summary(dbs, conf):
+    """Query the database for the mapping statistics per read"""
     sql = """
 select
     totalReads,
@@ -58,6 +60,7 @@ where
 
 
 def _percentage_mapping_summary(data, average_by):
+    """Average the mapping statistics and calculate the percentages"""
     result = []
     if data is None:
         result.append(("Uniquely Mapped Reads", None, None))
@@ -83,25 +86,30 @@ def _percentage_mapping_summary(data, average_by):
 
 @register_resource(resolution="read", partition=True)
 def merged_mapped_reads(dbs, confs):
+    """Summary of all the reads that were mapped"""
     return mapped_reads(dbs, confs, 'merged_mapping')
 
 
 @register_resource(resolution="read", partition=True)
 def genome_mapped_reads(dbs, confs):
+    """Summary of the reads mapping to the genome"""
     return mapped_reads(dbs, confs, 'genome_mapping')
 
 
 @register_resource(resolution="read", partition=True)
 def junction_mapped_reads(dbs, confs):
+    """Summary of the reads mapping to the junctions library"""
     return mapped_reads(dbs, confs, 'junctions_mapping')
 
 
 @register_resource(resolution="read", partition=True)
 def split_mapped_reads(dbs, confs):
+    """Summary of those reads split-mapped to the genome"""
     return mapped_reads(dbs, confs, 'split_mapping')
 
 
 def mapped_reads(dbs, confs, tableid):
+    """Calculate partitioned read mappings using different SQL tables"""
     chart = {}
     chart['table_description'] = [(confs['level']['title'], 'string'),
                                   ('Total Reads',  'number'),
@@ -118,6 +126,7 @@ def mapped_reads(dbs, confs, tableid):
 
 
 def _mapped_reads(dbs, confs, partition, tableid):
+    """Calculate read mappings using different SQL tables"""
     stats, failed = aggregate(dbs, 
                               confs, 
                               _raw_mapped_reads, 
@@ -137,6 +146,7 @@ def _mapped_reads(dbs, confs, partition, tableid):
 
 
 def _raw_mapped_reads(dbs, conf):
+    """Query the database for mapped reads using different SQL tables"""
     sql = """
 select
     totalReads,
