@@ -8,18 +8,22 @@ from utils import aggregate
 def mapping_summary(dbs, confs):
     chart = {}
 
-    stats, failed = aggregate(dbs, confs['configurations'], _mapping_summary, lambda x, y: x + y)
+    stats, failed = aggregate(dbs, 
+                              confs['configurations'], 
+                              _mapping_summary, 
+                              lambda x, y: x + y)
 
     average_by = len(confs['configurations']) - failed
 
     if average_by == 0:
-        resolution_info = ''
+        label = ''
     elif average_by == 1:
-        resolution_info = 'For one set of %ss' % confs['resolution']['id']
+        label = 'For one set of %ss' % confs['resolution']['id']
     else:
-        resolution_info = 'Average over %s sets of %ss' % (average_by, confs['resolution']['id'])
+        label = 'Average over %s sets of %ss' % (average_by, 
+                                                 confs['resolution']['id'])
 
-    chart['table_description'] = [(resolution_info, 'string'),
+    chart['table_description'] = [(label, 'string'),
                                   ('Total', 'number'),
                                   ('Percent', 'number'),
                                  ]
@@ -64,9 +68,16 @@ def _percentage_mapping_summary(data, average_by):
         multimapped = float(data['multimapped']) / average_by
         unmapped = float(data['unmapped']) / average_by
         total = float(data['total']) / average_by
-        result.append(("Uniquely Mapped Reads", int(unique), unique / total * 100.0))
-        result.append(("Multi-Mapped Reads", int(multimapped), multimapped / total * 100.0))
-        result.append(("Unmapped Reads", int(unmapped), unmapped / total * 100.0))
+
+        result.append(("Uniquely Mapped Reads", 
+                       int(unique), 
+                       unique / total * 100.0))
+        result.append(("Multi-Mapped Reads", 
+                       int(multimapped), 
+                       multimapped / total * 100.0))
+        result.append(("Unmapped Reads", 
+                       int(unmapped), 
+                       unmapped / total * 100.0))
     return result
 
 
@@ -107,18 +118,22 @@ def mapped_reads(dbs, confs, tableid):
 
 
 def _mapped_reads(dbs, confs, partition, tableid):
-    stats, failed = aggregate(dbs, confs, _raw_mapped_reads, lambda x, y: x + y, tableid=tableid)
+    stats, failed = aggregate(dbs, 
+                              confs, 
+                              _raw_mapped_reads, 
+                              lambda x, y: x + y, 
+                              tableid=tableid)
 
     average_by = len(confs) - failed
 
     if average_by == 0:
         return [partition, None, None, None, None]
 
-    totalReads = float(stats['totalReads']) / average_by
-    mappedReads = float(stats['mappedReads']) / average_by
-    uniqueReads = float(stats['uniqueReads']) / average_by
-    onezerozerouniqueReads = float(stats['100uniqueReads']) / average_by
-    return [partition, totalReads, mappedReads, uniqueReads, onezerozerouniqueReads]
+    total = float(stats['totalReads']) / average_by
+    mapped = float(stats['mappedReads']) / average_by
+    unique = float(stats['uniqueReads']) / average_by
+    onezerozero = float(stats['100uniqueReads']) / average_by
+    return [partition, total, mapped, unique, onezerozero]
 
 
 def _raw_mapped_reads(dbs, conf):
