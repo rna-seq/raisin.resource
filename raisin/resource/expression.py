@@ -11,18 +11,21 @@ from utils import run
 def expression_summary(dbs, confs):
     chart = {}
 
-    stats, failed = aggregate(dbs, confs['configurations'], _expression_summary, lambda x, y: x + y)
+    stats, failed = aggregate(dbs, 
+                              confs['configurations'], 
+                              _expression_summary, 
+                              lambda x, y: x + y)
 
     average_by = len(confs['configurations']) - failed
 
     if average_by == 1:
-        resolution_info = ''
+        label = ''
     if average_by == 0:
-        resolution_info = 'For one %s' % confs['resolution']['id']
+        label = 'For one %s' % confs['resolution']['id']
     else:
-        resolution_info = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
+        label = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
 
-    chart['table_description'] = [(resolution_info, 'string'),
+    chart['table_description'] = [(label, 'string'),
                                   ('Total',    'number'),
                                   ('Detected', 'number'),
                                   ('Percent',  'number'),
@@ -56,18 +59,20 @@ def _percentage_expression_summary(data, average_by):
         result.append(('Transcript', None, None))
         result.append(('Exons', None, None))
     else:
-        genes_detected = float(data[('Genes', 'detected')]) / average_by
-        genes_total = float(data[('Genes', 'total')]) / average_by
-        genes_percent = genes_detected / genes_total * 100.0
-        transcripts_detected = float(data[('Transcripts', 'detected')]) / average_by
-        transcripts_total = float(data[('Transcripts', 'total')]) / average_by
-        transcripts_percent = transcripts_detected / transcripts_total * 100.0
-        exons_detected = float(data[('Exons', 'detected')]) / average_by
-        exons_total = float(data[('Exons', 'total')]) / average_by
-        exons_percent = exons_detected / exons_total * 100.0
-        result.append(('Genes', int(genes_total), int(genes_detected), genes_percent))
-        result.append(('Transcript', int(transcripts_total), int(transcripts_detected), transcripts_percent))
-        result.append(('Exons', int(exons_total), int(exons_detected), exons_percent))
+        total = float(data[('Genes', 'total')]) / average_by
+        detected = float(data[('Genes', 'detected')]) / average_by
+        percent = detected / total * 100.0
+        result.append(('Genes', int(total), int(detected), percent))
+
+        total = float(data[('Transcripts', 'total')]) / average_by
+        detected = float(data[('Transcripts', 'detected')]) / average_by
+        percent = detected / total * 100.0
+        result.append(('Transcript', int(total), int(detected), percent))
+
+        total = float(data[('Exons', 'total')]) / average_by
+        detected = float(data[('Exons', 'detected')]) / average_by
+        percent = detected / total * 100.0
+        result.append(('Exons', int(total), int(detected), percent))
     return result
 
 
@@ -81,7 +86,10 @@ def detected_genes(dbs, confs):
                 'reliability': x['reliability'],
                 }
 
-    stats, failed = aggregate(dbs, confs['configurations'], _detected_genes, strategy=adding)
+    stats, failed = aggregate(dbs, 
+                              confs['configurations'], 
+                              _detected_genes, 
+                              strategy=adding)
 
     if stats is None:
         chart['table_description'] = ['Type']
@@ -142,10 +150,13 @@ group by type, reliability;
     cursor.close()
     cells = {}
     for row in rows:
-        if (conf['runid'], row[0], row[1]) in cells:
+        key = (conf['runid'], row[0], row[1])
+        if key in cells:
             raise AttributeError
         else:
-            cells[(conf['runid'], row[0], row[1])] = {'biotype': row[0], 'reliability': row[1], 'detected': row[2]}
+            cells[key] = {'biotype': row[0], 
+                          'reliability': row[1], 
+                          'detected': row[2]}
     return cells
 
 
@@ -186,11 +197,8 @@ def gene_expression_profile(dbs, confs):
         for y, values in coords.items():
             # take a random sample of items if the dataset is too big
             if len(values) > 1:
-                # Divide the number of values by the logaritm to get a sample size that reflects the
-                # size of the population
-                # y:1 5677 -> 656
-                # y:6 260 -> 46
-                # y:136 10 -> 4
+                # Divide the number of values by the logaritm to get a sample
+                # size that reflects the size of the population
                 size = int(len(values) / math.log(len(values)))
                 if size <= len(values):
                     sample = sample + random.sample(values, size)
@@ -258,9 +266,10 @@ def gene_expression_levels(dbs, confs):
 
     top_genes = {}
     for conf in confs['configurations']:
-        top_genes[(conf['runid'], conf['laneid'])] = _top_gene_expression_levels(dbs, conf)
-        # Reverse because then the items are popped starting with the highest expressed
-        top_genes[(conf['runid'], conf['laneid'])].reverse()
+        key = (conf['runid'], conf['laneid'])
+        top_genes[key] = _top_gene_expression_levels(dbs, conf)
+        # Reverse. Items will be popped starting with most highly expressed.
+        top_genes[key].reverse()
 
     # Compose the random seed from the laneids
     random.seed(tuple([c['laneid'] for c in confs['configurations']]))
