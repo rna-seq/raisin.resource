@@ -60,7 +60,7 @@ from localization"""
 
 
 def get_parameter_list(confs, meta, separator='-'):
-    projectid = confs['kw']['projectid']
+    projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
     experimentid_parts = []
@@ -71,7 +71,7 @@ def get_parameter_list(confs, meta, separator='-'):
 
 
 def get_parameter_values(confs, meta, separator='-'):
-    projectid = confs['kw']['projectid']
+    projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
     meta['partition'] = meta['partition'] or '@'
@@ -97,10 +97,10 @@ def get_experiment_dict(confs):
     """
     Make a dict out of the parameters defined in parameter_list and parameter_values
     """
-    projectid = confs['kw']['projectid']
+    projectid = confs['kwargs']['projectid']
 
-    parameter_list = confs['kw']['parameter_list'].split('-')
-    parameter_values = confs['kw']['parameter_values'].split('-')
+    parameter_list = confs['kwargs']['parameter_list'].split('-')
+    parameter_values = confs['kwargs']['parameter_values'].split('-')
 
     if len(parameter_list) != len(parameter_values):
         raise AttributeError
@@ -130,7 +130,7 @@ def get_experiment_labels(meta, rna_types, cell_types, compartments):
 
 
 def get_experiment_chart(confs):
-    projectid = confs['kw']['projectid']
+    projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
     chart = {}
@@ -146,7 +146,7 @@ def get_experiment_chart(confs):
 
 
 def get_experiment_result(confs, meta):
-    projectid = confs['kw']['projectid']
+    projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
     number_of_runs = len(meta)
@@ -161,7 +161,7 @@ def get_experiment_result(confs, meta):
 
 
 def get_experiment_order_by(confs):
-    projectid = confs['kw']['projectid']
+    projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -181,7 +181,7 @@ def get_experiment_where(confs, meta):
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
     parameter_labels = confs['request'].environ['parameter_labels']
-    parameter_list = confs['kw']['parameter_list'].split('-')
+    parameter_list = confs['kwargs']['parameter_list'].split('-')
     where = """where
 %s
 """
@@ -195,7 +195,7 @@ def get_experiment_where(confs, meta):
 
 
 def get_experiment_runs(dbs, confs):
-    if 'parameter_values' in confs['kw']:
+    if 'parameter_values' in confs['kwargs']:
         meta = get_experiment_dict(confs)
         sql = """
     select experiment_id
@@ -203,15 +203,15 @@ def get_experiment_runs(dbs, confs):
     %s
     order by
         experiment_id;""" % get_experiment_where(confs, meta)
-        cursor = dbs[confs['kw']['projectid']]['RNAseqPipelineCommon'].query(sql)
+        cursor = dbs[confs['kwargs']['projectid']]['RNAseqPipelineCommon'].query(sql)
     else:
         sql = """
     select experiment_id
     from experiments
     where project_id = '%s'
     order by
-        experiment_id;""" % confs['kw']['projectid']
-        cursor = dbs[confs['kw']['projectid']]['RNAseqPipelineCommon'].query(sql)
+        experiment_id;""" % confs['kwargs']['projectid']
+        cursor = dbs[confs['kwargs']['projectid']]['RNAseqPipelineCommon'].query(sql)
 
     rows = cursor.fetchall()
     cursor.close()
@@ -233,25 +233,25 @@ def get_level(runid, laneid, readid):
 
 def configurations_for_level(request, dbs, configurations, level):
     configurations_for_level = []
-    for kw in configurations:
+    for kwargs in configurations:
         if level is None:
             return configurations
         elif level == 'project':
             return configurations
         elif level == 'experiment':
-            items, failed = run(dbs, get_project_experiments, {'kw': kw, 'request': request})
+            items, failed = run(dbs, get_project_experiments, {'kwargs': kwargs, 'request': request})
         elif level == 'run':
-            items, failed = run(dbs, get_experiment_runs, {'kw': kw, 'request': request})
+            items, failed = run(dbs, get_experiment_runs, {'kwargs': kwargs, 'request': request})
         elif level == 'lane':
-            items, failed = run(dbs, get_run_lanes, kw)
+            items, failed = run(dbs, get_run_lanes, kwargs)
         elif level == 'read':
-            items, failed = run(dbs, get_lane_reads, kw)
+            items, failed = run(dbs, get_lane_reads, kwargs)
         if failed:
             # Failed to get information for this configuration
             pass
         else:
             for item in items:
-                configuration = kw.copy()
+                configuration = kwargs.copy()
                 configuration["%sid" % level] = item
                 configurations_for_level.append(configuration)
     return configurations_for_level
@@ -268,7 +268,7 @@ def partition_configurations(configurations, level):
     return partition_configurations
 
 
-def get_configurations(request, level, resolution, partition, dbs, **kw):
+def get_configurations(request, level, resolution, partition, dbs, **kwargs):
     level_titles = {'project':    'Project Id',
                     'experiment': 'Experiment Id',
                     'run':        'Run Id',
@@ -284,7 +284,7 @@ def get_configurations(request, level, resolution, partition, dbs, **kw):
                           None: None,
                          }
     # Create the configuration partitions for this level
-    configurations = [kw.copy()]
+    configurations = [kwargs.copy()]
     levels = [None, 'project', 'experiment', 'run', 'lane', 'read']
     partition_levels = {None: 'project',
                         'project': 'experiment',
@@ -319,13 +319,13 @@ def get_configurations(request, level, resolution, partition, dbs, **kw):
                        'title': level_titles[partition_levels[level]],
                        },
               'configurations': configurations,
-              'kw': kw,
+              'kwargs': kwargs,
              }
     return result
 
 
 def get_project_experiments(dbs, confs):
-    projectid = confs['kw']['projectid']
+    projectid = confs['kwargs']['projectid']
     sql = """
 select project_id,
        CellType,
@@ -340,7 +340,7 @@ select project_id,
 from experiments
 where
       project_id='%(projectid)s'
-""" % confs['kw']
+""" % confs['kwargs']
     cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -413,11 +413,11 @@ def run(dbs, method, conf):
     return data, failed
 
 
-def aggregate(dbs, confs, method, strategy, **kw):
+def aggregate(dbs, confs, method, strategy, **kwargs):
     stats = None
     failed = 0
     for conf in confs:
-        conf.update(kw)
+        conf.update(kwargs)
         data = run_method_using_mysqldb(method, dbs, conf, http.not_found)
         if data == http.not_found:
             print "Can't aggregate because of missing data."
@@ -430,10 +430,10 @@ def aggregate(dbs, confs, method, strategy, **kw):
     return stats, failed
 
 
-def collect(dbs, confs, method, strategy, **kw):
+def collect(dbs, confs, method, strategy, **kwargs):
     results = []
     for conf in confs:
-        conf.update(kw)
+        conf.update(kwargs)
         data = run_method_using_mysqldb(method, dbs, conf, http.not_found)
         if data == http.not_found:
             print "Can't collect because of missing data."
@@ -443,7 +443,7 @@ def collect(dbs, confs, method, strategy, **kw):
     return results
 
 
-def merge(d1, d2, strategy=lambda x, y: y):
+def merge(d_1, d_2, strategy=lambda x, y: y):
     """
     http://stackoverflow.com/questions/38987/how-can-i-merge-two-python-dictionaries-as-a-single-expression
 
@@ -457,20 +457,20 @@ def merge(d1, d2, strategy=lambda x, y: y):
 
     Examples:
 
-    >>> d1
+    >>> d_1
     {'a': 1, 'c': 3, 'b': 2}
-    >>> merge(d1, d1)
+    >>> merge(d_1, d_1)
     {'a': 1, 'c': 3, 'b': 2}
-    >>> merge(d1, d1, lambda x,y: x+y)
+    >>> merge(d_1, d_1, lambda x,y: x+y)
     {'a': 2, 'c': 6, 'b': 4}
 
     """
-    result = dict(d1)
-    for k, v in d2.iteritems():
-        if k in result:
-            result[k] = strategy(result[k], v)
+    result = dict(d_1)
+    for key, value in d_2.iteritems():
+        if key in result:
+            result[key] = strategy(result[key], value)
         else:
-            result[k] = v
+            result[key] = value
     return result
 
 
@@ -520,17 +520,16 @@ class register_resource(object):
 
 
 def get_dashboard_db(dbs, hgversion):
+    """Get the dashboard database for this human genome version"""
     if hgversion == 'hg19':
-        db = 'hg19_RNA_dashboard'
+        dashboard_db = 'hg19_RNA_dashboard'
     elif hgversion == 'hg18':
-        db = 'hg18_RNA_dashboard'
+        dashboard_db = 'hg18_RNA_dashboard'
     else:
         raise AttributeError
-    dashboard_db = None
-    # Search for the first matching db. This is done because we are not given a specific
-    # project, and want to avoid hard-coding the project from which to take the db
+    # Search for the first matching db. This is done because we are not given 
+    # a specific project, and want to avoid hard-coding the project from which
+    # to take the db
     for project_dbs in dbs.values():
-        if db in project_dbs:
-            dashboard_db = project_dbs[db]
-            break
-    return dashboard_db
+        if dashboard_db in project_dbs:
+            return project_dbs[dashboard_db]
