@@ -543,8 +543,8 @@ def project_experiment_subset_selection(dbs, confs):
         if len(variations[subset]) < 2:
             continue
         for variation in variations[subset]:
-            link = ('%s-%s' % (confs['kw']['parameter_list'], subset),
-                   '%s-%s' % (confs['kw']['parameter_values'], variation),
+            link = ('%s-%s' % (confs['kwargs']['parameter_list'], subset),
+                   '%s-%s' % (confs['kwargs']['parameter_values'], variation),
                    parameter_labels[subset][0],
                    variation,
                    subset,
