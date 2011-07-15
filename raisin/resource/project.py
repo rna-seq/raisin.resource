@@ -1,3 +1,5 @@
+"""Project related resources"""
+
 import datetime
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db

@@ -1,4 +1,5 @@
-# http://code.google.com/apis/visualization/documentation/reference.html
+"""Summary statistics of expression"""
+
 import math
 import random
 from utils import register_resource

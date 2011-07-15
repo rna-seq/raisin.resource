@@ -1,3 +1,5 @@
+"""Summary statistics related to read quality"""
+
 from utils import register_resource
 from utils import aggregate
 

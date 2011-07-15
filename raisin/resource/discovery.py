@@ -1,3 +1,5 @@
+"""Summary statistics for discovery of novel junctions"""
+
 from utils import register_resource
 from utils import collect
 
