@@ -82,11 +82,11 @@ order by
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10], 
+    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10],
                                                          rows[0][10]))
-    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11], 
+    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11],
                                                         rows[0][11]))
-    result.append(get_compartment_display_mapping(dbs).get(rows[0][12], 
+    result.append(get_compartment_display_mapping(dbs).get(rows[0][12],
                                                            rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
@@ -245,8 +245,8 @@ def experiments_configurations(dbs, confs):
 
     results = []
     for projectid in dbs.keys():
-        rows, failed = run(dbs, 
-                           _experiments_configurations, 
+        rows, failed = run(dbs,
+                           _experiments_configurations,
                            {'projectid': projectid})
         if not failed:
             results = results + list(rows)
@@ -395,9 +395,9 @@ def project_experimentstable(dbs, confs):
 
 def _project_experimentstable(dbs, confs, raw=True, where=False):
     chart = get_experiment_chart(confs)
-    experimentids = _project_experimentstable_experiments(dbs, 
-                                                          confs, 
-                                                          raw, 
+    experimentids = _project_experimentstable_experiments(dbs,
+                                                          confs,
+                                                          raw,
                                                           where)
     results = []
     for value in experimentids.values():
@@ -501,9 +501,9 @@ and
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset_selection(dbs, confs):
     """XXX Needs refactoring"""
-    experimentids = _project_experimentstable_experiments(dbs, 
-                                                          confs, 
-                                                          raw=True, 
+    experimentids = _project_experimentstable_experiments(dbs,
+                                                          confs,
+                                                          raw=True,
                                                           where=True)
     conf = confs['configurations'][0]
     projectid = conf['projectid']
@@ -539,7 +539,7 @@ def project_experiment_subset_selection(dbs, confs):
     links = []
 
     for subset in subsets:
-        # If there is variation for this subset, add links 
+        # If there is variation for this subset, add links
         if len(variations[subset]) < 2:
             continue
         for variation in variations[subset]:
@@ -562,11 +562,11 @@ def project_experiment_subset_selection(dbs, confs):
     chart['table_description'] = description
     chart['table_data'] = []
     for names, values, name, value, subset in links:
-        chart['table_data'].append((projectid, 
-                                    names, 
-                                    values, 
-                                    name, 
-                                    str(value), 
+        chart['table_data'].append((projectid,
+                                    names,
+                                    values,
+                                    name,
+                                    str(value),
                                     str(variation_count[subset].count(value))))
 
     if len(chart['table_data']) == 0:
