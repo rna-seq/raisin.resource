@@ -11,9 +11,9 @@ from utils import run
 def expression_summary(dbs, confs):
     chart = {}
 
-    stats, failed = aggregate(dbs, 
-                              confs['configurations'], 
-                              _expression_summary, 
+    stats, failed = aggregate(dbs,
+                              confs['configurations'],
+                              _expression_summary,
                               lambda x, y: x + y)
 
     average_by = len(confs['configurations']) - failed
@@ -86,9 +86,9 @@ def detected_genes(dbs, confs):
                 'reliability': x['reliability'],
                 }
 
-    stats, failed = aggregate(dbs, 
-                              confs['configurations'], 
-                              _detected_genes, 
+    stats, failed = aggregate(dbs,
+                              confs['configurations'],
+                              _detected_genes,
                               strategy=adding)
 
     if stats is None:
@@ -154,8 +154,8 @@ group by type, reliability;
         if key in cells:
             raise AttributeError
         else:
-            cells[key] = {'biotype': row[0], 
-                          'reliability': row[1], 
+            cells[key] = {'biotype': row[0],
+                          'reliability': row[1],
                           'detected': row[2]}
     return cells
 
