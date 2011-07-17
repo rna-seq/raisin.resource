@@ -66,11 +66,11 @@ where project_id='%(projectid)s'
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10], 
+    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10],
                                                          rows[0][10]))
-    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11], 
+    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11],
                                                         rows[0][11]))
-    result.append(get_compartment_display_mapping(dbs).get(rows[0][12], 
+    result.append(get_compartment_display_mapping(dbs).get(rows[0][12],
                                                            rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
@@ -269,9 +269,9 @@ order by
                         parameter_list,
                         parameter_values,
                         runid,
-                        url % (projectid, 
-                               parameter_list, 
-                               parameter_values, 
+                        url % (projectid,
+                               parameter_list,
+                               parameter_values,
                                runid),
                        )
                       )
