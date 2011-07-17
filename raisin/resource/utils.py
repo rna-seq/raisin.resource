@@ -527,7 +527,7 @@ def get_dashboard_db(dbs, hgversion):
         dashboard_db = 'hg18_RNA_dashboard'
     else:
         raise AttributeError
-    # Search for the first matching db. This is done because we are not given 
+    # Search for the first matching db. This is done because we are not given
     # a specific project, and want to avoid hard-coding the project from which
     # to take the db
     for project_dbs in dbs.values():
