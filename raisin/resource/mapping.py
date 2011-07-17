@@ -9,9 +9,9 @@ def mapping_summary(dbs, confs):
     """Overview of the results after mapping"""
     chart = {}
 
-    stats, failed = aggregate(dbs, 
-                              confs['configurations'], 
-                              _mapping_summary, 
+    stats, failed = aggregate(dbs,
+                              confs['configurations'],
+                              _mapping_summary,
                               lambda x, y: x + y)
 
     average_by = len(confs['configurations']) - failed
@@ -21,7 +21,7 @@ def mapping_summary(dbs, confs):
     elif average_by == 1:
         label = 'For one set of %ss' % confs['resolution']['id']
     else:
-        label = 'Average over %s sets of %ss' % (average_by, 
+        label = 'Average over %s sets of %ss' % (average_by,
                                                  confs['resolution']['id'])
 
     chart['table_description'] = [(label, 'string'),
@@ -72,14 +72,14 @@ def _percentage_mapping_summary(data, average_by):
         unmapped = float(data['unmapped']) / average_by
         total = float(data['total']) / average_by
 
-        result.append(("Uniquely Mapped Reads", 
-                       int(unique), 
+        result.append(("Uniquely Mapped Reads",
+                       int(unique),
                        unique / total * 100.0))
-        result.append(("Multi-Mapped Reads", 
-                       int(multimapped), 
+        result.append(("Multi-Mapped Reads",
+                       int(multimapped),
                        multimapped / total * 100.0))
-        result.append(("Unmapped Reads", 
-                       int(unmapped), 
+        result.append(("Unmapped Reads",
+                       int(unmapped),
                        unmapped / total * 100.0))
     return result
 
@@ -127,10 +127,10 @@ def mapped_reads(dbs, confs, tableid):
 
 def _mapped_reads(dbs, confs, partition, tableid):
     """Calculate read mappings using different SQL tables"""
-    stats, failed = aggregate(dbs, 
-                              confs, 
-                              _raw_mapped_reads, 
-                              lambda x, y: x + y, 
+    stats, failed = aggregate(dbs,
+                              confs,
+                              _raw_mapped_reads,
+                              lambda x, y: x + y,
                               tableid=tableid)
 
     average_by = len(confs) - failed
