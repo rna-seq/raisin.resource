@@ -29,6 +29,7 @@ import discovery
 
 from raisin.mysqldb import run_method_using_mysqldb
 from utils import get_configurations
+from utils import to_cfg
 log = logging.getLogger(__name__)
 
 
@@ -140,6 +141,12 @@ class Root(resource.Resource):
     def rnadashboard_results(self, request, segments, **kwargs):
         key = 'rnadashboard_results'
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/results" % kwargs
+        return Resource(key, cachefilebase, **kwargs), segments
+
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/rnadashboard/{hgversion}/accessions')
+    def rnadashboard_accessions(self, request, segments, **kwargs):
+        key = 'rnadashboard_accessions'
+        cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/accessions" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/run/{runid}')
@@ -288,6 +295,8 @@ class Resource(resource.Resource):
                 body = table.ToJSonResponse()
             elif accept_header == 'text/html':
                 body = table.ToHtml()
+            elif accept_header == 'text/x-cfg':
+                body = to_cfg(data)
             elif accept_header == 'text/csv':
                 body = table.ToCsv()
             elif accept_header == 'text/tab-separated-values':
