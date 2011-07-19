@@ -533,3 +533,13 @@ def get_dashboard_db(dbs, hgversion):
     for project_dbs in dbs.values():
         if dashboard_db in project_dbs:
             return project_dbs[dashboard_db]
+
+
+def to_cfg(data):
+    parts = []
+    for row in data['table_data']:
+        parts.append("[%s]" % row[0])
+        for header, cell in zip(data['table_description'][1:], row[1:]):
+            parts.append("    %s=%s" % (header[0], cell))
+        parts.append("")
+    return "\n".join(parts)
