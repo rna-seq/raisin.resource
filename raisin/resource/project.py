@@ -327,8 +327,27 @@ def rnadashboard_results(dbs, confs):
     if not confs['configurations'][0]['projectid'] == 'ENCODE':
         return None
 
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    wheres = _rnadashboard_results_wheres(confs)
+    rows = _rnadashboard_results(dbs, confs, wheres)
 
+    results = []
+    for row in rows:
+        result = list(row)
+        if row[17] == 1:
+            if not result[0] is None:
+                end = result[0] + datetime.timedelta(9 * 365 / 12)
+                if end > datetime.date.today():
+                    result[0] = "%s-%s-%s" % (end.year, end.month, end.day)
+                else:
+                    result[0] = None
+        else:
+            result[0] = 'To be decided'
+        results.append(result)
+    chart['table_data'] = results
+    return chart
+
+
+def _rnadashboard_results_wheres(confs):
     wheres = ""
     meta = get_experiment_dict(confs)
     if 'cell_type' in meta:
@@ -350,7 +369,11 @@ AND
         wheres = wheres + """
 AND
     file.lab = '%(lab)s'""" % meta
+    return wheres
 
+
+def _rnadashboard_results(dbs, confs, wheres="", additional_selects=""):
+    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
     sql = """
 SELECT file.dateSubmitted,
        file.fileType,
@@ -378,7 +401,7 @@ SELECT file.dateSubmitted,
        experiment.readType,
        experiment.insertLength,
        experiment.techReplicate as techRep,
-       experiment.id as expId
+       experiment.id as expId%s
 FROM sample,
      technology,
      file,
@@ -406,23 +429,118 @@ AND
       sample.rnaExtract = rnaExtract.ucscName
 AND
       sample.cell = cell.ucscName
-%s""" % wheres
+%s""" % (additional_selects, wheres)
     cursor = dashboard_db.query(sql)
     rows = cursor.fetchall()
     cursor.close()
+    return rows
+
+
+@register_resource(resolution=None, partition=False)
+def rnadashboard_accessions(dbs, confs):
+    """Produce accessions with information obtained from the RNA dashboard
+
+    The accession file can be fetched like this to fetch all accessions for the lab CSHL
+
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab/CSHL/rnadashboard/hg19/accessions
+
+    Selecting rna type subsets can also be useful:
+
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-LONGPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-LONGNONPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-TOTAL/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-SHORT/rnadashboard/hg19/accessions
+
+    This is an example of an accession:
+
+        [ExampleRunId]
+        file_location = http://www.example.com/download/file-1-1.fastq.gz
+                        http://www.example.com/download/file-2-1.fastq.gz
+                        http://www.example.com/download/file-2-2.fastq.gz
+                        http://www.example.com/download/file-2-1.fastq.gz
+        species = Homo sapiens
+        readType = 1x36
+        rnaExtract = SHORTTOTAL
+        localization = CYTOSOL
+        replicate = 1
+        qualities = solexa
+        mate_id = Example_Rep1_2
+                  Example_Rep2_1
+                  Example_Rep2_2
+                  Example_Rep1_1
+        pair_id = Example_Rep1
+                  Example_Rep2
+                  Example_Rep2
+                  Example_Rep1
+        label = Bio1
+                Bio2
+                Bio2
+                Bio1
+    """
+    chart = {}
+
+    description = []
+    description.append(('accession',     'string'))
+    description.append(('file_location', 'string'))
+    #description.append(('species',       'string'))
+    description.append(('readType',      'string'))
+    description.append(('rnaExtract',    'string'))
+    description.append(('localization',  'string'))
+    description.append(('replicate',     'number'))
+    #description.append(('qualities',     'string'))
+    #description.append(('mate_id',       'string'))
+    #description.append(('pair_id',       'string'))
+    #description.append(('label',         'string'))
+
+    chart['table_description'] = description
+
+    additional_selects = """,
+    file.allAttributes
+"""
+    wheres = _rnadashboard_results_wheres(confs)
+    rows = _rnadashboard_results(dbs, confs, wheres, additional_selects)
+
+    # Only create accessions for fastq files
+    rows = [row for row in rows if row[1] in ['FASTQ', 'FASTQRD1', 'FASTQRD2']]
+
+    accession_files = {}
+
+    for row in rows:
+        accession = row[21]
+        if id in accession_files:
+            accession_files[accession].append(row)
+        else:
+            accession_files[accession] = [row]
+
+    accession_list = accession_files.keys()
+    accession_list.sort()
 
     results = []
-    for row in rows:
-        result = list(row)
-        if row[17] == 1:
-            if not result[0] is None:
-                end = result[0] + datetime.timedelta(9 * 365 / 12)
-                if end > datetime.date.today():
-                    result[0] = "%s-%s-%s" % (end.year, end.month, end.day)
-                else:
-                    result[0] = None
-        else:
-            result[0] = 'To be decided'
-        results.append(result)
+    for accession in accession_list:
+        files = accession_files[accession]
+        if len(files) > 2:
+            raise AttributeError
+        for file in files:
+            all_attributes = _parse_all_attributes(file[27])
+            readType = file[23]
+            if readType is None:
+                readType = all_attributes.get('readType', None)
+            results.append((accession,
+                            file[4],
+                            readType,
+                            file[14],
+                            file[12],
+                            file[19],
+                            ))
+
     chart['table_data'] = results
+
     return chart
+
+
+def _parse_all_attributes(all_attributes):
+    result = {}
+    for attribute in all_attributes.split(';'):
+        key, value = attribute.split('=')
+        result[key.strip()] = value.strip()
+    return result
