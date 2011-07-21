@@ -6,6 +6,13 @@ from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
 from raisin.resource.utils import get_experiment_dict
 
+# http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html#sex
+# XXX Needs to be verified
+GENDER_MAPPING = {'B': 'male',   # Both: a cell population with both male and female cells
+                  'F': 'female', # Female
+                  'M': 'male',   # Male
+                  'U': 'male',   # Unknown
+                  }
 
 @register_resource(resolution="project", partition=False)
 def info(dbs, confs):
@@ -494,12 +501,16 @@ def _rnadashboard_accessions(dbs, confs):
 
     description = []
     description.append(('accession',     'string'))
+    description.append(('gender',        'string'))
     description.append(('file_location', 'string'))
     description.append(('readType',      'string'))
     description.append(('rnaExtract',    'string'))
     description.append(('localization',  'string'))
     description.append(('replicate',     'number'))
     description.append(('cell',          'string'))
+    description.append(('species',       'string'))
+    description.append(('qualities',     'string'))
+    description.append(('file_type',     'string'))
 
     description_keys = [d[0] for d in description]
 
@@ -545,14 +556,19 @@ def _rnadashboard_accessions(dbs, confs):
             readType = file["experiment.readType"]
             if readType is None:
                 readType = attributes.get('readType', None)
+                
+                "fileView.displayName"
             results.append((accession,
+                            file["cell.sex"],
                             file["file.url"],
                             readType,
                             file["rnaExtract.ucscName"],
                             file["localization.ucscName"],
                             file["sample.replicate as bioRep"],
                             file["sample.cell"],
-                            
+                            "Homo sapiens",
+                            "phred",
+                            file["fileView.name"],
                             ))
 
     chart['table_data'] = results
@@ -573,6 +589,7 @@ def _fastqs(dbs, confs, wheres=""):
                "file.experiment_data_processing",
                "file.fileType",
                "fileView.displayName",
+               "fileView.name",
                "file.lab as endLab",         # Produced the file using their pipeline
                "file.url",
                "file.size",
@@ -581,6 +598,7 @@ def _fastqs(dbs, confs, wheres=""):
                "cell.displayName as cellName",
                "sample.cell",
                "cell.tier",
+               "cell.sex",
                "localization.displayName as localization",
                "localization.ucscName",
                "rnaExtract.displayName as rnaExtract",
@@ -648,7 +666,34 @@ def rnadashboard_runs(dbs, confs):
 
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab/CSHL/rnadashboard/hg19/accessions
     """
-    accessions = _rnadashboard_accessions(dbs, confs)
-    import pdb; pdb.set_trace()
+    table = _rnadashboard_accessions(dbs, confs)
     
+    chart = {}
+
+    description = []
+    description.append(('run',            'string'))
+    description.append(('recipe',         'string'))
+    description.append(('update-script',  'string'))
+    description.append(('install-script', 'string'))
+    description.append(('pipeline',       'string'))
+    description.append(('accession',      'string'))
  
+    chart['table_description'] = description
+
+    seen_runs = []
+
+    result = []
+    for accession in table['table_data']:
+        if not accession[0] in seen_runs:
+            result.append( (accession[0],
+                            "z3c.recipe.runscript",
+                            "prepare.py:main",
+                            "prepare.py:main",
+                            GENDER_MAPPING[accession[1]],
+                            accession[0]) 
+                         )
+        seen_runs.append(accession[0])
+
+    chart['table_data'] = result
+    return chart
+    
