@@ -550,10 +550,7 @@ def to_cfg(data):
     parts = []
     for partid in ids:
         parts.append("[%s]" % partid)
-        for key in description_keys:
-            if key == "accession":
-                # Don't need to repeat the accession
-                continue
+        for key in description_keys[1:]:
             parts.append("%s=%s" % (key, by_id[partid][0][key]))
             if len(by_id[partid]) > 1:
                 for row_dict in by_id[partid][1:]:
