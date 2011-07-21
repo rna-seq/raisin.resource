@@ -237,6 +237,60 @@ and
     return chart
 
 
+@register_resource(resolution="project", partition=False)
+def project_accessions(dbs, confs):
+    """Produce accessions with information obtained from the pipeline database
+
+    The accession file can be fetched like this to fetch all accessions for the lab CSHL
+
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/accessions
+    """
+    projectid = confs['configurations'][0]['projectid']
+    chart = {}
+    chart['table_description'] = [('accession',               'string'),
+                                  ('species',                 'string'),
+                                  ('rnaExtract',              'string'),
+                                  ('localization',            'string'),
+                                  ('replicate',               'string'),
+                                  ('gender',                  'string'),
+                                  ('readType',                'string'),
+                                  ('cell',                    'string'),
+                                 ]
+
+    sql = """
+select experiment_id,
+       species_info.species,
+       RNAType,
+       Compartment,
+       Bioreplicate,
+       genome_files.gender,
+       read_length,
+       CellType
+from experiments,
+     species_info,
+     genome_files,
+     annotation_files
+where
+      project_id='%s'
+and
+      experiments.species_id = species_info.species_id
+and
+      experiments.genome_id = genome_files.genome_id
+and
+      experiments.annotation_id = annotation_files.annotation_id;
+""" % projectid
+    cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+
+    results = []
+    for row in rows:
+        results.append(row)
+    chart['table_data'] = results
+    print chart
+    return chart
+
+
 @register_resource(resolution=None, partition=False)
 def experiment_runs(dbs, confs):
     """Compile the list of runs for the experiment"""
