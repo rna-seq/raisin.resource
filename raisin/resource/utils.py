@@ -536,10 +536,27 @@ def get_dashboard_db(dbs, hgversion):
 
 
 def to_cfg(data):
-    parts = []
+    description_keys = [d[0] for d in data['table_description']]
+    by_id = {}
     for row in data['table_data']:
-        parts.append("[%s]" % row[0])
-        for header, cell in zip(data['table_description'][1:], row[1:]):
-            parts.append("    %s=%s" % (header[0], cell))
+        row_dict = dict(zip(description_keys, row))
+        if row[0] in by_id:
+            by_id[row[0]].append(row_dict)
+        else:
+            by_id[row[0]] = [row_dict]
+    
+    ids = list(by_id.keys())
+    ids.sort()
+    parts = []
+    for partid in ids:
+        parts.append("[%s]" % partid)
+        for key in description_keys:
+            if key == "accession":
+                # Don't need to repeat the accession
+                continue
+            parts.append("%s=%s" % (key, by_id[partid][0][key]))
+            if len(by_id[partid]) > 1:
+                for row_dict in by_id[partid][1:]:
+                    parts.append(" " * (len(key) + 1) + str(row_dict[key]))
         parts.append("")
     return "\n".join(parts)
