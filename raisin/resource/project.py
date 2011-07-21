@@ -514,8 +514,6 @@ def _rnadashboard_accessions(dbs, confs):
     description.append(('qualities',     'string'))
     description.append(('file_type',     'string'))
 
-    description_keys = [d[0] for d in description]
-
     chart['table_description'] = description
 
     wheres = _rnadashboard_results_wheres(confs)
