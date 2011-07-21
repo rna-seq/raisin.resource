@@ -544,7 +544,7 @@ def to_cfg(data):
             by_id[row[0]].append(row_dict)
         else:
             by_id[row[0]] = [row_dict]
-    
+
     ids = list(by_id.keys())
     ids.sort()
     parts = []
