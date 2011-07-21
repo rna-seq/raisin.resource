@@ -101,6 +101,12 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/downloads" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
+    @resource.child('project/{projectid}/accessions')
+    def project_accessions(self, request, segments, **kwargs):
+        key = 'project_accessions'
+        cachefilebase = "project/%(projectid)s/accessions" % kwargs
+        return Resource(key, cachefilebase, **kwargs), segments
+
     @resource.child('project/{projectid}/experiments/tableraw')
     def project_experimentstableraw(self, request, segments, **kwargs):
         key = 'project_experimentstableraw'
