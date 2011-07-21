@@ -1,5 +1,6 @@
 """Project related resources"""
 
+import random
 import datetime
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
@@ -322,7 +323,7 @@ def rnadashboard_results(dbs, confs):
     description.append(('Experiment Tech Replicate', 'number'))
     description.append(('Experiment Id',             'string'))
 
-    chart['table_description'] = description
+    description_keys = [d[0] for d in description]
 
     if not confs['configurations'][0]['projectid'] == 'ENCODE':
         return None
@@ -332,17 +333,18 @@ def rnadashboard_results(dbs, confs):
 
     results = []
     for row in rows:
-        result = list(row)
-        if row[17] == 1:
-            if not result[0] is None:
-                end = result[0] + datetime.timedelta(9 * 365 / 12)
+        result = dict(zip(description_keys, row))
+        if result['File at UCSC'] == 1:
+            if not result['Restricted until'] is None:
+                end = result['Restricted until'] + datetime.timedelta(9 * 365 / 12)
                 if end > datetime.date.today():
-                    result[0] = "%s-%s-%s" % (end.year, end.month, end.day)
+                    result['Restricted until'] = "%s-%s-%s" % (end.year, end.month, end.day)
                 else:
-                    result[0] = None
+                    result['Restricted until'] = None
         else:
-            result[0] = 'To be decided'
-        results.append(result)
+            result['Restricted until'] = 'To be decided'
+        results.append([result[key] for key in description_keys])
+    chart['table_description'] = description
     chart['table_data'] = results
     return chart
 
@@ -372,7 +374,7 @@ AND
     return wheres
 
 
-def _rnadashboard_results(dbs, confs, wheres="", additional_selects=""):
+def _rnadashboard_results(dbs, confs, wheres=""):
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
     sql = """
 SELECT file.dateSubmitted,
@@ -401,7 +403,7 @@ SELECT file.dateSubmitted,
        experiment.readType,
        experiment.insertLength,
        experiment.techReplicate as techRep,
-       experiment.id as expId%s
+       experiment.id as expId
 FROM sample,
      technology,
      file,
@@ -429,7 +431,7 @@ AND
       sample.rnaExtract = rnaExtract.ucscName
 AND
       sample.cell = cell.ucscName
-%s""" % (additional_selects, wheres)
+%s""" % wheres
     cursor = dashboard_db.query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -450,6 +452,14 @@ def rnadashboard_accessions(dbs, confs):
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-LONGNONPOLYA/rnadashboard/hg19/accessions
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-TOTAL/rnadashboard/hg19/accessions
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-SHORT/rnadashboard/hg19/accessions
+
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CALTECH-LONGPOLYA/rnadashboard/hg19/accessions
+
+        
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/TOTAL/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/SHORT/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/LONGPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/LONGNONPOLYA/rnadashboard/hg19/accessions
 
     This is an example of an accession:
 
@@ -477,60 +487,72 @@ def rnadashboard_accessions(dbs, confs):
                 Bio2
                 Bio1
     """
+    return _rnadashboard_accessions(dbs, confs)
+    
+def _rnadashboard_accessions(dbs, confs):    
     chart = {}
 
     description = []
     description.append(('accession',     'string'))
     description.append(('file_location', 'string'))
-    #description.append(('species',       'string'))
     description.append(('readType',      'string'))
     description.append(('rnaExtract',    'string'))
     description.append(('localization',  'string'))
     description.append(('replicate',     'number'))
-    #description.append(('qualities',     'string'))
-    #description.append(('mate_id',       'string'))
-    #description.append(('pair_id',       'string'))
-    #description.append(('label',         'string'))
+    description.append(('cell',          'string'))
+
+    description_keys = [d[0] for d in description]
 
     chart['table_description'] = description
 
-    additional_selects = """,
-    file.allAttributes
-"""
     wheres = _rnadashboard_results_wheres(confs)
-    rows = _rnadashboard_results(dbs, confs, wheres, additional_selects)
+    fastqs = _fastqs(dbs, confs, wheres)
 
-    # Only create accessions for fastq files
-    rows = [row for row in rows if row[1] in ['FASTQ', 'FASTQRD1', 'FASTQRD2']]
+    accession_fastqs = {}
 
-    accession_files = {}
-
-    for row in rows:
-        accession = row[21]
-        if id in accession_files:
-            accession_files[accession].append(row)
+    
+    for fastq in fastqs:
+        accession_id = fastq["file.lab as endLab"]
+        if not fastq["sample.internalName"] is None:
+            accession_id = accession_id + fastq["sample.internalName"].replace('-', 'Minus')
         else:
-            accession_files[accession] = [row]
+            # Use an attribute value common between the files as a seed for the accession id
+            random.seed(fastq["file.experiment_data_processing"])
+            # Create a random accession id in absence of an internal name
+            accession_id = accession_id + str(random.random())[2:]
+        if accession_id is None:
+            # Use the file url as a seed for the accession id
+            #random.seed(fastq["file.url"])
+            # Create a random accession id in absence of an internal name
+            #accession_id = str(random.random())[2:]
+            accession_id = fastq["file.experiment_data_processing"]
+        if accession_id in accession_fastqs:
+            accession_fastqs[accession_id].append(fastq)
+        else:
+            accession_fastqs[accession_id] = [fastq]
 
-    accession_list = accession_files.keys()
+    accession_list = accession_fastqs.keys()
     accession_list.sort()
 
     results = []
     for accession in accession_list:
-        files = accession_files[accession]
+        files = accession_fastqs[accession]
         if len(files) > 2:
+            import pdb; pdb.set_trace()
             raise AttributeError
         for file in files:
-            all_attributes = _parse_all_attributes(file[27])
-            readType = file[23]
+            attributes = _parse_all_attributes(file["file.allAttributes"])
+            readType = file["experiment.readType"]
             if readType is None:
-                readType = all_attributes.get('readType', None)
+                readType = attributes.get('readType', None)
             results.append((accession,
-                            file[4],
+                            file["file.url"],
                             readType,
-                            file[14],
-                            file[12],
-                            file[19],
+                            file["rnaExtract.ucscName"],
+                            file["localization.ucscName"],
+                            file["sample.replicate as bioRep"],
+                            file["sample.cell"],
+                            
                             ))
 
     chart['table_data'] = results
@@ -544,3 +566,89 @@ def _parse_all_attributes(all_attributes):
         key, value = attribute.split('=')
         result[key.strip()] = value.strip()
     return result
+
+def _fastqs(dbs, confs, wheres=""):
+    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    selects = ["file.dateSubmitted",
+               "file.experiment_data_processing",
+               "file.fileType",
+               "fileView.displayName",
+               "file.lab as endLab",         # Produced the file using their pipeline
+               "file.url",
+               "file.size",
+               "fileView.deNovo",
+               "sample.grantName",
+               "cell.displayName as cellName",
+               "sample.cell",
+               "cell.tier",
+               "localization.displayName as localization",
+               "localization.ucscName",
+               "rnaExtract.displayName as rnaExtract",
+               "rnaExtract.ucscName",
+               "technology.displayName as technology",
+               "technology.name",
+               "file.atUcsc",
+               "fileType.rawType",
+               "sample.replicate as bioRep",
+               "sample.id as sample",
+               "sample.internalName",
+               "experiment.lab as expLab",     # Did the physical experiment
+               "experiment.readType",
+               "experiment.insertLength",
+               "experiment.techReplicate as techRep",
+               "experiment.id as expId",
+               "file.allAttributes"]
+    sql = """
+SELECT %s
+FROM sample,
+     technology,
+     file,
+     experiment,
+     fileType,
+     localization,
+     rnaExtract,
+     cell,
+     fileView
+WHERE
+      fileType != 'BAI'
+AND
+      file.experiment_data_processing = experiment.id
+AND
+      file.fileType = fileType.name
+AND
+      file.fileView = fileView.name
+AND
+      experiment.sampleName = sample.id
+AND
+      experiment.technology = technology.name
+AND
+      sample.localization = localization.ucscName
+AND
+      sample.rnaExtract = rnaExtract.ucscName
+AND
+      sample.cell = cell.ucscName
+AND   
+      file.fileType = "FASTQ"
+AND 
+      technology.name = "RNASEQ"
+%s""" % (",".join(selects), wheres)
+    cursor = dashboard_db.query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    result = []
+    for row in rows:
+        result.append(dict(zip(selects, row)))
+    return result
+
+@register_resource(resolution=None, partition=False)
+def rnadashboard_runs(dbs, confs):
+    """Produce runs with information obtained from the RNA dashboard
+
+    The runs file can be fetched like this to fetch runs accessions for the lab CSHL
+
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab/CSHL/rnadashboard/hg19/accessions
+    """
+    accessions = _rnadashboard_accessions(dbs, confs)
+    import pdb; pdb.set_trace()
+    
+ 

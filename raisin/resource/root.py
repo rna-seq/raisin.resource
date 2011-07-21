@@ -149,6 +149,12 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/accessions" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/rnadashboard/{hgversion}/runs')
+    def rnadashboard_runs(self, request, segments, **kwargs):
+        key = 'rnadashboard_runs'
+        cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/runs" % kwargs
+        return Resource(key, cachefilebase, **kwargs), segments
+
     @resource.child('project/{projectid}/run/{runid}')
     def run_info(self, request, segments, **kwargs):
         key = 'run_info'
