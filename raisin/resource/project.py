@@ -8,11 +8,12 @@ from raisin.resource.utils import get_experiment_dict
 
 # http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html#sex
 # XXX Needs to be verified
-GENDER_MAPPING = {'B': 'male',   # Both: a cell population with both male and female cells
-                  'F': 'female', # Female
-                  'M': 'male',   # Male
-                  'U': 'male',   # Unknown
+GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both male and female cells
+                  'F': 'female',  # Female
+                  'M': 'male',    # Male
+                  'U': 'male',    # Unknown
                   }
+
 
 @register_resource(resolution="project", partition=False)
 def info(dbs, confs):
@@ -462,7 +463,7 @@ def rnadashboard_accessions(dbs, confs):
 
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CALTECH-LONGPOLYA/rnadashboard/hg19/accessions
 
-        
+
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/TOTAL/rnadashboard/hg19/accessions
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/SHORT/rnadashboard/hg19/accessions
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/LONGPOLYA/rnadashboard/hg19/accessions
@@ -495,8 +496,9 @@ def rnadashboard_accessions(dbs, confs):
                 Bio1
     """
     return _rnadashboard_accessions(dbs, confs)
-    
-def _rnadashboard_accessions(dbs, confs):    
+
+
+def _rnadashboard_accessions(dbs, confs):
     chart = {}
 
     description = []
@@ -521,7 +523,6 @@ def _rnadashboard_accessions(dbs, confs):
 
     accession_fastqs = {}
 
-    
     for fastq in fastqs:
         accession_id = fastq["file.lab as endLab"]
         if not fastq["sample.internalName"] is None:
@@ -549,15 +550,12 @@ def _rnadashboard_accessions(dbs, confs):
     for accession in accession_list:
         files = accession_fastqs[accession]
         if len(files) > 2:
-            import pdb; pdb.set_trace()
             raise AttributeError
         for file in files:
             attributes = _parse_all_attributes(file["file.allAttributes"])
             readType = file["experiment.readType"]
             if readType is None:
                 readType = attributes.get('readType', None)
-                
-                "fileView.displayName"
             results.append((accession,
                             file["cell.sex"],
                             file["file.url"],
@@ -582,6 +580,7 @@ def _parse_all_attributes(all_attributes):
         key, value = attribute.split('=')
         result[key.strip()] = value.strip()
     return result
+
 
 def _fastqs(dbs, confs, wheres=""):
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
@@ -645,9 +644,9 @@ AND
       sample.rnaExtract = rnaExtract.ucscName
 AND
       sample.cell = cell.ucscName
-AND   
+AND
       file.fileType = "FASTQ"
-AND 
+AND
       technology.name = "RNASEQ"
 %s""" % (",".join(selects), wheres)
     cursor = dashboard_db.query(sql)
@@ -658,6 +657,7 @@ AND
         result.append(dict(zip(selects, row)))
     return result
 
+
 @register_resource(resolution=None, partition=False)
 def rnadashboard_runs(dbs, confs):
     """Produce runs with information obtained from the RNA dashboard
@@ -667,7 +667,7 @@ def rnadashboard_runs(dbs, confs):
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab/CSHL/rnadashboard/hg19/accessions
     """
     table = _rnadashboard_accessions(dbs, confs)
-    
+
     chart = {}
 
     description = []
@@ -677,7 +677,7 @@ def rnadashboard_runs(dbs, confs):
     description.append(('install-script', 'string'))
     description.append(('pipeline',       'string'))
     description.append(('accession',      'string'))
- 
+
     chart['table_description'] = description
 
     seen_runs = []
@@ -685,15 +685,14 @@ def rnadashboard_runs(dbs, confs):
     result = []
     for accession in table['table_data']:
         if not accession[0] in seen_runs:
-            result.append( (accession[0],
-                            "z3c.recipe.runscript",
-                            "prepare.py:main",
-                            "prepare.py:main",
-                            GENDER_MAPPING[accession[1]],
-                            accession[0]) 
+            result.append((accession[0],
+                           "z3c.recipe.runscript",
+                           "prepare.py:main",
+                           "prepare.py:main",
+                           GENDER_MAPPING[accession[1]],
+                           accession[0])
                          )
         seen_runs.append(accession[0])
 
     chart['table_data'] = result
     return chart
-    
