@@ -524,7 +524,7 @@ def _rnadashboard_accessions(dbs, confs):
     for fastq in fastqs:
         accession_id = fastq["file.lab as endLab"]
         if not fastq["sample.internalName"] is None:
-            accession_id = accession_id + fastq["sample.internalName"].replace('-', 'Minus')
+            accession_id = accession_id + fastq["sample.internalName"].replace('-', 'Minus').replace('+', 'Plus')
         else:
             # Use an attribute value common between the files as a seed for the accession id
             random.seed(fastq["file.experiment_data_processing"])
