@@ -363,9 +363,7 @@ def top_genes(dbs, confs, dumper=None):
                                   ('Lane Id', 'string'),
                                  ]
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.writeheader(chart['table_description'])
 
     result = []
@@ -445,9 +443,7 @@ def top_transcripts(dbs, confs, dumper=None):
                                   ('Lane Id', 'string'),
                ]
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.writeheader(chart['table_description'])
 
     result = []
@@ -464,9 +460,7 @@ def top_transcripts(dbs, confs, dumper=None):
                 else:
                     dumper.writerow(line)
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.close()
         return
 
@@ -529,9 +523,7 @@ def top_exons(dbs, confs, dumper=None):
                   ]
     chart['table_description'] = description
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.writeheader(chart['table_description'])
 
     result = []
@@ -548,9 +540,7 @@ def top_exons(dbs, confs, dumper=None):
                 else:
                     dumper.writerow(line)
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.close()
         return
 

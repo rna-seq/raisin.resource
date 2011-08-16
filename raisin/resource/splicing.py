@@ -153,9 +153,7 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
                                   ('Lane Id',              'string'),
                                  ]
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.writeheader(chart['table_description'])
 
     result = []
@@ -172,9 +170,7 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
                 else:
                     dumper.writerow(line)
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.close()
         return
 

@@ -293,16 +293,20 @@ def get_configurations(request, level, resolution, partition, dbs, **kwargs):
                         'lane': 'read',
                         'read': 'read'}
     level_range = levels[levels.index(level) + 1:levels.index(resolution) + 1]
-    #print "Choosing configurations for \n\trange: %s" % level_range
 
     for configuration_level in level_range:
-        configurations = configurations_for_level(request, dbs, configurations, configuration_level)
+        configurations = configurations_for_level(request,
+                                                  dbs,
+                                                  configurations,
+                                                  configuration_level)
 
     if partition:
         if level_range == []:
-            configurations = partition_configurations(configurations, resolution)
+            configurations = partition_configurations(configurations,
+                                                      resolution)
         else:
-            configurations = partition_configurations(configurations, level_range[0])
+            configurations = partition_configurations(configurations,
+                                                      level_range[0])
 
     result = {'request': request,
               'level': {
@@ -501,22 +505,23 @@ class register_resource(object):
         self.partition = partition
 
     def __call__(self, wrapped=None):
-        if wrapped:
-            # All levels at which there are statistics in the database
-            all_levels = [None, 'project', 'experiment', 'run', 'lane', 'read']
-            # Only levels that are higher than the base resolution level are possible
-            possible_levels = all_levels[:all_levels.index(self.resolution) + 1]
-            for level in possible_levels:
-                # Every statistic is known under a its name prefixed with the level
-                # for which it is summarized
-                if level == None:
-                    # This is a top level resource, so no prefix needed
-                    key = "%s" % wrapped.__name__
-                else:
-                    key = "%s_%s" % (level, wrapped.__name__)
-                # Now store the new statistics level in the registry
-                value = (wrapped, level, self.resolution, self.partition)
-                stats_registry[key] = value
+        if not wrapped:
+            return
+        # All levels at which there are statistics in the database
+        all_levels = [None, 'project', 'experiment', 'run', 'lane', 'read']
+        # Only levels that are higher than the base resolution
+        # level are possible
+        for level in all_levels[:all_levels.index(self.resolution) + 1]:
+            # Every statistic is known under its name prefixed with
+            # the level for which it is summarized
+            if level == None:
+                # This is a top level resource, so no prefix needed
+                key = "%s" % wrapped.__name__
+            else:
+                key = "%s_%s" % (level, wrapped.__name__)
+            # Now store the new statistics level in the registry
+            value = (wrapped, level, self.resolution, self.partition)
+            stats_registry[key] = value
 
 
 def get_dashboard_db(dbs, hgversion):

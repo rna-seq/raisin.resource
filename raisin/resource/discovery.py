@@ -15,9 +15,7 @@ def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
                                   ('Lane Id', 'string'),
                                  ]
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.writeheader(chart['table_description'])
 
     def strategy(conf, row):
@@ -33,9 +31,7 @@ def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
                         _all_novel_junctions_from_annotated_exons,
                         strategy)
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         for line in stats:
             dumper.writerow(line)
         dumper.close()
@@ -97,9 +93,7 @@ def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
                                   ('Lane Id',   'string'),
                                   ]
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         dumper.writeheader(chart['table_description'])
 
     def strategy(conf, row):
@@ -115,9 +109,7 @@ def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
                         _all_novel_junctions_from_unannotated_exons,
                         strategy)
 
-    if dumper is None:
-        pass
-    else:
+    if not dumper is None:
         for line in stats:
             dumper.writerow(line)
         dumper.close()
