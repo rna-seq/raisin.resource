@@ -7,9 +7,11 @@ from utils import run
 
 @register_resource(resolution="run", partition=False)
 def splicing_summary(dbs, confs):
+    """Fetch splicing summary chart"""
     chart = {}
 
     def adding(x, y):
+        """Add the values. Ignoring the absence of a value for the total."""
         z = {'detected': x['detected'] + y['detected']}
         if x['total'] is None:
             z['total'] = None
@@ -17,7 +19,10 @@ def splicing_summary(dbs, confs):
             z['total'] = x['total'] + y['total']
         return z
 
-    stats, failed = aggregate(dbs, confs['configurations'], _splicing_summary, adding)
+    stats, failed = aggregate(dbs,
+                              confs['configurations'],
+                              _splicing_summary,
+                              adding)
 
     average_by = len(confs['configurations']) - failed
 
@@ -38,6 +43,7 @@ def splicing_summary(dbs, confs):
 
 
 def _splicing_summary(dbs, conf):
+    """Fetch splicing_summary results from db"""
     # Add a line for the totals
     sql = """
 select junc_type,
@@ -54,13 +60,14 @@ from %(projectid)s_%(runid)s_splicing_summary""" % conf
 
 
 def _percentage_splicing_summary(data, average_by):
+    """Add percentages to splicing_summary"""
     result = []
     if data is None:
         result.append(('Known Junctions', None, None))
         result.append(('Novel Junctions from Annotated Exons', None, None))
         result.append(('Novel Junctions from Unannotated Exons', None, None))
     else:
-        for key, value in data.items():
+        for value in data.values():
             detected = float(value['detected']) / average_by
             if value['total'] is None:
                 value['percent'] = None
@@ -85,16 +92,15 @@ def _percentage_splicing_summary(data, average_by):
 
 @register_resource(resolution="lane", partition=True)
 def exon_inclusion_profile(dbs, confs):
+    """Fetch exon_inclusion_profile chart"""
     chart = {}
-    description = [('Percent', 'number'), ]
+    chart['table_description'] = [('Percent', 'number'), ]
     partition_keys = confs['configurations'].keys()
     partition_keys.sort()
     for partition in partition_keys:
-        description.append((partition, 'number'))
-    chart['table_description'] = description
+        chart['table_description'].append((partition, 'number'))
 
     coords = []
-    partition_length = len(partition_keys)
     for partition in partition_keys:
         index = partition_keys.index(partition)
         for partition_conf in confs['configurations'][partition]:
@@ -103,17 +109,17 @@ def exon_inclusion_profile(dbs, confs):
                 for x, y in stats:
                     coords.append((index, x, y))
 
+    partition_length = len(partition_keys)
+
     result = []
     for index, x, y in coords:
         found = False
-        for r in result:
-            if r[0] == x and r[index + 1] == None:
-                r[index + 1] = y
+        for item in result:
+            if item[0] == x and item[index + 1] == None:
+                item[index + 1] = y
                 found = True
                 break
-        if found:
-            pass
-        else:
+        if not found:
             line = [None] * partition_length
             line[index] = y
             result.append([x] + line)
@@ -127,6 +133,7 @@ def exon_inclusion_profile(dbs, confs):
 
 
 def _exon_inclusion_profile(dbs, conf):
+    """Fetch exon_inclusion_profile results from database"""
     sql = """
 select incl_percent,
        support
@@ -141,6 +148,7 @@ where LaneName = "%(laneid)s"
 
 @register_resource(resolution="run", partition=False)
 def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
+    """Fetch reads_supporting_exon_inclusions chart"""
     chart = {}
     chart['table_description'] = [('chr',                  'string'),
                                   ('start',                'number'),
@@ -159,9 +167,11 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
     result = []
     for conf in confs['configurations']:
         if dumper is None:
-            stats, failed = run(dbs, _top_reads_supporting_exon_inclusions, conf)
+            stats, failed = run(dbs,
+                                _top_reads_supporting_exon_inclusions, conf)
         else:
-            stats, failed = run(dbs, _all_reads_supporting_exon_inclusions, conf)
+            stats, failed = run(dbs,
+                                _all_reads_supporting_exon_inclusions, conf)
         if not failed:
             for row in stats:
                 line = row[:-1] + (conf['runid'], row[-1])
@@ -185,6 +195,7 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
 
 
 def _all_reads_supporting_exon_inclusions(dbs, conf):
+    """Fetch all all_reads_supporting_exon_inclusions results from db"""
     sql = """
 select chr,
        start,
@@ -203,6 +214,7 @@ from
 
 
 def _top_reads_supporting_exon_inclusions(dbs, conf):
+    """Fetch top 20 top_reads_supporting_exon_inclusions results from db"""
     sql = """
 select * from (
 select chr,
