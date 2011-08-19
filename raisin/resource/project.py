@@ -301,7 +301,25 @@ def project_downloads(dbs, confs):
 
 @register_resource(resolution=None, partition=False)
 def rnadashboard_results(dbs, confs):
+    return _rnadashboard_results(dbs, confs)
+    
+def _rnadashboard_results(dbs, confs):
+    if not confs['configurations'][0]['projectid'] == 'ENCODE':
+        return None
     chart = {}
+    description = _rnadashboard_results_description()
+    description_keys = [d[0] for d in description]
+    wheres = _rnadashboard_results_wheres(confs)
+    rows = _rnadashboard_results_sql(dbs, confs, wheres)
+    restricted = _rnadashboard_results_restricted(rows, description_keys)
+    results = []
+    for rest in restricted:
+        results.append([rest[key] for key in description_keys])
+    chart['table_description'] = description
+    chart['table_data'] = results
+    return chart
+
+def _rnadashboard_results_description():
     description = []
     description.append(('Restricted until',          'string'))
     description.append(('File Type',                 'string'))
@@ -330,15 +348,9 @@ def rnadashboard_results(dbs, confs):
     description.append(('Experiment Insert Length',  'string'))
     description.append(('Experiment Tech Replicate', 'number'))
     description.append(('Experiment Id',             'string'))
+    return description
 
-    description_keys = [d[0] for d in description]
-
-    if not confs['configurations'][0]['projectid'] == 'ENCODE':
-        return None
-
-    wheres = _rnadashboard_results_wheres(confs)
-    rows = _rnadashboard_results(dbs, confs, wheres)
-
+def _rnadashboard_results_restricted(rows, description_keys):
     results = []
     for row in rows:
         result = dict(zip(description_keys, row))
@@ -351,11 +363,8 @@ def rnadashboard_results(dbs, confs):
                     result['Restricted until'] = None
         else:
             result['Restricted until'] = 'To be decided'
-        results.append([result[key] for key in description_keys])
-    chart['table_description'] = description
-    chart['table_data'] = results
-    return chart
-
+        results.append(result)
+    return results
 
 def _rnadashboard_results_wheres(confs):
     wheres = ""
@@ -382,7 +391,7 @@ AND
     return wheres
 
 
-def _rnadashboard_results(dbs, confs, wheres=""):
+def _rnadashboard_results_sql(dbs, confs, wheres=""):
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
     sql = """
 SELECT file.dateSubmitted,
@@ -694,3 +703,42 @@ def rnadashboard_runs(dbs, confs):
 
     chart['table_data'] = result
     return chart
+
+def rnadashboard_results_pending(dbs, confs):
+    description = _rnadashboard_results_description()
+    description_keys = [d[0] for d in description]
+    wheres = _rnadashboard_results_wheres(confs)
+    rows = _rnadashboard_results_sql(dbs, confs, wheres)
+    restricted = _rnadashboard_results_restricted(rows, description_keys)
+    results = {}
+    for rest in restricted:
+        if rest['File Type'] != 'FASTQ':
+            continue
+        if rest['Technology Id'] != 'RNASEQ':
+            continue
+        key = []
+        key.append(rest['Experiment Lab'])
+        key.append(rest['Cell Type Id'])
+        key.append(rest['Localization Id'])
+        key.append(rest['RNA Extract Id'])
+        key.append('GENCODEv3c')
+        read_type = rest['Experiment Read Type']
+        if read_type is None:
+            continue
+        if 'x' in read_type:
+            read_length = read_type.split('x')[1]
+            # 2 -> 1 Paired is true
+            # 1 -> 0 Paired is false
+            paired = str(int(read_type.split('x')[0]) - 1)
+        if 'D' in read_length:
+            read_length = read_length.split('D')[0]
+        if not read_length.isdigit():
+            # read_length needs to be a number, otherwise don't pass it on
+            raise AttributeError
+        key.append(read_length)
+        key.append(paired)
+        rest['Read Length'] = read_length
+        rest['Paired'] = paired
+        results['-'.join(key)] = rest
+    return results
+    
