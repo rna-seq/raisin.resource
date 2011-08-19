@@ -89,10 +89,22 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/experiment/subset/%(parameter_list)s/%(parameter_values)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
+    @resource.child('project/{projectid}/experiment/subset/pending/{parameter_list}/{parameter_values}')
+    def project_experiment_subset_pending(self, request, segments, **kwargs):
+        key = 'project_experiment_subset_pending'
+        cachefilebase = "project/%(projectid)s/experiment/subset/pending/%(parameter_list)s/%(parameter_values)s" % kwargs
+        return Resource(key, cachefilebase, **kwargs), segments
+
     @resource.child('project/{projectid}/experiment/subset/selection/{parameter_list}/{parameter_values}')
     def project_experiment_subset_selection(self, request, segments, **kwargs):
         key = 'project_experiment_subset_selection'
         cachefilebase = "project/%(projectid)s/experiment/subset/selection/%(parameter_list)s/%(parameter_values)s" % kwargs
+        return Resource(key, cachefilebase, **kwargs), segments
+
+    @resource.child('project/{projectid}/experiment/subset/start/{parameter_list}')
+    def project_experiment_subset_start(self, request, segments, **kwargs):
+        key = 'project_experiment_subset_start'
+        cachefilebase = "project/%(projectid)s/experiment/subset/start/%(parameter_list)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/downloads')
