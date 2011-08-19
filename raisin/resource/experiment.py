@@ -14,6 +14,7 @@ from utils import get_experiment_labels
 from utils import get_experiment_where
 from utils import register_resource
 
+from project import rnadashboard_results_pending
 
 @register_resource(resolution=None, partition=False)
 def experiment_info(dbs, confs):
@@ -571,5 +572,130 @@ def project_experiment_subset_selection(dbs, confs):
 
     if len(chart['table_data']) == 0:
         chart['table_data'].append([None] * len(chart['table_description']))
+
+    return chart
+
+
+@register_resource(resolution='project', partition=False)
+def project_experiment_subset_start(dbs, confs):
+    """XXX This is not used yet
+    
+    The idea is to use this as a start for searching the parameter space
+    of a project.
+    """
+    experimentids = _project_experimentstable_experiments(dbs,
+                                                          confs,
+                                                          raw=True,
+                                                          where=True)
+    conf = confs['configurations'][0]
+    projectid = conf['projectid']
+    meta = get_experiment_dict(confs)
+    parameter_mapping = confs['request'].environ['parameter_mapping']
+    parameter_labels = confs['request'].environ['parameter_labels']
+
+    subsets = []
+    supersets = []
+
+    variations = {}
+    variation_count = {}
+    for experiment_list in experimentids.values():
+        for parameter in meta['parameter_list']:
+            if parameter in variation_count:
+                variation_count[parameter].append(experiment_list[0][parameter])
+            else:
+                variation_count[parameter] = [experiment_list[0][parameter]]
+            for experiment in experiment_list:
+                if parameter in experiment:
+                    if parameter in variations:
+                        variations[parameter].add(experiment[parameter])
+                    else:
+                        variations[parameter] = set([experiment[parameter]])
+
+    links = []
+
+    for parameter in meta['parameter_list']:
+        for variation in variations[parameter]:
+            link = (confs['kwargs']['parameter_list'],
+                    parameter_labels[parameter][0],
+                    variation,
+                    parameter,
+                  )
+            links.append(link)
+
+    chart = {}
+    description = [('Project',                              'string'),
+                   ('Parameter Names',                      'string'),
+                   ('Parameter Values',                     'string'),
+                   ('Parameter Type',                       'string'),
+                   ('Parameter Value',                      'string'),
+                   ('Experiments for this Parameter Value', 'string'),
+                  ]
+    chart['table_description'] = description
+    chart['table_data'] = []
+
+    for names, name, value, subset in links:
+        chart['table_data'].append((projectid,
+                                    names,
+                                    name,
+                                    str(value),
+                                    str(variation_count[subset].count(value))))
+
+
+    if len(chart['table_data']) == 0:
+        chart['table_data'].append([None] * len(chart['table_description']))
+
+    return chart
+
+@register_resource(resolution='project', partition=False)
+def project_experiment_subset_pending(dbs, confs):
+    confs['configurations'][0]['hgversion'] = 'hg19'
+    dashboard = rnadashboard_results_pending(dbs, confs)
+    grape = _project_experimentstable_experiments(dbs,
+                                                  confs,
+                                                  raw=True,
+                                                  where=True)
+    conf = confs['configurations'][0]
+    projectid = conf['projectid']
+    meta = get_experiment_dict(confs)
+    parameter_mapping = confs['request'].environ['parameter_mapping']
+    parameter_labels = confs['request'].environ['parameter_labels']
+
+    chart = {}
+    description = [('Experiment',  'string'),
+                   ('Lab',         'string'),
+                   ('Cell Type',   'string'),
+                   ('Compartment', 'string'),
+                   ('RNA Type',    'string'),
+                   ('Read Length', 'string'),
+                   ('Paired',      'string'),
+                  ]
+
+    results = []
+
+    grape_set = set(grape.keys())
+    dashboard_set = set(dashboard.keys())
+    for key in dashboard_set.difference(grape_set):
+        item = dashboard[key]
+        item['RNA Type'] = item['RNA Extract Id']
+        item['Compartment'] = item['Localization Id']
+        item['Lab'] = item['Experiment Lab']
+        filter_out = False
+        i = 0
+        for parameter in meta['parameter_list']:
+            if item[parameter_labels[parameter][0]] != meta['parameter_values'][i]:
+                filter_out = True
+                print item[parameter_labels[parameter][0]], meta['parameter_values'][i]
+        if not filter_out:
+            results.append( (key,
+                             item['Experiment Lab'],
+                             item['Cell Type'],
+                             item['Localization'],
+                             item['RNA Extract'],
+                             item['Read Length'],
+                             item['Paired']) )
+        i += 1
+    chart['table_description'] = description
+    chart['table_data'] = results
+
 
     return chart
