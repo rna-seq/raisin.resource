@@ -97,9 +97,16 @@ def get_experiment_dict(confs):
     """
     Make a dict out of the parameters defined in parameter_list and parameter_values
     """
+
     projectid = confs['kwargs']['projectid']
 
     parameter_list = confs['kwargs']['parameter_list'].split('-')
+
+    if not confs['kwargs'].has_key('parameter_values'):
+        return {'projectid': projectid,
+                'parameter_list': parameter_list
+                }
+
     parameter_values = confs['kwargs']['parameter_values'].split('-')
 
     if len(parameter_list) != len(parameter_values):
@@ -190,7 +197,8 @@ def get_experiment_where(confs, meta):
         if parameter in parameter_list:
             # Take the parameter out of the parameter_values from the same position
             # as the parameter in the parameter_list.
-            ands.append("%s = '%s'" % (parameter_columns[parameter], meta[parameter]))
+            if meta.has_key(parameter):
+                ands.append("%s = '%s'" % (parameter_columns[parameter], meta[parameter]))
     return where % ('\nand\n    '.join(ands))
 
 
