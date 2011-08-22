@@ -85,6 +85,7 @@ def detected_genes(dbs, confs):
     chart = {}
 
     def adding(x, y):
+        """Add detected and keep biotyle and reliability."""
         return {'detected': x['detected'] + y['detected'],
                 'biotype': x['biotype'],
                 'reliability': x['reliability'],
