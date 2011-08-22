@@ -6,6 +6,7 @@ from restish import http
 
 
 def get_rna_type_display_mapping(dbs):
+    """Query the RNA dasboard database for rna type labels"""
     sql = """
 select ucscName, displayName
 from rnaExtract"""
@@ -27,6 +28,7 @@ from rnaExtract"""
 
 
 def get_cell_type_display_mapping(dbs):
+    """Query the RNA dasboard database for cell type labels"""
     sql = """
 select ucscName,
        displayName
@@ -44,6 +46,7 @@ from cell"""
 
 
 def get_compartment_display_mapping(dbs):
+    """Query the RNA dasboard database for compartment labels"""
     sql = """
 select ucscName, displayName
 from localization"""
@@ -60,6 +63,7 @@ from localization"""
 
 
 def get_parameter_list(confs, meta, separator='-'):
+    """Return the parameter list"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -71,6 +75,7 @@ def get_parameter_list(confs, meta, separator='-'):
 
 
 def get_parameter_values(confs, meta, separator='-'):
+    """Return the parameter values"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -94,8 +99,8 @@ def get_parameter_values(confs, meta, separator='-'):
 
 
 def get_experiment_dict(confs):
-    """
-    Make a dict out of the parameters defined in parameter_list and parameter_values
+    """Make a dict out of the parameters defined in parameter_list and 
+    parameter_values.
     """
 
     projectid = confs['kwargs']['projectid']
@@ -128,6 +133,7 @@ def get_experiment_dict(confs):
 
 
 def get_experiment_labels(meta, rna_types, cell_types, compartments):
+    """Return experiment labels"""
     if meta['cell_type']  in cell_types:
         meta['cell_type'] = cell_types[meta['cell_type']]
     if meta['rna_type'] in rna_types:
@@ -137,6 +143,7 @@ def get_experiment_labels(meta, rna_types, cell_types, compartments):
 
 
 def get_experiment_chart(confs):
+    """Return experiment chart"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -153,6 +160,7 @@ def get_experiment_chart(confs):
 
 
 def get_experiment_result(confs, meta):
+    """Return experiment results"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -168,6 +176,7 @@ def get_experiment_result(confs, meta):
 
 
 def get_experiment_order_by(confs):
+    """Return experiment order by"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
@@ -184,6 +193,7 @@ order by
 
 
 def get_experiment_where(confs, meta):
+    """Return experiment where clause"""
     projectid = meta['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
@@ -203,6 +213,7 @@ def get_experiment_where(confs, meta):
 
 
 def get_experiment_runs(dbs, confs):
+    """Return experiment runs"""
     if 'parameter_values' in confs['kwargs']:
         meta = get_experiment_dict(confs)
         sql = """
@@ -228,6 +239,7 @@ def get_experiment_runs(dbs, confs):
 
 
 def get_level(runid, laneid, readid):
+    """Return level"""
     level = {}
     # Collect all valid additional parameters
     level['parameters'] = [p for p in [runid, laneid, readid] if not p is None]
@@ -240,6 +252,7 @@ def get_level(runid, laneid, readid):
 
 
 def configurations_for_level(request, dbs, configurations, level):
+    """Return configurations for level"""
     configurations_for_level = []
     for kwargs in configurations:
         if level is None:
@@ -266,6 +279,7 @@ def configurations_for_level(request, dbs, configurations, level):
 
 
 def partition_configurations(configurations, level):
+    """Return partition configurations"""
     partition_id = '%sid' % level
     partition_configurations = {}
     for configuration in configurations:
@@ -277,6 +291,7 @@ def partition_configurations(configurations, level):
 
 
 def get_configurations(request, level, resolution, partition, dbs, **kwargs):
+    """Return configurations"""
     level_titles = {'project':    'Project Id',
                     'experiment': 'Experiment Id',
                     'run':        'Run Id',
@@ -337,6 +352,7 @@ def get_configurations(request, level, resolution, partition, dbs, **kwargs):
 
 
 def get_project_experiments(dbs, confs):
+    """Return project experiments"""
     projectid = confs['kwargs']['projectid']
     sql = """
 select project_id,
@@ -383,6 +399,7 @@ where
 
 
 def get_run_lanes(dbs, conf):
+    """Return run lanes"""
     sql = """
 select
     distinct pair_id
@@ -399,6 +416,7 @@ order by
 
 
 def get_lane_reads(dbs, conf):
+    """Return lane reads"""
     sql = """
 select distinct
     lane_id
@@ -417,6 +435,7 @@ order by
 
 
 def run(dbs, method, conf):
+    """Return run"""
     failed = 0
     data = run_method_using_mysqldb(method, dbs, conf, http.not_found)
     if data == http.not_found:
@@ -426,6 +445,8 @@ def run(dbs, method, conf):
 
 
 def aggregate(dbs, confs, method, strategy, **kwargs):
+    """Aggregate results from multiple queries to the database using
+    a strategy."""
     stats = None
     failed = 0
     for conf in confs:
@@ -443,6 +464,8 @@ def aggregate(dbs, confs, method, strategy, **kwargs):
 
 
 def collect(dbs, confs, method, strategy, **kwargs):
+    """Collect results from multiple queries to the database using
+    a strategy."""
     results = []
     for conf in confs:
         conf.update(kwargs)
@@ -549,6 +572,7 @@ def get_dashboard_db(dbs, hgversion):
 
 
 def to_cfg(data):
+    """Make a .cfg file out of a table, so it becomes usable by buildout."""
     description_keys = [d[0] for d in data['table_description']]
     by_id = {}
     for row in data['table_data']:
