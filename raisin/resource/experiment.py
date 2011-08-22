@@ -695,6 +695,9 @@ def project_experiment_subset_pending(dbs, confs):
                              item['Paired']) )
         i += 1
     chart['table_description'] = description
+    if len(results) == 0:
+        results = [(None,) * len(description)]
+    
     chart['table_data'] = results
 
 
