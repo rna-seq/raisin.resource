@@ -9,6 +9,7 @@ from utils import run
 
 @register_resource(resolution="run", partition=False)
 def expression_summary(dbs, confs):
+    """Return the expression summary."""
     chart = {}
 
     stats, failed = aggregate(dbs,
@@ -36,6 +37,7 @@ def expression_summary(dbs, confs):
 
 
 def _expression_summary(dbs, conf):
+    """Query the database for the expression summary."""
     # Down_GFD1_expression_summary
     sql = """
 select type,
@@ -53,6 +55,7 @@ from %(projectid)s_%(runid)s_expression_summary""" % conf
 
 
 def _percentage_expression_summary(data, average_by):
+    """Add percentages to the expression summary."""
     result = []
     if data is None:
         result.append(('Genes', None, None))
@@ -78,6 +81,7 @@ def _percentage_expression_summary(data, average_by):
 
 @register_resource(resolution="run", partition=False)
 def detected_genes(dbs, confs):
+    """Return a list of detected genes."""
     chart = {}
 
     def adding(x, y):
@@ -138,6 +142,7 @@ def detected_genes(dbs, confs):
 
 
 def _detected_genes(dbs, conf):
+    """Query the database for a list of detected genes."""
     sql = """
 select type,
        reliability,
@@ -162,6 +167,7 @@ group by type, reliability;
 
 @register_resource(resolution="lane", partition=True)
 def gene_expression_profile(dbs, confs):
+    """Return the expression profile."""
     chart = {}
     description = [('Number', 'number'), ]
     partition_keys = confs['configurations'].keys()
@@ -229,6 +235,7 @@ def gene_expression_profile(dbs, confs):
 
 
 def _gene_expression_profile(dbs, conf):
+    """Query the database for the gene expression profile."""
     sql = """
 select
     rpkm,
@@ -310,6 +317,7 @@ def gene_expression_levels(dbs, confs):
 
 
 def _top_gene_expression_levels(dbs, conf):
+    """Query the database for the top 100 gene expression levels."""
     # Get the Top 100 genes for a lane
     sql = """
 select
@@ -328,6 +336,7 @@ limit 100""" % conf
 
 
 def _selected_gene_expression_levels(dbs, conf, genes):
+    """Query the database for selected gene expression levels."""
     # For each gene, we need the value for all the lanes
     sql = """
 select
@@ -351,6 +360,7 @@ and
 
 @register_resource(resolution="lane", partition=False)
 def top_genes(dbs, confs, dumper=None):
+    """Return a list of top genes."""
     chart = {}
     chart['table_description'] = [('Gene Id', 'string'),
                                   ('Length', 'number'),
@@ -392,6 +402,7 @@ def top_genes(dbs, confs, dumper=None):
 
 
 def _all_genes(dbs, conf):
+    """Query the database for all genes."""
     sql = """
 select gene_id,
        length,
@@ -409,6 +420,7 @@ from
 
 
 def _top_genes(dbs, conf):
+    """Query the database for the top 20 genes."""
     sql = """
 select * from (
 select gene_id,
@@ -432,6 +444,7 @@ limit 20;""" % conf
 
 @register_resource(resolution="lane", partition=False)
 def top_transcripts(dbs, confs, dumper=None):
+    """Query the database for the top 20 transcripts."""
     chart = {}
     chart['table_description'] = [('Gene Id', 'string'),
                                   ('Length', 'number'),
@@ -474,6 +487,7 @@ def top_transcripts(dbs, confs, dumper=None):
 
 
 def _all_transcripts(dbs, conf):
+    """Query the database for all transcripts."""
     sql = """
 select transcript_id,
        length,
@@ -490,6 +504,7 @@ from
 
 
 def _top_transcripts(dbs, conf):
+    """Query the database for the top 20 transcripts."""
     sql = """
 select * from (
 select transcript_id,
@@ -512,6 +527,7 @@ limit 20;""" % conf
 
 @register_resource(resolution="lane", partition=False)
 def top_exons(dbs, confs, dumper=None):
+    """Return the top 20 exons."""
     chart = {}
     description = [('Exon Id', 'string'),
                    ('Length', 'number'),
@@ -554,6 +570,7 @@ def top_exons(dbs, confs, dumper=None):
 
 
 def _all_exons(dbs, conf):
+    """Query the database for all exons."""
     sql = """
 select
     exon_id,
@@ -570,6 +587,7 @@ from
 
 
 def _top_exons(dbs, conf):
+    """Query the database for the top exons."""
     sql = """
 select * from (
 select

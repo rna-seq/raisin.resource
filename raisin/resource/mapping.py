@@ -6,7 +6,7 @@ from utils import aggregate
 
 @register_resource(resolution="read", partition=False)
 def mapping_summary(dbs, confs):
-    """Overview of the results after mapping"""
+    """Return an overview of the results after mapping"""
     chart = {}
 
     stats, failed = aggregate(dbs,

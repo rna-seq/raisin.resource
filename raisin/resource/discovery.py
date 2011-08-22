@@ -6,6 +6,7 @@ from utils import collect
 
 @register_resource(resolution="run", partition=False)
 def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
+    """List novel junctions from annotated exons."""
     chart = {}
     chart['table_description'] = [('chr',     'string'),
                                   ('start',   'number'),
@@ -47,6 +48,7 @@ def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
 
 
 def _all_novel_junctions_from_annotated_exons(dbs, conf):
+    """Query the database for all results."""
     sql = """
 select chr,
        start,
@@ -62,6 +64,7 @@ from
 
 
 def _top_novel_junctions_from_annotated_exons(dbs, conf):
+    """Query the database for the top 20."""
     sql = """
 select * from (
 select chr,
@@ -83,6 +86,7 @@ limit 20;""" % conf
 
 @register_resource(resolution="run", partition=False)
 def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
+    """List novel junctions from unannotated exons."""
     chart = {}
     chart['table_description'] = [('start chr', 'string'),
                                   ('end chr',   'string'),
@@ -125,6 +129,7 @@ def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
 
 
 def _all_novel_junctions_from_unannotated_exons(dbs, conf):
+    """Query the database for all results."""
     sql = """
 select
     start_chr,
@@ -144,6 +149,7 @@ where
 
 
 def _top_novel_junctions_from_unannotated_exons(dbs, conf):
+    """Query the database for the top 20 results."""
     sql = """
 select * from (
 select

@@ -6,6 +6,7 @@ from utils import aggregate
 
 @register_resource(resolution="read", partition=False)
 def read_summary(dbs, confs):
+    """Return the read summary table"""
     chart = {}
 
     stats, failed = aggregate(dbs, confs['configurations'], _read_summary, lambda x, y: x + y)
@@ -29,6 +30,7 @@ def read_summary(dbs, confs):
 
 
 def _read_summary(dbs, conf):
+    """Query the database for the read summary table"""
     # Add a line for the totals
     sql = """
 select
@@ -53,6 +55,7 @@ where
 
 
 def _percentage_read_summary(data, average_by):
+    """Add percentages to the read summary table"""
     result = []
     if data is None:
         result.append(('Unique Reads', None, None))
@@ -71,6 +74,7 @@ def _percentage_read_summary(data, average_by):
 
 @register_resource(resolution="read", partition=True)
 def reads_containing_ambiguous_nucleotides(dbs, confs):
+    """Return reads containing ambiguous nucleotides"""
     chart = {}
     chart['table_description'] = [(confs['level']['title'], 'string'),
                                   ('Reads containing ambiguous nucleotides', 'number'),
@@ -84,6 +88,7 @@ def reads_containing_ambiguous_nucleotides(dbs, confs):
 
 
 def _partition_reads_containing_ambiguous_nucleotides(dbs, confs, partition_id):
+    """Return reads containing ambiguous nucleotides for the partition"""
     stats, failed = aggregate(dbs, confs, _reads_containing_ambiguous_nucleotides, lambda x, y: x + y)
 
     if len(confs) - failed == 0:
@@ -97,6 +102,7 @@ def _partition_reads_containing_ambiguous_nucleotides(dbs, confs, partition_id):
 
 
 def _reads_containing_ambiguous_nucleotides(dbs, conf):
+    """Query the database for reads containing ambiguous nucleotides"""
     sql = """
 select
     TotalReads,
@@ -117,6 +123,7 @@ where
 
 @register_resource(resolution="read", partition=True)
 def reads_containing_only_unambiguous_nucleotides(dbs, confs):
+    """Return reads containing only unambiguous nucleotides"""
     chart = {}
     chart['table_description'] = [(confs['level']['title'], 'string'),
                                   ('Reads containing only unambiguous nucleotides', 'number'),
@@ -130,6 +137,7 @@ def reads_containing_only_unambiguous_nucleotides(dbs, confs):
 
 
 def _partition_reads_containing_only_unambiguous_nucleotides(dbs, confs, partition_id):
+    """Return reads containing only unambiguous nucleotides of the partition"""
     stats, failed = aggregate(dbs, confs, _reads_containing_only_unambiguous_nucleotides, lambda x, y: x + y)
 
     if len(confs) - failed == 0:
@@ -143,6 +151,7 @@ def _partition_reads_containing_only_unambiguous_nucleotides(dbs, confs, partiti
 
 
 def _reads_containing_only_unambiguous_nucleotides(dbs, conf):
+    """Query the datavase for reads containing only unambiguous nucleotides"""
     sql = """
 select
     TotalReads,
@@ -163,6 +172,7 @@ where
 
 @register_resource(resolution="read", partition=True)
 def average_percentage_of_unique_reads(dbs, confs):
+    """Return the average percentage of unique reads"""
     chart = {}
     chart['table_description'] = [(confs['level']['title'], 'string'),
                                   ('Unique Reads', 'number'),
@@ -176,6 +186,7 @@ def average_percentage_of_unique_reads(dbs, confs):
 
 
 def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
+    """Return the average percentage of unique reads for the partition"""
     stats, failed = aggregate(dbs, confs, _average_percentage_of_unique_reads, lambda x, y: x + y)
 
     average_by = len(confs) - failed
@@ -191,6 +202,7 @@ def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
 
 
 def _average_percentage_of_unique_reads(dbs, conf):
+    """Query the average percentage of unique reads"""
     sql = """
 select
     TotalReads,
@@ -211,6 +223,7 @@ where
 
 @register_resource(resolution="read", partition=True)
 def total_ambiguous_and_unambiguous_reads(dbs, confs):
+    """Return the total ambiguous and unambiguous reads"""
     chart = {}
     chart['table_description'] = [('', 'string'),
                                   ('Total', 'number'),
@@ -233,6 +246,7 @@ def total_ambiguous_and_unambiguous_reads(dbs, confs):
 
 
 def _partition_total_ambiguous_and_unambiguous_reads(dbs, confs, partition_id):
+    """Return the total ambiguous and unambiguous reads for the partition"""
     stats, failed = aggregate(dbs, confs, _total_ambiguous_and_unambiguous_reads, lambda x, y: x + y)
 
     if failed:
@@ -248,6 +262,7 @@ def _partition_total_ambiguous_and_unambiguous_reads(dbs, confs, partition_id):
 
 
 def _total_ambiguous_and_unambiguous_reads(dbs, conf):
+    """Query the database for the total ambiguous and unambiguous reads"""
     # Add a line for the totals
     sql = """
 select
@@ -271,6 +286,7 @@ where
 
 @register_resource(resolution="read", partition=True)
 def average_and_average_unique_reads(dbs, confs):
+    """Return the average and average unique reads"""
     chart = {}
     chart['table_description'] = [('', 'string'),
                                   ('Average number of reads', 'number'),
@@ -286,6 +302,7 @@ def average_and_average_unique_reads(dbs, confs):
 
 
 def _partition_average_and_average_unique_reads(dbs, confs, partition_id):
+    """Return the average and average unique reads for the partition"""
     stats, failed = aggregate(dbs, confs, _average_and_average_unique_reads, lambda x, y: x + y)
 
     average_by = len(confs) - failed
@@ -301,6 +318,7 @@ def _partition_average_and_average_unique_reads(dbs, confs, partition_id):
 
 
 def _average_and_average_unique_reads(dbs, conf):
+    """Query the database for the average and average unique reads"""
     # Add a line for the totals
     sql = """
 select
@@ -322,6 +340,7 @@ where
 
 @register_resource(resolution="read", partition=True)
 def quality_score_by_position(dbs, confs):
+    """Return the quality score by position"""
     chart = {}
     description = [('Number', 'number'), ]
     partition_keys = confs['configurations'].keys()
@@ -354,6 +373,7 @@ def quality_score_by_position(dbs, confs):
 
 
 def _quality_score_by_position(dbs, conf):
+    """Query the database for the quality score by position"""
     sql = """
 select
     position,
@@ -373,6 +393,7 @@ order by
 
 @register_resource(resolution="read", partition=True)
 def ambiguous_bases_per_position(dbs, confs):
+    """Return the ambiguous bases per position"""
     chart = {}
     description = [('Number', 'number'), ]
     partition_keys = confs['configurations'].keys()
@@ -405,6 +426,7 @@ def ambiguous_bases_per_position(dbs, confs):
 
 
 def _ambiguous_bases_per_position(dbs, conf):
+    """Query the database for ambiguous bases per position"""
     sql = """
 select
     position,

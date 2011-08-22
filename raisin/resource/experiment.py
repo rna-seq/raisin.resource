@@ -151,9 +151,7 @@ from genome_files where genome_id='%s'
 
 @register_resource(resolution=None, partition=False)
 def experiments(dbs, confs):
-    """
-    Used for generating the buildout.cfg for pipeline.buildout.
-    """
+    """Used for generating the buildout.cfg for pipeline.buildout."""
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
                                   ('Experiment id',            'string'),
@@ -181,6 +179,7 @@ def experiments(dbs, confs):
 
 
 def _experiments(dbs, conf):
+    """Query the database for a list of experiments."""
     # Only return the experiment infos if this is an official project
     sql = """
 select project_id,
@@ -257,6 +256,7 @@ def experiments_configurations(dbs, confs):
 
 
 def _experiments_configurations(dbs, conf):
+    """Query the database for a list of experiment configurations."""
     sql = """
 select project_id,
        experiment_id,
@@ -282,6 +282,7 @@ from experiments;"""
 
 @register_resource(resolution='project', partition=False)
 def project_experiments(dbs, confs):
+    """Query the database for a list of experiments for a project."""
     conf = confs['configurations'][0]
     projectid = conf['projectid']
 
@@ -381,20 +382,24 @@ and
 
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset(dbs, confs):
+    """Return a subset of experiments for a project."""
     return _project_experimentstable(dbs, confs, raw=True, where=True)
 
 
 @register_resource(resolution='project', partition=False)
 def project_experimentstableraw(dbs, confs):
+    """Return a list of experiments for a project using raw values."""
     return _project_experimentstable(dbs, confs, raw=True, where=False)
 
 
 @register_resource(resolution='project', partition=False)
 def project_experimentstable(dbs, confs):
+    """Return a list of experiments for a project."""
     return _project_experimentstable(dbs, confs, raw=False, where=False)
 
 
 def _project_experimentstable(dbs, confs, raw=True, where=False):
+    """Return a list of experiments for a project."""
     chart = get_experiment_chart(confs)
     experimentids = _project_experimentstable_experiments(dbs,
                                                           confs,
@@ -413,6 +418,7 @@ def _project_experimentstable(dbs, confs, raw=True, where=False):
 
 
 def _project_experimentstable_experiments(dbs, confs, raw=True, where=False):
+    """Return a list of experiments for a project."""
     conf = confs['configurations'][0]
     # Only return the experiment infos if this is an official project
     sql = """
@@ -654,6 +660,7 @@ def project_experiment_subset_start(dbs, confs):
 
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset_pending(dbs, confs):
+    """Return a subset of pending experiments for a project."""
     confs['configurations'][0]['hgversion'] = 'hg19'
     dashboard = rnadashboard_results_pending(dbs, confs)
     grape = _project_experimentstable_experiments(dbs,

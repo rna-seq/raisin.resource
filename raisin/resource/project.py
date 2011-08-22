@@ -17,6 +17,7 @@ GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both male and f
 
 @register_resource(resolution="project", partition=False)
 def info(dbs, confs):
+    """Return the project info."""
     conf = confs['configurations'][0]
     chart = {}
     chart['table_description'] = [('Project Description', 'string'),
@@ -37,6 +38,7 @@ where project_id='%(projectid)s';
 
 @register_resource(resolution="project", partition=False)
 def projects(dbs, confs):
+    """Return the projects and their URLs."""
     chart = {}
     chart['table_description'] = [('Project Id', 'string'),
                                   ('URL',        'string'),
@@ -50,6 +52,7 @@ def projects(dbs, confs):
 
 @register_resource(resolution=None, partition=False)
 def rnadashboard_technologies(dbs, confs):
+    """Return the technologies for the RNA dashboard."""
     chart = {}
     chart['table_description'] = [('Id',          'string'),
                                   ('Title',       'string'),
@@ -86,6 +89,7 @@ from technology"""
 
 @register_resource(resolution=None, partition=False)
 def rnadashboard_rna_fractions(dbs, confs):
+    """Return the RNA fractions for the RNA dashboard."""
     chart = {}
     chart['table_description'] = [('Id',           'string'),
                                   ('Title',        'string'),
@@ -109,6 +113,7 @@ from rnaExtract"""
 
 @register_resource(resolution=None, partition=False)
 def rnadashboard_compartments(dbs, confs):
+    """Return the compartments for the RNA dashboard."""
     chart = {}
     chart['table_description'] = [('Id',           'string'),
                                   ('Title',        'string'),
@@ -132,7 +137,8 @@ from localization"""
 
 @register_resource(resolution=None, partition=False)
 def rnadashboard_files(dbs, confs):
-    """
+    """Return the files for the RNA dashboard.
+
     See
         http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html
     and
@@ -162,6 +168,7 @@ from
 
 @register_resource(resolution=None, partition=False)
 def rnadashboard(dbs, confs):
+    """Return RNA dashboard."""
     chart = {}
     chart['table_description'] = [('Sample Grant Name',         'string'),
                                   ('Cell Type',                 'string'),
@@ -273,6 +280,7 @@ AND
 
 @register_resource(resolution="project", partition=False)
 def project_downloads(dbs, confs):
+    """Return the project downloads."""
     projectid = confs['configurations'][0]['projectid']
     chart = {}
     chart['table_description'] = [('File Name',               'string'),
@@ -301,9 +309,11 @@ def project_downloads(dbs, confs):
 
 @register_resource(resolution=None, partition=False)
 def rnadashboard_results(dbs, confs):
+    """Return the RNA dashboard results."""
     return _rnadashboard_results(dbs, confs)
     
 def _rnadashboard_results(dbs, confs):
+    """Return the RNA dashboard results."""
     if not confs['configurations'][0]['projectid'] == 'ENCODE':
         return None
     chart = {}
@@ -320,6 +330,7 @@ def _rnadashboard_results(dbs, confs):
     return chart
 
 def _rnadashboard_results_description():
+    """Return the RNA dashboard results descriptions."""
     description = []
     description.append(('Restricted until',          'string'))
     description.append(('File Type',                 'string'))
@@ -351,6 +362,7 @@ def _rnadashboard_results_description():
     return description
 
 def _rnadashboard_results_restricted(rows, description_keys):
+    """Return the restricted RNA dashboard results."""
     results = []
     for row in rows:
         result = dict(zip(description_keys, row))
@@ -367,6 +379,7 @@ def _rnadashboard_results_restricted(rows, description_keys):
     return results
 
 def _rnadashboard_results_wheres(confs):
+    """Return the RNA dashboard where clause."""
     wheres = ""
     meta = get_experiment_dict(confs)
     if 'cell_type' in meta:
@@ -392,6 +405,7 @@ AND
 
 
 def _rnadashboard_results_sql(dbs, confs, wheres=""):
+    """Query the database for the RNA dashboard."""
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
     sql = """
 SELECT file.dateSubmitted,
@@ -508,6 +522,7 @@ def rnadashboard_accessions(dbs, confs):
 
 
 def _rnadashboard_accessions(dbs, confs):
+    """Return the RNA dashboard accessions."""
     chart = {}
 
     description = []
@@ -582,6 +597,7 @@ def _rnadashboard_accessions(dbs, confs):
 
 
 def _parse_all_attributes(all_attributes):
+    """Parse the attributes in the RNA dashboard lines."""
     result = {}
     for attribute in all_attributes.split(';'):
         key, value = attribute.split('=')
@@ -590,6 +606,7 @@ def _parse_all_attributes(all_attributes):
 
 
 def _fastqs(dbs, confs, wheres=""):
+    """Return the fastq files only."""
     dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
     selects = ["file.dateSubmitted",
                "file.experiment_data_processing",
@@ -705,6 +722,7 @@ def rnadashboard_runs(dbs, confs):
     return chart
 
 def rnadashboard_results_pending(dbs, confs):
+    """Return the RNA dashboard items pending being run in the pipeline."""
     description = _rnadashboard_results_description()
     description_keys = [d[0] for d in description]
     wheres = _rnadashboard_results_wheres(confs)
