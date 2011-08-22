@@ -404,6 +404,10 @@ def _project_experimentstable(dbs, confs, raw=True, where=False):
     for value in experimentids.values():
         results.append(get_experiment_result(confs, value))
     results.sort()
+    
+    if len(results) == 0:
+        results = [[None] * len(chart['table_description'])]
+        
     chart['table_data'] = results
     return chart
 
