@@ -20,7 +20,9 @@ def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
         dumper.writeheader(chart['table_description'])
 
     def strategy(conf, row):
+        """Insert runid"""
         return (row[: -1] + (conf['runid'], row[-1]))
+
     if dumper is None:
         stats = collect(dbs,
                         confs['configurations'],
@@ -101,7 +103,9 @@ def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
         dumper.writeheader(chart['table_description'])
 
     def strategy(conf, row):
+        """Insert runid"""
         return (row[:-1] + (conf['runid'], row[-1]))
+
     if dumper is None:
         stats = collect(dbs,
                         confs['configurations'],
