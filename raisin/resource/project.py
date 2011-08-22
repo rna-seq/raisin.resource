@@ -724,19 +724,21 @@ def rnadashboard_results_pending(dbs, confs):
         key.append('GENCODEv3c')
         read_type = rest['Experiment Read Type']
         if read_type is None:
-            continue
-        if 'x' in read_type:
-            read_length = read_type.split('x')[1]
-            # 2 -> 1 Paired is true
-            # 1 -> 0 Paired is false
-            paired = str(int(read_type.split('x')[0]) - 1)
-        if 'D' in read_length:
-            read_length = read_length.split('D')[0]
-        if not read_length.isdigit():
-            # read_length needs to be a number, otherwise don't pass it on
-            raise AttributeError
-        key.append(read_length)
-        key.append(paired)
+            read_length = None
+            paired = None
+        else:
+            if 'x' in read_type:
+                read_length = read_type.split('x')[1]
+                # 2 -> 1 Paired is true
+                # 1 -> 0 Paired is false
+                paired = str(int(read_type.split('x')[0]) - 1)
+            if 'D' in read_length:
+                read_length = read_length.split('D')[0]
+            if not read_length.isdigit():
+                # read_length needs to be a number, otherwise don't pass it on
+                raise AttributeError
+            key.append(read_length)
+            key.append(paired)
         rest['Read Length'] = read_length
         rest['Paired'] = paired
         results['-'.join(key)] = rest
