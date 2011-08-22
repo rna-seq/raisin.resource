@@ -541,6 +541,8 @@ def project_experiment_subset_selection(dbs, confs):
 
     for subset in subsets:
         # If there is variation for this subset, add links
+        if not subset in variations:
+            continue
         if len(variations[subset]) < 2:
             continue
         for variation in variations[subset]:
