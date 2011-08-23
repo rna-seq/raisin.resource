@@ -256,46 +256,43 @@ def get_level(runid, laneid, readid):
 
 def configurations_for_level(request, dbs, configurations, level):
     """Return configurations for level"""
-    configurations_for_level = []
+    level_confs = []
     for kwargs in configurations:
         if level is None:
             return configurations
         elif level == 'project':
             return configurations
         elif level == 'experiment':
-            items, failed = run(dbs, 
-                                get_project_experiments,
-                                {'kwargs': kwargs, 'request': request})
+            items, success = run(dbs, 
+                                 get_project_experiments,
+                                 {'kwargs': kwargs, 'request': request})
         elif level == 'run':
-            items, failed = run(dbs,
-                                get_experiment_runs,
-                                {'kwargs': kwargs, 'request': request})
+            items, success = run(dbs,
+                                 get_experiment_runs,
+                                 {'kwargs': kwargs, 'request': request})
         elif level == 'lane':
-            items, failed = run(dbs, get_run_lanes, kwargs)
+            items, success = run(dbs, get_run_lanes, kwargs)
         elif level == 'read':
-            items, failed = run(dbs, get_lane_reads, kwargs)
-        if failed:
-            # Failed to get information for this configuration
-            pass
-        else:
+            items, success = run(dbs, get_lane_reads, kwargs)
+        if success:
             for item in items:
                 configuration = kwargs.copy()
                 configuration["%sid" % level] = item
-                configurations_for_level.append(configuration)
-    return configurations_for_level
+                level_confs.append(configuration)
+    return level_confs
 
 
 def partition_configurations(configurations, level):
     """Return partition configurations"""
-    partition_id = '%sid' % level
-    partition_configurations = {}
-    for configuration in configurations:
-        partition = configuration[partition_id]
-        if partition in partition_configurations:
-            partition_configurations[partition].append(configuration)
+    part_id = '%sid' % level
+    part_confs = {}
+    for conf in configurations:
+        part = conf[part_id]
+        if part in part_confs:
+            part_confs[part].append(conf)
         else:
-            partition_configurations[partition] = [configuration]
-    return partition_configurations
+            part_confs[part] = [conf]
+    return part_confs
 
 
 def get_configurations(request, level, resolution, partition, dbs, **kwargs):
@@ -443,13 +440,20 @@ order by
 
 
 def run(dbs, method, conf):
-    """Return run"""
-    failed = 0
+    """Run a method running sql code.
+    
+    Returns a tuple of (data, success).
+    
+    If the success value is True, the method could not be run properly.
+
+    If the success value is False, the method has been executed correctly.
+    """
+    success = True
     data = run_method_using_mysqldb(method, dbs, conf, http.not_found)
     if data == http.not_found:
         print "Error running sql method."
-        failed = failed + 1
-    return data, failed
+        failed =  False
+    return data, success
 
 
 def aggregate(dbs, confs, method, strategy, **kwargs):
@@ -486,7 +490,7 @@ def collect(dbs, confs, method, strategy, **kwargs):
     return results
 
 
-def merge(d_1, d_2, strategy=lambda x, y: y):
+def merge(d_1, d_2, strategy=None):
     """
     http://stackoverflow.com/questions/38987/how-can-i-merge-two-python-dictionaries-as-a-single-expression
 
@@ -506,8 +510,9 @@ def merge(d_1, d_2, strategy=lambda x, y: y):
     {'a': 1, 'c': 3, 'b': 2}
     >>> merge(d_1, d_1, lambda x,y: x+y)
     {'a': 2, 'c': 6, 'b': 4}
-
     """
+    if strategy is None:
+        strategy = lambda x, y: y
     result = dict(d_1)
     for key, value in d_2.iteritems():
         if key in result:
