@@ -697,25 +697,24 @@ def project_experiment_subset_pending(dbs, confs):
         item['Compartment'] = item['Localization Id']
         item['Lab'] = item['Experiment Lab']
         filter_out = False
-        i = 0
+        index = 0
         for parameter in meta['parameter_list']:
-            if item[parameter_labels[parameter][0]] != meta['parameter_values'][i]:
+            value = item[parameter_labels[parameter][0]]
+            if value != meta['parameter_values'][index]:
                 filter_out = True
-                print item[parameter_labels[parameter][0]], meta['parameter_values'][i]
+            index += 1
         if not filter_out:
-            results.append( (key,
-                             item['Experiment Lab'],
-                             item['Cell Type'],
-                             item['Localization'],
-                             item['RNA Extract'],
-                             item['Read Length'],
-                             item['Paired']) )
-        i += 1
+            results.append((key,
+                           item['Experiment Lab'],
+                           item['Cell Type'],
+                           item['Localization'],
+                           item['RNA Extract'],
+                           item['Read Length'],
+                           item['Paired']))
     chart['table_description'] = description
     if len(results) == 0:
         results = [(None,) * len(description)]
     
     chart['table_data'] = results
-
 
     return chart
