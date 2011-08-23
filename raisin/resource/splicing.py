@@ -104,8 +104,8 @@ def exon_inclusion_profile(dbs, confs):
     for partition in partition_keys:
         index = partition_keys.index(partition)
         for partition_conf in confs['configurations'][partition]:
-            stats, failed = run(dbs, _exon_inclusion_profile, partition_conf)
-            if not failed:
+            stats, success = run(dbs, _exon_inclusion_profile, partition_conf)
+            if success:
                 for x, y in stats:
                     coords.append((index, x, y))
 
@@ -167,12 +167,12 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
     result = []
     for conf in confs['configurations']:
         if dumper is None:
-            stats, failed = run(dbs,
-                                _top_reads_supporting_exon_inclusions, conf)
+            stats, success = run(dbs,
+                                 _top_reads_supporting_exon_inclusions, conf)
         else:
-            stats, failed = run(dbs,
-                                _all_reads_supporting_exon_inclusions, conf)
-        if not failed:
+            stats, success = run(dbs,
+                                 _all_reads_supporting_exon_inclusions, conf)
+        if success:
             for row in stats:
                 line = row[:-1] + (conf['runid'], row[-1])
                 if dumper is None:
