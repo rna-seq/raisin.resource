@@ -184,8 +184,8 @@ def gene_expression_profile(dbs, confs):
     for partition in partition_keys:
         index = partition_keys.index(partition)
         for partition_conf in confs['configurations'][partition]:
-            stats, failed = run(dbs, _gene_expression_profile, partition_conf)
-            if not failed:
+            stats, success = run(dbs, _gene_expression_profile, partition_conf)
+            if success:
                 for x, y in stats:
                     datapoints = datapoints + 1
                     if y in coords:
@@ -272,32 +272,30 @@ def gene_expression_levels(dbs, confs):
     """
     chart = {}
 
-    top_genes = {}
+    topgenes = {}
     for conf in confs['configurations']:
         key = (conf['runid'], conf['laneid'])
-        top_genes[key] = _top_gene_expression_levels(dbs, conf)
+        topgenes[key] = _top_gene_expression_levels(dbs, conf)
         # Reverse. Items will be popped starting with most highly expressed.
-        top_genes[key].reverse()
+        topgenes[key].reverse()
 
     # Compose the random seed from the laneids
     random.seed(tuple([c['laneid'] for c in confs['configurations']]))
 
     # These keys can be used to select from the top genes
-    runid_laneid_keys = top_genes.keys()
+    runid_laneid_keys = topgenes.keys()
 
     genes = []
     while len(genes) < 100:
         # Take out a random runid and laneid to choose the next gene candidate
         runid, laneid = random.choice(runid_laneid_keys)
         try:
-            gene = top_genes[(runid, laneid)].pop()
+            gene = topgenes[(runid, laneid)].pop()
         except IndexError:
             # This lane does not provide any more values
             continue
         if not gene in genes:
             genes.append(gene)
-
-    print genes
 
     columns = [('Gene Name', 'string'), ]
     # Assemble the columns consisting of the gene names
@@ -380,10 +378,10 @@ def top_genes(dbs, confs, dumper=None):
     result = []
     for conf in confs['configurations']:
         if dumper is None:
-            stats, failed = run(dbs, _top_genes, conf)
+            stats, success = run(dbs, _top_genes, conf)
         else:
-            stats, failed = run(dbs, _all_genes, conf)
-        if not failed:
+            stats, success = run(dbs, _all_genes, conf)
+        if success:
             for row in stats:
                 line = row + (conf['runid'], conf['laneid'])
                 if dumper is None:
@@ -463,10 +461,10 @@ def top_transcripts(dbs, confs, dumper=None):
     result = []
     for conf in confs['configurations']:
         if dumper is None:
-            stats, failed = run(dbs, _top_transcripts, conf)
+            stats, success = run(dbs, _top_transcripts, conf)
         else:
-            stats, failed = run(dbs, _all_transcripts, conf)
-        if not failed:
+            stats, success = run(dbs, _all_transcripts, conf)
+        if success:
             for row in stats:
                 line = row + (conf['runid'], conf['laneid'])
                 if dumper is None:
@@ -546,10 +544,10 @@ def top_exons(dbs, confs, dumper=None):
     result = []
     for conf in confs['configurations']:
         if dumper is None:
-            stats, failed = run(dbs, _top_exons, conf)
+            stats, success = run(dbs, _top_exons, conf)
         else:
-            stats, failed = run(dbs, _all_exons, conf)
-        if not failed:
+            stats, success = run(dbs, _all_exons, conf)
+        if success:
             for row in stats:
                 line = row + (conf['runid'], conf['laneid'])
                 if dumper is None:
