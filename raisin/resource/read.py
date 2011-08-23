@@ -138,7 +138,7 @@ def reads_containing_only_unambiguous_nucleotides(dbs, confs):
     method = _p_reads_containing_only_unambiguous_nucleotides
     for partition_id, partition_confs in confs['configurations'].items():
         result = method(dbs, partition_confs, partition_id)
-        results.append()
+        results.append(result)
     results.sort()
     chart['table_data'] = results
     return chart
