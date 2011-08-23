@@ -16,7 +16,7 @@ except ImportError:
 
 from restish import http, resource
 
-stats_registry = {}
+STATS_REGISTRY = {}
 
 import experiment
 import run
@@ -240,7 +240,7 @@ class Resource(resource.Resource):
 
     def __init__(self, key, cachefilebase, **kwargs):
         """Keep all information about the resource"""
-        method, level, resolution, partition = stats_registry.get(key, (None, None, None, None))
+        method, level, resolution, partition = STATS_REGISTRY.get(key, (None, None, None, None))
         self.dbs = {}
         self.method = method
         self.level = level
@@ -266,7 +266,7 @@ class Resource(resource.Resource):
                 if not value.replace('_', '').isalnum():
                     raise AttributeError
             elif key == 'statid':
-                if not value in stats_registry:
+                if not value in STATS_REGISTRY:
                     raise AttributeError(value)
             elif key == 'stattype':
                 if not value in ('read', 'mapping', 'expression', 'splicing', 'discovery'):

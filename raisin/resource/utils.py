@@ -1,6 +1,6 @@
 """Utility methods for descriptive titles, level information and aggregation"""
 
-from root import stats_registry
+from root import STATS_REGISTRY
 from raisin.mysqldb import run_method_using_mysqldb
 from restish import http
 

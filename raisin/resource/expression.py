@@ -216,9 +216,9 @@ def gene_expression_profile(dbs, confs):
     for index, x, y in sample:
         y = int(y)
         found = False
-        for r in result:
-            if r[0] == x and r[index + 1] == None:
-                r[index + 1] = y
+        for res in result:
+            if res[0] == x and res[index + 1] == None:
+                res[index + 1] = y
                 found = True
                 break
         if found:

@@ -11,7 +11,7 @@ class ResourceTest(unittest.TestCase):
         unittest.TestCase.tearDown(self)
 
     def test_stats_registry(self):
-        self.failUnless(root.stats_registry != {})
+        self.failUnless(root.STATS_REGISTRY != {})
 
 
 # make the test suite.
