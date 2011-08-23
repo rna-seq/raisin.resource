@@ -562,7 +562,7 @@ class register_resource(object):
                 key = "%s_%s" % (level, wrapped.__name__)
             # Now store the new statistics level in the registry
             value = (wrapped, level, self.resolution, self.partition)
-            stats_registry[key] = value
+            STATS_REGISTRY[key] = value
 
 
 def get_dashboard_db(dbs, hgversion):
