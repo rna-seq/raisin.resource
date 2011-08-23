@@ -8,23 +8,21 @@ from utils import aggregate
 def read_summary(dbs, confs):
     """Return the read summary table"""
     chart = {}
-
-    stats, failed = aggregate(dbs, confs['configurations'], _read_summary, lambda x, y: x + y)
-
-    average_by = len(confs['configurations']) - failed
-
+    method = _read_summary
+    configurations = confs['configurations']
+    stats, failed = aggregate(dbs, configurations, method, lambda x, y: x + y)
+    average_by = len(configurations) - failed
     if average_by == 0:
         label = ''
     elif average_by == 1:
         label = 'For one set of %ss' % confs['resolution']['id']
     else:
-        label = 'Average over %s sets of %ss' % (average_by, confs['resolution']['id'])
-
+        label = 'Average over %s sets of %ss' % (average_by,
+                                                 confs['resolution']['id'])
     chart['table_description'] = [(label, 'string'),
                                   ('Total', 'number'),
                                   ('Percent', 'number'),
                                  ]
-
     chart['table_data'] = _percentage_read_summary(stats, average_by)
     return chart
 
@@ -66,9 +64,12 @@ def _percentage_read_summary(data, average_by):
         unambiguous = float(data['unambiguous']) / average_by
         ambiguous = float(data['ambiguous']) / average_by
         total = float(data['total']) / average_by
-        result.append(("Unique Reads", int(unique), unique / total * 100.0))
-        result.append(("Unambiguous Reads", int(unambiguous), unambiguous / total * 100.0))
-        result.append(("Ambiguous Reads", int(ambiguous), ambiguous / total * 100.0))
+        result.append(("Unique Reads",
+                       int(unique), unique / total * 100.0))
+        result.append(("Unambiguous Reads",
+                       int(unambiguous), unambiguous / total * 100.0))
+        result.append(("Ambiguous Reads",
+                       int(ambiguous), ambiguous / total * 100.0))
     return result
 
 
@@ -76,28 +77,30 @@ def _percentage_read_summary(data, average_by):
 def reads_containing_ambiguous_nucleotides(dbs, confs):
     """Return reads containing ambiguous nucleotides"""
     chart = {}
-    chart['table_description'] = [(confs['level']['title'], 'string'),
-                                  ('Reads containing ambiguous nucleotides', 'number'),
-                                 ]
-    result = []
+    description = []
+    description.append((confs['level']['title'], 'string'))
+    description.append(('Reads containing ambiguous nucleotides', 'number'))
+    chart['table_description'] = description
+    results = []
+    method = _partition_reads_containing_ambiguous_nucleotides
     for partition_id, partition_confs in confs['configurations'].items():
-        result.append(_partition_reads_containing_ambiguous_nucleotides(dbs, partition_confs, partition_id))
-    result.sort()
-    chart['table_data'] = result
+        result = method(dbs, partition_confs, partition_id)
+        results.append(result)
+    results.sort()
+    chart['table_data'] = results
     return chart
 
 
 def _partition_reads_containing_ambiguous_nucleotides(dbs, confs, partition_id):
     """Return reads containing ambiguous nucleotides for the partition"""
-    stats, failed = aggregate(dbs, confs, _reads_containing_ambiguous_nucleotides, lambda x, y: x + y)
-
+    method = _reads_containing_ambiguous_nucleotides
+    stats, failed = aggregate(dbs, confs, method, lambda x, y: x + y)
     if len(confs) - failed == 0:
         percent = None
     else:
-        reads_containing_ambiguous_nucleotides = float(stats['reads_containing_ambiguous_nucleotides'])
+        containing = float(stats['reads_containing_ambiguous_nucleotides'])
         total_number_of_reads = float(stats['total_number_of_reads'])
-        percent = reads_containing_ambiguous_nucleotides / total_number_of_reads * 100.0
-
+        percent = containing / total_number_of_reads * 100.0
     return [partition_id, percent]
 
 
@@ -125,28 +128,32 @@ where
 def reads_containing_only_unambiguous_nucleotides(dbs, confs):
     """Return reads containing only unambiguous nucleotides"""
     chart = {}
-    chart['table_description'] = [(confs['level']['title'], 'string'),
-                                  ('Reads containing only unambiguous nucleotides', 'number'),
-                                 ]
-    result = []
+    description = []
+    description.append((confs['level']['title'],
+                        'string'))
+    description.append(('Reads containing only unambiguous nucleotides',
+                        'number'))
+    chart['table_description'] = description
+    results = []
+    method = _p_reads_containing_only_unambiguous_nucleotides
     for partition_id, partition_confs in confs['configurations'].items():
-        result.append(_partition_reads_containing_only_unambiguous_nucleotides(dbs, partition_confs, partition_id))
-    result.sort()
-    chart['table_data'] = result
+        result = method(dbs, partition_confs, partition_id)
+        results.append()
+    results.sort()
+    chart['table_data'] = results
     return chart
 
 
-def _partition_reads_containing_only_unambiguous_nucleotides(dbs, confs, partition_id):
+def _p_reads_containing_only_unambiguous_nucleotides(dbs, confs, partition_id):
     """Return reads containing only unambiguous nucleotides of the partition"""
-    stats, failed = aggregate(dbs, confs, _reads_containing_only_unambiguous_nucleotides, lambda x, y: x + y)
-
+    method = _reads_containing_only_unambiguous_nucleotides
+    stats, failed = aggregate(dbs, confs, method, lambda x, y: x + y)
     if len(confs) - failed == 0:
         percent = None
     else:
-        reads_containing_only_unambiguous_nucleotides = float(stats['reads_containing_only_unambiguous_nucleotides'])
+        only = float(stats['reads_containing_only_unambiguous_nucleotides'])
         total_number_of_reads = float(stats['total_number_of_reads'])
-        percent = reads_containing_only_unambiguous_nucleotides / total_number_of_reads * 100.0
-
+        percent = only / total_number_of_reads * 100.0
     return [partition_id, percent]
 
 
@@ -177,17 +184,23 @@ def average_percentage_of_unique_reads(dbs, confs):
     chart['table_description'] = [(confs['level']['title'], 'string'),
                                   ('Unique Reads', 'number'),
                                  ]
-    result = []
+    results = []
     for partition_id, partition_confs in confs['configurations'].items():
-        result.append(_partition_average_percentage_of_unique_reads(dbs, partition_confs, partition_id))
-    result.sort()
-    chart['table_data'] = result
+        result = _partition_average_percentage_of_unique_reads(dbs,
+                                                               partition_confs,
+                                                               partition_id)
+        results.append(result)
+    results.sort()
+    chart['table_data'] = results
     return chart
 
 
 def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
     """Return the average percentage of unique reads for the partition"""
-    stats, failed = aggregate(dbs, confs, _average_percentage_of_unique_reads, lambda x, y: x + y)
+    stats, failed = aggregate(dbs,
+                              confs,
+                              _average_percentage_of_unique_reads,
+                              lambda x, y: x + y)
 
     average_by = len(confs) - failed
 
@@ -233,7 +246,9 @@ def total_ambiguous_and_unambiguous_reads(dbs, confs):
     total = [0, 0, 0, ]
     result = []
     for partition_id, partition_confs in confs['configurations'].items():
-        line = _partition_total_ambiguous_and_unambiguous_reads(dbs, partition_confs, partition_id)
+        line = _partition_total_ambiguous_and_unambiguous_reads(dbs,
+                                                                partition_confs,
+                                                                partition_id)
         result.append(line)
         if not line[0] is None:
             total[0] = total[0] + line[1]
@@ -247,8 +262,10 @@ def total_ambiguous_and_unambiguous_reads(dbs, confs):
 
 def _partition_total_ambiguous_and_unambiguous_reads(dbs, confs, partition_id):
     """Return the total ambiguous and unambiguous reads for the partition"""
-    stats, failed = aggregate(dbs, confs, _total_ambiguous_and_unambiguous_reads, lambda x, y: x + y)
-
+    stats, failed = aggregate(dbs,
+                              confs,
+                              _total_ambiguous_and_unambiguous_reads,
+                              lambda x, y: x + y)
     if failed:
         unambiguous = None
         ambiguous = None
@@ -257,7 +274,6 @@ def _partition_total_ambiguous_and_unambiguous_reads(dbs, confs, partition_id):
         unambiguous = float(stats['unambiguous'])
         ambiguous = float(stats['ambiguous'])
         total = float(stats['total'])
-
     return [partition_id, total, unambiguous, ambiguous]
 
 
@@ -294,7 +310,9 @@ def average_and_average_unique_reads(dbs, confs):
                                  ]
     result = []
     for partition_id, partition_confs in confs['configurations'].items():
-        line = _partition_average_and_average_unique_reads(dbs, partition_confs, partition_id)
+        line = _partition_average_and_average_unique_reads(dbs,
+                                                           partition_confs,
+                                                           partition_id)
         result.append(line)
     result.sort()
     chart['table_data'] = result
@@ -303,17 +321,17 @@ def average_and_average_unique_reads(dbs, confs):
 
 def _partition_average_and_average_unique_reads(dbs, confs, partition_id):
     """Return the average and average unique reads for the partition"""
-    stats, failed = aggregate(dbs, confs, _average_and_average_unique_reads, lambda x, y: x + y)
-
+    stats, failed = aggregate(dbs,
+                              confs,
+                              _average_and_average_unique_reads,
+                              lambda x, y: x + y)
     average_by = len(confs) - failed
-
     if average_by == 0:
         unique = None
         total = None
     else:
         unique = float(stats['unique']) / average_by
         total = float(stats['total']) / average_by
-
     return [partition_id, total, unique]
 
 
@@ -354,10 +372,10 @@ def quality_score_by_position(dbs, confs):
     for partition in partition_keys:
         partition_index = partition_keys.index(partition)
         for partition_conf in confs['configurations'][partition]:
-            for position, mean in _quality_score_by_position(dbs, partition_conf):
+            for pos, mean in _quality_score_by_position(dbs, partition_conf):
                 found = False
                 for r in result:
-                    if r[0] == position and r[partition_index + 1] == None:
+                    if r[0] == pos and r[partition_index + 1] == None:
                         r[partition_index + 1] = mean
                         found = True
                         break
@@ -366,7 +384,7 @@ def quality_score_by_position(dbs, confs):
                 else:
                     line = [None] * partition_length
                     line[partition_index] = mean
-                    result.append([position] + line)
+                    result.append([pos] + line)
 
     chart['table_data'] = result
     return chart
@@ -407,19 +425,19 @@ def ambiguous_bases_per_position(dbs, confs):
     for partition in partition_keys:
         partition_index = partition_keys.index(partition)
         for partition_conf in confs['configurations'][partition]:
-            for position, ambiguous in _ambiguous_bases_per_position(dbs, partition_conf):
+            for pos, amb in _ambiguous_bases_per_position(dbs, partition_conf):
                 found = False
                 for r in result:
-                    if r[0] == position and r[partition_index + 1] == None:
-                        r[partition_index + 1] = ambiguous
+                    if r[0] == pos and r[partition_index + 1] == None:
+                        r[partition_index + 1] = amb
                         found = True
                         break
                 if found:
                     pass
                 else:
                     line = [None] * partition_length
-                    line[partition_index] = ambiguous
-                    result.append([position] + line)
+                    line[partition_index] = amb
+                    result.append([pos] + line)
 
     chart['table_data'] = result
     return chart
