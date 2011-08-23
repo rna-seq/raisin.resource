@@ -30,7 +30,9 @@ import discovery
 from raisin.mysqldb import run_method_using_mysqldb
 from utils import get_configurations
 from utils import to_cfg
-log = logging.getLogger(__name__)
+
+
+log = logging.getLogger(__name__)  # pylint: disable-msg=C0103
 
 class Root(resource.Resource):
     """Root object for the resources."""
