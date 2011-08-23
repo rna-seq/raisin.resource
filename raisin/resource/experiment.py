@@ -152,6 +152,8 @@ from genome_files where genome_id='%s'
 @register_resource(resolution=None, partition=False)
 def experiments(dbs, confs):
     """Used for generating the buildout.cfg for pipeline.buildout."""
+    # pylint: disable-msg=W0613
+    # Configurations are not used here
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
                                   ('Experiment id',            'string'),
@@ -231,6 +233,8 @@ def experiments_configurations(dbs, confs):
     partition:     Experiments can be done for samples coming from different conditions
     paired:        Experiments can be done for paired end
     """
+    # pylint: disable-msg=W0613
+    # The configurations are not taken into account here. 
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
                                   ('Experiment id',            'string'),
@@ -372,7 +376,7 @@ and
                 'annotation_version': row[20],
                 'lab': row[21],
                 'paired': row[22]}
-        meta['parameter_list'] = get_parameter_list(confs, meta)
+        meta['parameter_list'] = get_parameter_list(confs)
         meta['parameter_values'] = get_parameter_values(confs, meta)
         row.append(url % meta)
         results.append(row)
@@ -496,7 +500,7 @@ and
         meta['paired'] = row[21]
         if not meta['paired'] is None:
             meta['paired'] = ord(meta['paired'])
-        meta['parameter_list'] = get_parameter_list(confs, meta)
+        meta['parameter_list'] = get_parameter_list(confs)
         meta['parameter_values'] = get_parameter_values(confs, meta)
 
         if not raw:
