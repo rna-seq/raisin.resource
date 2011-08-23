@@ -39,6 +39,8 @@ where project_id='%(projectid)s';
 @register_resource(resolution="project", partition=False)
 def projects(dbs, confs):
     """Return the projects and their URLs."""
+    # pylint: disable-msg=W0613
+    # The configurations are not taken into account here. 
     chart = {}
     chart['table_description'] = [('Project Id', 'string'),
                                   ('URL',        'string'),
@@ -281,6 +283,8 @@ AND
 @register_resource(resolution="project", partition=False)
 def project_downloads(dbs, confs):
     """Return the project downloads."""
+    # pylint: disable-msg=W0613
+    # The database is not needed for this static resource. 
     projectid = confs['configurations'][0]['projectid']
     chart = {}
     chart['table_description'] = [('File Name',               'string'),
@@ -289,12 +293,24 @@ def project_downloads(dbs, confs):
                                   ('.csv File Download Link', 'string'),
                                  ]
 
-    stats = (("Gene", "Expression (RPKM)", "gene_expression_rpkm"),
-             ("Transcript", "Expression (RPKM)", "transcript_expression_rpkm"),
-             ("Exon", "Expression (RPKM)", "exon_expression_rpkm"),
-             ("Exon", "Number of Reads", "exon_number_of_reads"),
-             ("Novel Junctions from Annotated Exons", "Number of Reads", "novel_junctions_from_annotated_exons_number_of_reads"),
-             ("Novel Junctions from Unannotated Exons", "Number of Reads", "novel_junctions_from_unannotated_exons_number_of_reads"))
+    stats = (("Gene", 
+              "Expression (RPKM)", 
+              "gene_expression_rpkm"),
+             ("Transcript",
+              "Expression (RPKM)",
+              "transcript_expression_rpkm"),
+             ("Exon",
+              "Expression (RPKM)",
+              "exon_expression_rpkm"),
+             ("Exon",
+              "Number of Reads",
+              "exon_number_of_reads"),
+             ("Novel Junctions from Annotated Exons",
+              "Number of Reads",
+              "novel_junctions_from_annotated_exons_number_of_reads"),
+             ("Novel Junctions from Unannotated Exons",
+              "Number of Reads",
+              "novel_junctions_from_unannotated_exons_number_of_reads"))
 
     ftp = "http://genome.crg.es/~mroder/rnaseq/%s/%s.csv.gz"
     filename = "%s.csv"
