@@ -62,7 +62,7 @@ from localization"""
     return mapping
 
 
-def get_parameter_list(confs, meta, separator='-'):
+def get_parameter_list(confs, separator='-'):
     """Return the parameter list"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
@@ -390,7 +390,7 @@ where
                    }
             if not meta['paired'] is None:
                 meta['paired'] = ord(meta['paired'])
-            meta['parameter_list'] = get_parameter_list(confs, meta)
+            meta['parameter_list'] = get_parameter_list(confs)
             meta['parameter_values'] = get_parameter_values(confs, meta)
             results[row] = meta['parameter_values']
     experiments = list(set(results.values()))
