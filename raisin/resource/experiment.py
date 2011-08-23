@@ -37,7 +37,6 @@ def experiment_info(dbs, confs):
                                   ('Genome Assembly',    'string'),
                                   ('Genome Source',      'string'),
                                   ('Genome Gender',      'string'),
-                                  ('UCSC Custom Track',  'string'),
                                  ]
 
     conf = confs['configurations'][0]
@@ -140,11 +139,6 @@ from genome_files where genome_id='%s'
     result.append(rows[0][4])
     result.append(rows[0][5])
     result.append(rows[0][6])
-    if rows[0][0] == 'Ging001N':
-        # XXX Need to produce the BAM files for visualisation in UCSC Browser
-        result.append("http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&hgct_customText=ftp://ftp.encode.crg.cat/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
-    else:
-        result.append("")
     chart['table_data'] = [result, ]
     return chart
 
