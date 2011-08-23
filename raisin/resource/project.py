@@ -84,16 +84,6 @@ from technology"""
                    .replace('"', '&quot;')\
                    .replace("'", '&#39;')
 
-    def unescape(html):
-        """Returns the given original HTML decoding ampersands, quotes and
-        carets.
-        """
-        return html.replace('&amp;', '&')\
-                   .replace('&lt;', '<')\
-                   .replace('&gt;', '>')\
-                   .replace('&quot;', '"')\
-                   .replace("&#39;", "'")
-
     results = []
     for row in rows:
         results.append((row[0], row[1], escape(row[2]), row[3]))
@@ -608,25 +598,25 @@ def _rnadashboard_accessions(dbs, confs):
 
     results = []
     for accession in accession_list:
-        files = accession_fastqs[accession]
-        if len(files) > 2:
+        fastqs = accession_fastqs[accession]
+        if len(fastqs) > 2:
             raise AttributeError
-        for file in files:
-            attributes = _parse_all_attributes(file["file.allAttributes"])
-            read_type = file["experiment.readType"]
+        for fastq in fastqs:
+            attributes = _parse_all_attributes(fastq["file.allAttributes"])
+            read_type = fastq["experiment.readType"]
             if read_type is None:
                 read_type = attributes.get('readType', None)
             results.append((accession,
-                            file["cell.sex"],
-                            file["file.url"],
+                            fastq["cell.sex"],
+                            fastq["file.url"],
                             read_type,
-                            file["rnaExtract.ucscName"],
-                            file["localization.ucscName"],
-                            file["sample.replicate as bioRep"],
-                            file["sample.cell"],
+                            fastq["rnaExtract.ucscName"],
+                            fastq["localization.ucscName"],
+                            fastq["sample.replicate as bioRep"],
+                            fastq["sample.cell"],
                             "Homo sapiens",
                             "phred",
-                            file["fileView.name"],
+                            fastq["fileView.name"],
                             ))
 
     chart['table_data'] = results
