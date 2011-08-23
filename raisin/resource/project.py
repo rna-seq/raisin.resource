@@ -591,13 +591,13 @@ def _rnadashboard_accessions(dbs, confs):
             raise AttributeError
         for file in files:
             attributes = _parse_all_attributes(file["file.allAttributes"])
-            readType = file["experiment.readType"]
-            if readType is None:
-                readType = attributes.get('readType', None)
+            read_type = file["experiment.readType"]
+            if read_type is None:
+                read_type = attributes.get('readType', None)
             results.append((accession,
                             file["cell.sex"],
                             file["file.url"],
-                            readType,
+                            read_type,
                             file["rnaExtract.ucscName"],
                             file["localization.ucscName"],
                             file["sample.replicate as bioRep"],
