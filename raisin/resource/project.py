@@ -8,7 +8,8 @@ from raisin.resource.utils import get_experiment_dict
 
 # http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html#sex
 # XXX Needs to be verified
-GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both male and female cells
+GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both 
+                                  # male and female cells
                   'F': 'female',  # Female
                   'M': 'male',    # Male
                   'U': 'male',    # Unknown
@@ -62,7 +63,8 @@ def rnadashboard_technologies(dbs, confs):
                                   ('URL',         'string'),
                                  ]
 
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    hgversion = confs['configurations'][0]['hgversion']
+    dashboard_db = get_dashboard_db(dbs, hgversion)
 
     sql = """
 select name,
@@ -76,11 +78,21 @@ from technology"""
 
     def escape(html):
         """Returns the given HTML with ampersands, quotes and carets encoded."""
-        return html.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#39;')
+        return html.replace('&', '&amp;')\
+                   .replace('<', '&lt;')\
+                   .replace('>', '&gt;')\
+                   .replace('"', '&quot;')\
+                   .replace("'", '&#39;')
 
     def unescape(html):
-        """Returns the given original HTML decoding ampersands, quotes and carets."""
-        return html.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace("&#39;", "'")
+        """Returns the given original HTML decoding ampersands, quotes and
+        carets.
+        """
+        return html.replace('&amp;', '&')\
+                   .replace('&lt;', '<')\
+                   .replace('&gt;', '>')\
+                   .replace('&quot;', '"')\
+                   .replace("&#39;", "'")
 
     results = []
     for row in rows:
@@ -98,7 +110,8 @@ def rnadashboard_rna_fractions(dbs, confs):
                                   ('Description',  'string'),
                                  ]
 
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    hgversion = confs['configurations'][0]['hgversion']
+    dashboard_db = get_dashboard_db(dbs, hgversion)
 
     sql = """
 select ucscName,
@@ -122,7 +135,8 @@ def rnadashboard_compartments(dbs, confs):
                                   ('Description',  'string'),
                                  ]
 
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    hgversion = confs['configurations'][0]['hgversion']
+    dashboard_db = get_dashboard_db(dbs, hgversion)
 
     sql = """
 select ucscName,
@@ -153,7 +167,8 @@ def rnadashboard_files(dbs, confs):
                                   ('Attributes', 'string'),
                                  ]
 
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    hgversion = confs['configurations'][0]['hgversion']
+    dashboard_db = get_dashboard_db(dbs, hgversion)
 
     sql = """
 select file.url,
@@ -201,7 +216,8 @@ def rnadashboard(dbs, confs):
                                   ('Restricted until',          'string'),
                                  ]
 
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    hgversion = confs['configurations'][0]['hgversion']
+    dashboard_db = get_dashboard_db(dbs, hgversion)
 
     sql = """
 SELECT sample.grantName,
@@ -384,9 +400,11 @@ def _rnadashboard_results_restricted(rows, description_keys):
         result = dict(zip(description_keys, row))
         if result['File at UCSC'] == 1:
             if not result['Restricted until'] is None:
-                end = result['Restricted until'] + datetime.timedelta(9 * 365 / 12)
+                delta = datetime.timedelta(9 * 365 / 12)
+                end = result['Restricted until'] + delta
                 if end > datetime.date.today():
-                    result['Restricted until'] = "%s-%s-%s" % (end.year, end.month, end.day)
+                    timestamp = "%s-%s-%s" % (end.year, end.month, end.day)
+                    result['Restricted until'] = timestamp
                 else:
                     result['Restricted until'] = None
         else:
@@ -422,7 +440,8 @@ AND
 
 def _rnadashboard_results_sql(dbs, confs, wheres=""):
     """Query the database for the RNA dashboard."""
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    hgversion = confs['configurations'][0]['hgversion']
+    dashboard_db = get_dashboard_db(dbs, hgversion)
     sql = """
 SELECT file.dateSubmitted,
        file.fileType,
@@ -564,9 +583,12 @@ def _rnadashboard_accessions(dbs, confs):
     for fastq in fastqs:
         accession_id = fastq["file.lab as endLab"]
         if not fastq["sample.internalName"] is None:
-            accession_id = accession_id + fastq["sample.internalName"].replace('-', 'Minus').replace('+', 'Plus')
+            internal = fastq["sample.internalName"]
+            internal = internal.replace('-', 'Minus').replace('+', 'Plus')
+            accession_id = accession_id + internal
         else:
-            # Use an attribute value common between the files as a seed for the accession id
+            # Use an attribute value common between the files as a seed
+            # for the accession id
             random.seed(fastq["file.experiment_data_processing"])
             # Create a random accession id in absence of an internal name
             accession_id = accession_id + str(random.random())[2:]
@@ -623,13 +645,14 @@ def _parse_all_attributes(all_attributes):
 
 def _fastqs(dbs, confs, wheres=""):
     """Return the fastq files only."""
-    dashboard_db = get_dashboard_db(dbs, confs['configurations'][0]['hgversion'])
+    hgversion = confs['configurations'][0]['hgversion']
+    dashboard_db = get_dashboard_db(dbs, hgversion)
     selects = ["file.dateSubmitted",
                "file.experiment_data_processing",
                "file.fileType",
                "fileView.displayName",
                "fileView.name",
-               "file.lab as endLab",         # Produced the file using their pipeline
+               "file.lab as endLab", # Produced the file using their pipeline
                "file.url",
                "file.size",
                "fileView.deNovo",
