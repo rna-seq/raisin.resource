@@ -427,9 +427,9 @@ def ambiguous_bases_per_position(dbs, confs):
         for partition_conf in confs['configurations'][partition]:
             for pos, amb in _ambiguous_bases_per_position(dbs, partition_conf):
                 found = False
-                for r in result:
-                    if r[0] == pos and r[partition_index + 1] == None:
-                        r[partition_index + 1] = amb
+                for res in result:
+                    if res[0] == pos and res[partition_index + 1] == None:
+                        res[partition_index + 1] = amb
                         found = True
                         break
                 if found:
