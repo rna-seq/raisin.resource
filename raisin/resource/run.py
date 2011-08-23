@@ -30,7 +30,6 @@ def run_info(dbs, confs):
                                   ('Genome Assembly',    'string'),
                                   ('Genome Source',      'string'),
                                   ('Genome Gender',      'string'),
-                                  ('UCSC Custom Track',  'string'),
                                  ]
     result = []
     conf = confs['configurations'][0]
