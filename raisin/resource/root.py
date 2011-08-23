@@ -40,6 +40,14 @@ class Root(resource.Resource):
     # pylint: disable-msg=W0613
     # The request variable is not used in any of the methods on Root
 
+    # pylint: disable-msg=C0301
+    # XXX There are long lines that could be removed with a refactoring
+    
+    # pylint: disable-msg=R0201
+    # Methods could be functions
+    
+    # pylint: disable-msg=R0904
+    # Too many methods. 
     @resource.child('projects')
     def projects(self, request, segments, **kwargs):
         """Define resource child"""
@@ -242,7 +250,8 @@ class Resource(resource.Resource):
 
     def __init__(self, key, cachefilebase, **kwargs):
         """Keep all information about the resource"""
-        method, level, resolution, partition = STATS_REGISTRY.get(key, (None, None, None, None))
+        default = (None, None, None, None)
+        method, level, resolution, partition = STATS_REGISTRY.get(key, default)
         self.dbs = {}
         self.method = method
         self.level = level
@@ -253,16 +262,21 @@ class Resource(resource.Resource):
         # Check the values passed in through the URL to avoid SQL injection
         for key, value in kwargs.items():
             if key == 'parameter_list':
-                if not value.replace('-', '').replace('_', '').replace('.', '').isalnum():
+                if not value.replace('-', '')\
+                            .replace('_', '')\
+                            .replace('.', '').isalnum():
                     raise AttributeError
             elif key == 'parameter_values':
-                if not value.replace('-', '').replace('_', '').replace('.', '').isalnum():
+                if not value.replace('-', '')\
+                            .replace('_', '')\
+                            .replace('.', '').isalnum():
                     raise AttributeError
             elif key == 'runid':
                 if not value.replace('_', '').isalnum():
                     raise AttributeError
             elif key == 'laneid':
-                if not value.replace('_', '').replace('.', '').isalnum():
+                if not value.replace('_', '')\
+                            .replace('.', '').isalnum():
                     raise AttributeError
             elif key == 'projectid':
                 if not value.replace('_', '').isalnum():
@@ -271,7 +285,11 @@ class Resource(resource.Resource):
                 if not value in STATS_REGISTRY:
                     raise AttributeError(value)
             elif key == 'stattype':
-                if not value in ('read', 'mapping', 'expression', 'splicing', 'discovery'):
+                if not value in ('read',
+                                 'mapping',
+                                 'expression',
+                                 'splicing',
+                                 'discovery'):
                     raise AttributeError
             elif key == 'hgversion':
                 if not value in ['hg18', 'hg19']:
@@ -279,7 +297,8 @@ class Resource(resource.Resource):
             else:
                 raise AttributeError
         log.info(kwargs)
-        # The statid and stattype are only needed for routing, but are superfluous for the method
+        # The statid and stattype are only needed for routing, but are
+        # superfluous for the method
         self.kwargs = kwargs.copy()
         if 'statid' in kwargs:
             del self.kwargs['statid']
@@ -297,49 +316,60 @@ class Resource(resource.Resource):
         self.dbs = request.environ['dbs']
 
         # Get the pickle cache file if available
-        picklecachefile = None
+        cachefile = None
         if not request.environ['pickles_cache_path'] is None:
             print "Pickles Cache path is there"
             # Get the path to the pickles from the repoze.bfg ini file
-            picklecachefile = os.path.join(request.environ['pickles_cache_path'],
+            cachefile = os.path.join(request.environ['pickles_cache_path'],
                                            self.cachefilebase + '.pickle')
 
-        # The data should change to something else if we can get something from the cache now.
+        # The data should change to something else if we can get something 
+        # from the cache now.
         data = None
 
         # First try getting data out of the cache if this is defined
-        if not picklecachefile is None:
-            if os.path.isfile(picklecachefile):
-                print "Read pickle cache file", picklecachefile
-                data = pickle.loads(open(picklecachefile, 'r').read())
+        if not cachefile is None:
+            if os.path.isfile(cachefile):
+                print "Read pickle cache file", cachefile
+                data = pickle.loads(open(cachefile, 'r').read())
 
-        # If the data was not found, get it out of the databases if that is defined
+        # If the data was not found, get it out of the databases if that 
+        # is defined
         if data is None:
             # Get the configurations for the given level of detail
-            confs = get_configurations(request, self.level, self.resolution, self.partition, self.dbs, **self.kwargs)
+            confs = get_configurations(request,
+                                       self.level,
+                                       self.resolution,
+                                       self.partition,
+                                       self.dbs,
+                                       **self.kwargs)
 
             # Run the method containing the code to access the database
-            data = run_method_using_mysqldb(self.method, self.dbs, confs, http.not_found)
+            data = run_method_using_mysqldb(self.method,
+                                            self.dbs,
+                                            confs,
+                                            http.not_found)
 
             if data == http.not_found:
-                # If the returned value is the marker http.not_found, we know that something related
-                # to MySQL went wrong when the method was called.
-                # The marker is used so that no internals of MySQL need to be considered here.
+                # If the returned value is the marker http.not_found, we know
+                # that something related to MySQL went wrong when the method
+                # was called. The marker is used so that no internals of the
+                # MySQL adapter need to be considered here.
                 return http.not_found()
             else:
                 # Only store data if the pickles cache is to be used
-                if not picklecachefile is None:
-                    print "Write pickle cache file", picklecachefile
+                if not cachefile is None:
+                    print "Write pickle cache file", cachefile
                     # Store the data in the pickles cache
-                    picklescachefile_folder = os.path.split(picklecachefile)[0]
-                    # Create the directories on the way to where the file should be stored
+                    picklescachefile_folder = os.path.split(cachefile)[0]
+                    # Create the directories on the way to where the file
+                    # should be stored
                     if not os.path.exists(picklescachefile_folder):
                         os.makedirs(picklescachefile_folder)
-                    pickle.dump(data, open(picklecachefile, 'w'))
+                    pickle.dump(data, open(cachefile, 'w'))
 
         if data is None:
-            print "The method is not yet implemented, it has returned a None value"
-            # The method needs to be set at least
+            log.warning("Method appears to be unimplemented: %s" % self.method)
             return http.not_found([('Content-type', 'text/javascript')], '')
 
         accept_header = request.headers.get('Accept', 'text/javascript')
@@ -374,10 +404,12 @@ class Resource(resource.Resource):
                 except:
                     raise
         else:
-            if request.headers.get('Accept', None) == 'text/x-python-pickled-dict':
+            accept_header = request.headers.get('Accept', None)
+            if accept_header == 'text/x-python-pickled-dict':
                 body = pickle.dumps(data)
             else:
                 body = json.dumps(data)
 
-        headers = [('Content-type', accept_header), ('Content-Length', len(body))]
+        headers = [('Content-type', accept_header), 
+                   ('Content-Length', len(body))]
         return http.ok(headers, body)
