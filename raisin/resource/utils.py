@@ -1,4 +1,4 @@
-"""Utility methods for descriptive titles and level information and aggregation"""
+"""Utility methods for descriptive titles, level information and aggregation"""
 
 from root import stats_registry
 from raisin.mysqldb import run_method_using_mysqldb
@@ -126,8 +126,8 @@ def get_experiment_dict(confs):
 
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         if parameter in parameter_list:
-            # Take the parameter out of the parameter_values from the same position
-            # as the parameter in the parameter_list.
+            # Take the parameter out of the parameter_values from the same
+            # position as the parameter in the parameter_list.
             meta[parameter] = parameter_values[parameter_list.index(parameter)]
     return meta
 
@@ -153,7 +153,8 @@ def get_experiment_chart(confs):
                                   ('Parameter Values', 'string'),
                                   ('# Runs',           'string'),
                                  ]
-    # Either take the parameter mapping defined for the project or take all parameters
+    # Either take the parameter mapping defined for the project 
+    # or take all parameters
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         chart['table_description'].append(parameter_labels[parameter])
     return chart
@@ -205,15 +206,17 @@ def get_experiment_where(confs, meta):
     ands = ["project_id='%s'" % meta['projectid']]
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         if parameter in parameter_list:
-            # Take the parameter out of the parameter_values from the same position
-            # as the parameter in the parameter_list.
+            # Take the parameter out of the parameter_values from the same 
+            # position as the parameter in the parameter_list.
             if meta.has_key(parameter):
-                ands.append("%s = '%s'" % (parameter_columns[parameter], meta[parameter]))
+                key, value = parameter_columns[parameter], meta[parameter]
+                ands.append("%s = '%s'" % (key, value))
     return where % ('\nand\n    '.join(ands))
 
 
 def get_experiment_runs(dbs, confs):
     """Return experiment runs"""
+    projectid = confs['kwargs']['projectid']
     if 'parameter_values' in confs['kwargs']:
         meta = get_experiment_dict(confs)
         sql = """
@@ -222,15 +225,15 @@ def get_experiment_runs(dbs, confs):
     %s
     order by
         experiment_id;""" % get_experiment_where(confs, meta)
-        cursor = dbs[confs['kwargs']['projectid']]['RNAseqPipelineCommon'].query(sql)
+        cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     else:
         sql = """
     select experiment_id
     from experiments
     where project_id = '%s'
     order by
-        experiment_id;""" % confs['kwargs']['projectid']
-        cursor = dbs[confs['kwargs']['projectid']]['RNAseqPipelineCommon'].query(sql)
+        experiment_id;""" % projectid
+        cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
 
     rows = cursor.fetchall()
     cursor.close()
@@ -260,9 +263,13 @@ def configurations_for_level(request, dbs, configurations, level):
         elif level == 'project':
             return configurations
         elif level == 'experiment':
-            items, failed = run(dbs, get_project_experiments, {'kwargs': kwargs, 'request': request})
+            items, failed = run(dbs, 
+                                get_project_experiments,
+                                {'kwargs': kwargs, 'request': request})
         elif level == 'run':
-            items, failed = run(dbs, get_experiment_runs, {'kwargs': kwargs, 'request': request})
+            items, failed = run(dbs,
+                                get_experiment_runs,
+                                {'kwargs': kwargs, 'request': request})
         elif level == 'lane':
             items, failed = run(dbs, get_run_lanes, kwargs)
         elif level == 'read':
@@ -283,10 +290,11 @@ def partition_configurations(configurations, level):
     partition_id = '%sid' % level
     partition_configurations = {}
     for configuration in configurations:
-        if configuration[partition_id] in partition_configurations:
-            partition_configurations[configuration[partition_id]].append(configuration)
+        partition = configuration[partition_id]
+        if partition in partition_configurations:
+            partition_configurations[partition].append(configuration)
         else:
-            partition_configurations[configuration[partition_id]] = [configuration]
+            partition_configurations[partition] = [configuration]
     return partition_configurations
 
 
