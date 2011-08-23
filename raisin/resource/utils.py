@@ -183,13 +183,13 @@ def get_experiment_order_by(confs):
     parameter_columns = confs['request'].environ['parameter_columns']
     parameter_labels = confs['request'].environ['parameter_labels']
     order_by = ""
-    by = []
+    bys = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
-        by.append(parameter_columns[parameter])
-    if by:
+        bys.append(parameter_columns[parameter])
+    if bys:
         order_by = """
 order by
-    %s;""" % ',\n      '.join(by)
+    %s;""" % ',\n      '.join(bys)
     return order_by
 
 
@@ -538,6 +538,8 @@ class register_resource(object):
 
     - a lane aggregating the reads when partition is False
     """
+    # pylint: disable-msg=C0103
+    # This class is used as a decorator, so allow lower case name
 
     def __init__(self, resolution, partition):
         self.resolution = resolution
