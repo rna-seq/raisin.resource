@@ -32,9 +32,11 @@ from utils import get_configurations
 from utils import to_cfg
 log = logging.getLogger(__name__)
 
-
 class Root(resource.Resource):
     """Root object for the resources."""
+
+    # pylint: disable-msg=W0613
+    # The request variable is not used in any of the methods on Root
 
     @resource.child('projects')
     def projects(self, request, segments, **kwargs):
