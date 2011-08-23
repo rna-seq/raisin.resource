@@ -230,7 +230,7 @@ and
                 'lab': row[21],
                 'paired': row[22],
                }
-        meta['parameter_list'] = get_parameter_list(confs, meta)
+        meta['parameter_list'] = get_parameter_list(confs)
         meta['parameter_values'] = get_parameter_values(confs, meta)
         results.append(row + [url % meta])
     chart['table_data'] = results
