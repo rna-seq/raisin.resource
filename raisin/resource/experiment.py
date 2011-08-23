@@ -166,8 +166,8 @@ def experiments(dbs, confs):
 
     results = []
     for projectid in dbs.keys():
-        rows, failed = run(dbs, _experiments, {'projectid': projectid})
-        if not failed:
+        rows, success = run(dbs, _experiments, {'projectid': projectid})
+        if success:
             results = results + list(rows)
 
     chart['table_data'] = results
@@ -243,10 +243,10 @@ def experiments_configurations(dbs, confs):
 
     results = []
     for projectid in dbs.keys():
-        rows, failed = run(dbs,
-                           _experiments_configurations,
-                           {'projectid': projectid})
-        if not failed:
+        rows, success = run(dbs,
+                            _experiments_configurations,
+                            {'projectid': projectid})
+        if success:
             results = results + list(rows)
 
     chart['table_data'] = results
@@ -603,9 +603,6 @@ def project_experiment_subset_start(dbs, confs):
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
 
-    subsets = []
-    supersets = []
-
     variations = {}
     variation_count = {}
     for experiment_list in experimentids.values():
@@ -666,9 +663,7 @@ def project_experiment_subset_pending(dbs, confs):
                                                   raw=True,
                                                   where=True)
     conf = confs['configurations'][0]
-    projectid = conf['projectid']
     meta = get_experiment_dict(confs)
-    parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
 
     chart = {}
