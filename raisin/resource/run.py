@@ -121,15 +121,6 @@ from genome_files where genome_id='%s'
     result.append(rows[0][4])
     result.append(rows[0][5])
     result.append(rows[0][6])
-    if conf['runid'] == 'Ging001N':
-        result.append(("http://genome.ucsc.edu/cgi-bin/hgTracks"
-                       "?org=human"
-                       "&hgct_customText="
-                       "ftp://ftp.encode.crg.cat"
-                       "/pub/rnaseq/encode/001N/BAM/001N.merged.track.txt")
-                     )
-    else:
-        result.append("")
     chart['table_data'] = [result, ]
     return chart
 
