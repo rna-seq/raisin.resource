@@ -99,7 +99,7 @@ def get_parameter_values(confs, meta, separator='-'):
 
 
 def get_experiment_dict(confs):
-    """Make a dict out of the parameters defined in parameter_list and 
+    """Make a dict out of the parameters defined in parameter_list and
     parameter_values.
     """
 
@@ -107,7 +107,7 @@ def get_experiment_dict(confs):
 
     parameter_list = confs['kwargs']['parameter_list'].split('-')
 
-    if not confs['kwargs'].has_key('parameter_values'):
+    if not 'parameter_values' in confs['kwargs']:
         return {'projectid': projectid,
                 'parameter_list': parameter_list
                 }
@@ -153,7 +153,7 @@ def get_experiment_chart(confs):
                                   ('Parameter Values', 'string'),
                                   ('# Runs',           'string'),
                                  ]
-    # Either take the parameter mapping defined for the project 
+    # Either take the parameter mapping defined for the project
     # or take all parameters
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         chart['table_description'].append(parameter_labels[parameter])
@@ -206,9 +206,9 @@ def get_experiment_where(confs, meta):
     ands = ["project_id='%s'" % meta['projectid']]
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
         if parameter in parameter_list:
-            # Take the parameter out of the parameter_values from the same 
+            # Take the parameter out of the parameter_values from the same
             # position as the parameter in the parameter_list.
-            if meta.has_key(parameter):
+            if parameter in meta:
                 key, value = parameter_columns[parameter], meta[parameter]
                 ands.append("%s = '%s'" % (key, value))
     return where % ('\nand\n    '.join(ands))
@@ -263,7 +263,7 @@ def configurations_for_level(request, dbs, configurations, level):
         elif level == 'project':
             return configurations
         elif level == 'experiment':
-            items, success = run(dbs, 
+            items, success = run(dbs,
                                  get_project_experiments,
                                  {'kwargs': kwargs, 'request': request})
         elif level == 'run':
@@ -441,9 +441,9 @@ order by
 
 def run(dbs, method, conf):
     """Run a method running sql code.
-    
+
     Returns a tuple of (data, success).
-    
+
     If the success value is True, the method could not be run properly.
 
     If the success value is False, the method has been executed correctly.
@@ -452,7 +452,7 @@ def run(dbs, method, conf):
     data = run_method_using_mysqldb(method, dbs, conf, http.not_found)
     if data == http.not_found:
         print "Error running sql method."
-        failed =  False
+        success = False
     return data, success
 
 
