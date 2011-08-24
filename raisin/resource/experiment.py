@@ -16,6 +16,7 @@ from utils import register_resource
 
 from project import rnadashboard_results_pending
 
+
 @register_resource(resolution=None, partition=False)
 def experiment_info(dbs, confs):
     """XXX Needs refactoring"""
@@ -228,7 +229,7 @@ def experiments_configurations(dbs, confs):
     paired:        Experiments can be done for paired end
     """
     # pylint: disable-msg=W0613
-    # The configurations are not taken into account here. 
+    # The configurations are not taken into account here.
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
                                   ('Experiment id',            'string'),
@@ -407,10 +408,10 @@ def _project_experimentstable(dbs, confs, raw=True, where=False):
     for value in experimentids.values():
         results.append(get_experiment_result(confs, value))
     results.sort()
-    
+
     if len(results) == 0:
         results = [[None] * len(chart['table_description'])]
-        
+
     chart['table_data'] = results
     return chart
 
@@ -589,7 +590,7 @@ def project_experiment_subset_selection(dbs, confs):
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset_start(dbs, confs):
     """XXX This is not used yet
-    
+
     The idea is to use this as a start for searching the parameter space
     of a project.
     """
@@ -600,7 +601,6 @@ def project_experiment_subset_start(dbs, confs):
     conf = confs['configurations'][0]
     projectid = conf['projectid']
     meta = get_experiment_dict(confs)
-    parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
 
     variations = {}
@@ -647,11 +647,11 @@ def project_experiment_subset_start(dbs, confs):
                                     str(value),
                                     str(variation_count[subset].count(value))))
 
-
     if len(chart['table_data']) == 0:
         chart['table_data'].append([None] * len(chart['table_description']))
 
     return chart
+
 
 @register_resource(resolution='project', partition=False)
 def project_experiment_subset_pending(dbs, confs):
@@ -662,7 +662,6 @@ def project_experiment_subset_pending(dbs, confs):
                                                   confs,
                                                   raw=True,
                                                   where=True)
-    conf = confs['configurations'][0]
     meta = get_experiment_dict(confs)
     parameter_labels = confs['request'].environ['parameter_labels']
 
@@ -703,7 +702,7 @@ def project_experiment_subset_pending(dbs, confs):
     chart['table_description'] = description
     if len(results) == 0:
         results = [(None,) * len(description)]
-    
+
     chart['table_data'] = results
 
     return chart
