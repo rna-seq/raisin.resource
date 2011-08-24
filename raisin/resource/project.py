@@ -8,7 +8,7 @@ from raisin.resource.utils import get_experiment_dict
 
 # http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html#sex
 # XXX Needs to be verified
-GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both 
+GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both
                                   # male and female cells
                   'F': 'female',  # Female
                   'M': 'male',    # Male
@@ -41,7 +41,7 @@ where project_id='%(projectid)s';
 def projects(dbs, confs):
     """Return the projects and their URLs."""
     # pylint: disable-msg=W0613
-    # The configurations are not taken into account here. 
+    # The configurations are not taken into account here.
     chart = {}
     chart['table_description'] = [('Project Id', 'string'),
                                   ('URL',        'string'),
@@ -290,7 +290,7 @@ AND
 def project_downloads(dbs, confs):
     """Return the project downloads."""
     # pylint: disable-msg=W0613
-    # The database is not needed for this static resource. 
+    # The database is not needed for this static resource.
     projectid = confs['configurations'][0]['projectid']
     chart = {}
     chart['table_description'] = [('File Name',               'string'),
@@ -299,8 +299,8 @@ def project_downloads(dbs, confs):
                                   ('.csv File Download Link', 'string'),
                                  ]
 
-    stats = (("Gene", 
-              "Expression (RPKM)", 
+    stats = (("Gene",
+              "Expression (RPKM)",
               "gene_expression_rpkm"),
              ("Transcript",
               "Expression (RPKM)",
@@ -333,7 +333,8 @@ def project_downloads(dbs, confs):
 def rnadashboard_results(dbs, confs):
     """Return the RNA dashboard results."""
     return _rnadashboard_results(dbs, confs)
-    
+
+
 def _rnadashboard_results(dbs, confs):
     """Return the RNA dashboard results."""
     if not confs['configurations'][0]['projectid'] == 'ENCODE':
@@ -350,6 +351,7 @@ def _rnadashboard_results(dbs, confs):
     chart['table_description'] = description
     chart['table_data'] = results
     return chart
+
 
 def _rnadashboard_results_description():
     """Return the RNA dashboard results descriptions."""
@@ -383,6 +385,7 @@ def _rnadashboard_results_description():
     description.append(('Experiment Id',             'string'))
     return description
 
+
 def _rnadashboard_results_restricted(rows, description_keys):
     """Return the restricted RNA dashboard results."""
     results = []
@@ -401,6 +404,7 @@ def _rnadashboard_results_restricted(rows, description_keys):
             result['Restricted until'] = 'To be decided'
         results.append(result)
     return results
+
 
 def _rnadashboard_results_wheres(confs):
     """Return the RNA dashboard where clause."""
@@ -642,7 +646,7 @@ def _fastqs(dbs, confs, wheres=""):
                "file.fileType",
                "fileView.displayName",
                "fileView.name",
-               "file.lab as endLab", # Produced the file using their pipeline
+               "file.lab as endLab",  # Produced the file using their pipeline
                "file.url",
                "file.size",
                "fileView.deNovo",
@@ -750,6 +754,7 @@ def rnadashboard_runs(dbs, confs):
     chart['table_data'] = result
     return chart
 
+
 def rnadashboard_results_pending(dbs, confs):
     """Return the RNA dashboard items pending being run in the pipeline."""
     description = _rnadashboard_results_description()
@@ -790,4 +795,3 @@ def rnadashboard_results_pending(dbs, confs):
         rest['Paired'] = paired
         results['-'.join(key)] = rest
     return results
-    
