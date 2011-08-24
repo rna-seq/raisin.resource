@@ -34,6 +34,7 @@ from utils import to_cfg
 
 log = logging.getLogger(__name__)  # pylint: disable-msg=C0103
 
+
 class Root(resource.Resource):
     """Root object for the resources."""
 
@@ -42,12 +43,12 @@ class Root(resource.Resource):
 
     # pylint: disable-msg=C0301
     # XXX There are long lines that could be removed with a refactoring
-    
+
     # pylint: disable-msg=R0201
     # Methods could be functions
-    
+
     # pylint: disable-msg=R0904
-    # Too many methods. 
+    # Too many methods.
     @resource.child('projects')
     def projects(self, request, segments, **kwargs):
         """Define resource child"""
@@ -323,7 +324,7 @@ class Resource(resource.Resource):
             cachefile = os.path.join(request.environ['pickles_cache_path'],
                                            self.cachefilebase + '.pickle')
 
-        # The data should change to something else if we can get something 
+        # The data should change to something else if we can get something
         # from the cache now.
         data = None
 
@@ -333,7 +334,7 @@ class Resource(resource.Resource):
                 print "Read pickle cache file", cachefile
                 data = pickle.loads(open(cachefile, 'r').read())
 
-        # If the data was not found, get it out of the databases if that 
+        # If the data was not found, get it out of the databases if that
         # is defined
         if data is None:
             # Get the configurations for the given level of detail
@@ -380,7 +381,11 @@ class Resource(resource.Resource):
             #print "Extract table info and return info"
             # This chart is using the google visualization library
             table = gviz_api.DataTable(data['table_description'])
-            table.AppendData(data['table_data'])
+            try:
+                table.AppendData(data['table_data'])
+            except DataTableException:
+                print self.method
+                raise
             if accept_header == 'text/plain':
                 body = table.ToJSonResponse()
             elif accept_header == 'text/html':
@@ -410,6 +415,6 @@ class Resource(resource.Resource):
             else:
                 body = json.dumps(data)
 
-        headers = [('Content-type', accept_header), 
+        headers = [('Content-type', accept_header),
                    ('Content-Length', len(body))]
         return http.ok(headers, body)
