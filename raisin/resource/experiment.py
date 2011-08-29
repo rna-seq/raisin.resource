@@ -151,7 +151,7 @@ def experiments(dbs, confs):
     # Configurations are not used here
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
-                                  ('Experiment id',            'string'),
+                                  ('Replicate id',            'string'),
                                   ('Species',                  'string'),
                                   ('Genome file name',         'string'),
                                   ('Genome file location',     'string'),
@@ -232,7 +232,7 @@ def experiments_configurations(dbs, confs):
     # The configurations are not taken into account here.
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
-                                  ('Experiment id',            'string'),
+                                  ('Replicate id',            'string'),
                                   ('Read Length',              'number'),
                                   ('Cell Type',                'string'),
                                   ('RNA Type',                 'string'),
@@ -569,7 +569,7 @@ def project_experiment_subset_selection(dbs, confs):
                    ('Parameter Values',                     'string'),
                    ('Parameter Type',                       'string'),
                    ('Parameter Value',                      'string'),
-                   ('Experiments for this Parameter Value', 'string'),
+                   ('Replicates for this Parameter Value', 'string'),
                   ]
     chart['table_description'] = description
     chart['table_data'] = []
@@ -635,7 +635,7 @@ def project_experiment_subset_start(dbs, confs):
                    ('Parameter Values',                     'string'),
                    ('Parameter Type',                       'string'),
                    ('Parameter Value',                      'string'),
-                   ('Experiments for this Parameter Value', 'string'),
+                   ('Replicates for this Parameter Value',  'string'),
                   ]
     chart['table_description'] = description
     chart['table_data'] = []
@@ -666,7 +666,7 @@ def project_experiment_subset_pending(dbs, confs):
     parameter_labels = confs['request'].environ['parameter_labels']
 
     chart = {}
-    description = [('Experiment',  'string'),
+    description = [('Replicate',   'string'),
                    ('Lab',         'string'),
                    ('Cell Type',   'string'),
                    ('Compartment', 'string'),

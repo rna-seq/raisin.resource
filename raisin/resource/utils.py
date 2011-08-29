@@ -250,7 +250,7 @@ def get_level(runid, laneid, readid):
     level['id'] = {3: 'Read',
                    2: 'Lane',
                    1: 'Run',
-                   0: 'Experiment'}[len(level['parameters'])]
+                   0: 'Replicate'}[len(level['parameters'])]
     return level
 
 
@@ -298,14 +298,14 @@ def partition_configurations(configurations, level):
 def get_configurations(request, level, resolution, partition, dbs, **kwargs):
     """Return configurations"""
     level_titles = {'project':    'Project Id',
-                    'experiment': 'Experiment Id',
+                    'experiment': 'Replicate Id',
                     'run':        'Run Id',
                     'lane':       'Lane Id',
                     'read':       'Read Id',
                     None: None,
                     }
     resolution_titles = {'project':    'Project Level',
-                          'experiment': 'Experiment Level',
+                          'experiment': 'Replicate Level',
                           'run':        'Run Level',
                           'lane':       'Lane Level',
                           'read':       'Read Level',
