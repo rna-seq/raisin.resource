@@ -368,7 +368,7 @@ def top_genes(dbs, confs, dumper=None):
                                   ('# Exons', 'number'),
                                   ('# Transcripts', 'number'),
                                   ('Expression Value', 'number'),
-                                  ('Run Id', 'string'),
+                                  ('Experiment Id', 'string'),
                                   ('Lane Id', 'string'),
                                  ]
 
@@ -451,7 +451,7 @@ def top_transcripts(dbs, confs, dumper=None):
                                   ('Locus', 'string'),
                                   ('# Exons', 'number'),
                                   ('Expression Value', 'number'),
-                                  ('Run Id', 'string'),
+                                  ('Experiment Id', 'string'),
                                   ('Lane Id', 'string'),
                ]
 
@@ -533,7 +533,7 @@ def top_exons(dbs, confs, dumper=None):
                    ('Strand (+/-)', 'string'),
                    ('Locus', 'string'),
                    ('Expression Value', 'number'),
-                   ('Run Id', 'string'),
+                   ('Experiment Id', 'string'),
                    ('Lane Id', 'string'),
                   ]
     chart['table_description'] = description

@@ -287,7 +287,7 @@ def project_experiments(dbs, confs):
 
     chart = {}
     chart['table_description'] = [('Project Id',               'string'),
-                                  ('Run Id',                   'string'),
+                                  ('Experiment Id',            'string'),
                                   ('Species',                  'string'),
                                   ('Genome file name',         'string'),
                                   ('Genome file location',     'string'),

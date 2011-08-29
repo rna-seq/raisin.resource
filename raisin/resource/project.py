@@ -523,7 +523,7 @@ def rnadashboard_accessions(dbs, confs):
 
     This is an example of an accession:
 
-        [ExampleRunId]
+        [ExampleExperimentId]
         file_location = http://www.example.com/download/file-1-1.fastq.gz
                         http://www.example.com/download/file-2-1.fastq.gz
                         http://www.example.com/download/file-2-2.fastq.gz

@@ -8,12 +8,12 @@ from utils import collect
 def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
     """List novel junctions from annotated exons."""
     chart = {}
-    chart['table_description'] = [('chr',     'string'),
-                                  ('start',   'number'),
-                                  ('end',     'number'),
-                                  ('# Reads', 'number'),
-                                  ('Run Id',  'string'),
-                                  ('Lane Id', 'string'),
+    chart['table_description'] = [('chr',           'string'),
+                                  ('start',         'number'),
+                                  ('end',           'number'),
+                                  ('# Reads',       'number'),
+                                  ('Experiment Id', 'string'),
+                                  ('Lane Id',       'string'),
                                  ]
 
     if not dumper is None:
@@ -90,13 +90,13 @@ limit 20;""" % conf
 def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
     """List novel junctions from unannotated exons."""
     chart = {}
-    chart['table_description'] = [('start chr', 'string'),
-                                  ('end chr',   'string'),
-                                  ('start',     'number'),
-                                  ('end',       'number'),
-                                  ('# Reads',   'number'),
-                                  ('Run Id',    'string'),
-                                  ('Lane Id',   'string'),
+    chart['table_description'] = [('start chr',     'string'),
+                                  ('end chr',       'string'),
+                                  ('start',         'number'),
+                                  ('end',           'number'),
+                                  ('# Reads',       'number'),
+                                  ('Experiment Id', 'string'),
+                                  ('Lane Id',       'string'),
                                   ]
 
     if not dumper is None:

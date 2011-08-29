@@ -151,7 +151,7 @@ def get_experiment_chart(confs):
     chart['table_description'] = [('Project id',       'string'),
                                   ('Parameter List',   'string'),
                                   ('Parameter Values', 'string'),
-                                  ('# Runs',           'string'),
+                                  ('# Experiments',           'string'),
                                  ]
     # Either take the parameter mapping defined for the project
     # or take all parameters
@@ -249,7 +249,7 @@ def get_level(runid, laneid, readid):
     # Define what level we are on depending on the number of paramaters
     level['id'] = {3: 'Read',
                    2: 'Lane',
-                   1: 'Run',
+                   1: 'Experiment',
                    0: 'Replicate'}[len(level['parameters'])]
     return level
 
@@ -299,14 +299,14 @@ def get_configurations(request, level, resolution, partition, dbs, **kwargs):
     """Return configurations"""
     level_titles = {'project':    'Project Id',
                     'experiment': 'Replicate Id',
-                    'run':        'Run Id',
+                    'run':        'Experiment Id',
                     'lane':       'Lane Id',
                     'read':       'Read Id',
                     None: None,
                     }
     resolution_titles = {'project':    'Project Level',
                           'experiment': 'Replicate Level',
-                          'run':        'Run Level',
+                          'run':        'Experiment Level',
                           'lane':       'Lane Level',
                           'read':       'Read Level',
                           None: None,

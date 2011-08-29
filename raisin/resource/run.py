@@ -133,7 +133,7 @@ def project_runs(dbs, confs):
 
     chart = {}
     chart['table_description'] = [('Project Id',               'string'),
-                                  ('Run Id',                   'string'),
+                                  ('Experiment Id',            'string'),
                                   ('Species',                  'string'),
                                   ('Genome file name',         'string'),
                                   ('Genome file location',     'string'),
@@ -288,8 +288,8 @@ def experiment_runs(dbs, confs):
     chart['table_description'] = [('Project Id',       'string'),
                                   ('Parameter List',   'string'),
                                   ('Parameter Values', 'string'),
-                                  ('Run Id',           'string'),
-                                  ('Run Url',          'string'),
+                                  ('Experiment Id',    'string'),
+                                  ('Experiment Url',   'string'),
                                  ]
     projectid = confs['kwargs']['projectid']
     parameter_list = confs['kwargs']['parameter_list']

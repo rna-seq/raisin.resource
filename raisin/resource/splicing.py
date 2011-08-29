@@ -157,7 +157,7 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
                                   ('Inclusion Junctions',  'number'),
                                   ('Exclusion Junctions',  'number'),
                                   ('Inclusion Percentage', 'number'),
-                                  ('Run Id',               'string'),
+                                  ('Experiment Id',        'string'),
                                   ('Lane Id',              'string'),
                                  ]
 
