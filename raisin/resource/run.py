@@ -4,8 +4,8 @@ from utils import get_rna_type_display_mapping
 from utils import get_cell_type_display_mapping
 from utils import get_compartment_display_mapping
 from utils import get_parameter_list
-from utils import get_experiment_where
-from utils import get_experiment_dict
+from utils import get_replicate_where
+from utils import get_replicate_dict
 from utils import get_parameter_values
 from utils import register_resource
 
@@ -282,8 +282,8 @@ and
 
 
 @register_resource(resolution=None, partition=False)
-def experiment_runs(dbs, confs):
-    """Compile the list of runs for the experiment"""
+def replicate_runs(dbs, confs):
+    """Compile the list of runs for the replicate"""
     chart = {}
     chart['table_description'] = [('Project Id',       'string'),
                                   ('Parameter List',   'string'),
@@ -294,14 +294,14 @@ def experiment_runs(dbs, confs):
     projectid = confs['kwargs']['projectid']
     parameter_list = confs['kwargs']['parameter_list']
     parameter_values = confs['kwargs']['parameter_values']
-    meta = get_experiment_dict(confs)
-    # Only return the experiment infos if this is an official project
+    meta = get_replicate_dict(confs)
+    # Only return the replicate infos if this is an official project
     sql = """
 select experiment_id
 from experiments
 %s
 order by
-    experiment_id;""" % get_experiment_where(confs, meta)
+    experiment_id;""" % get_replicate_where(confs, meta)
     cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()

@@ -4,7 +4,7 @@ import random
 import datetime
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
-from raisin.resource.utils import get_experiment_dict
+from raisin.resource.utils import get_replicate_dict
 
 # http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html#sex
 # XXX Needs to be verified
@@ -48,7 +48,7 @@ def projects(dbs, confs):
                                  ]
     results = []
     for projectid in dbs.keys():
-        results.append((projectid, '/project/%s/tab/experiments/' % projectid))
+        results.append((projectid, '/project/%s/tab/replicates/' % projectid))
     chart['table_data'] = results
     return chart
 
@@ -409,7 +409,7 @@ def _rnadashboard_results_restricted(rows, description_keys):
 def _rnadashboard_results_wheres(confs):
     """Return the RNA dashboard where clause."""
     wheres = ""
-    meta = get_experiment_dict(confs)
+    meta = get_replicate_dict(confs)
     if 'cell_type' in meta:
         wheres = wheres + """
 AND

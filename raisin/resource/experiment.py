@@ -4,21 +4,21 @@ from utils import run
 from utils import get_rna_type_display_mapping
 from utils import get_cell_type_display_mapping
 from utils import get_compartment_display_mapping
-from utils import get_experiment_chart
+from utils import get_replicate_chart
 from utils import get_parameter_list
 from utils import get_parameter_values
-from utils import get_experiment_dict
-from utils import get_experiment_result
-from utils import get_experiment_order_by
-from utils import get_experiment_labels
-from utils import get_experiment_where
+from utils import get_replicate_dict
+from utils import get_replicate_result
+from utils import get_replicate_order_by
+from utils import get_replicate_labels
+from utils import get_replicate_where
 from utils import register_resource
 
 from project import rnadashboard_results_pending
 
 
 @register_resource(resolution=None, partition=False)
-def experiment_info(dbs, confs):
+def replicate_info(dbs, confs):
     """XXX Needs refactoring"""
     conf = confs['configurations'][0]
     chart = {}
@@ -42,7 +42,7 @@ def experiment_info(dbs, confs):
 
     conf = confs['configurations'][0]
 
-    meta = get_experiment_dict(confs)
+    meta = get_replicate_dict(confs)
 
     result = []
 
@@ -66,7 +66,7 @@ select experiment_id,
 from experiments
 %s
 order by
-    experiment_id;""" % get_experiment_where(confs, meta)
+    experiment_id;""" % get_replicate_where(confs, meta)
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -145,7 +145,7 @@ from genome_files where genome_id='%s'
 
 
 @register_resource(resolution=None, partition=False)
-def experiments(dbs, confs):
+def replicates(dbs, confs):
     """Used for generating the buildout.cfg for pipeline.buildout."""
     # pylint: disable-msg=W0613
     # Configurations are not used here
@@ -167,7 +167,7 @@ def experiments(dbs, confs):
 
     results = []
     for projectid in dbs.keys():
-        rows, success = run(dbs, _experiments, {'projectid': projectid})
+        rows, success = run(dbs, _replicates, {'projectid': projectid})
         if success:
             results = results + list(rows)
 
@@ -175,9 +175,9 @@ def experiments(dbs, confs):
     return chart
 
 
-def _experiments(dbs, conf):
-    """Query the database for a list of experiments."""
-    # Only return the experiment infos if this is an official project
+def _replicates(dbs, conf):
+    """Query the database for a list of replicates."""
+    # Only return the replicate infos if this is an official project
     sql = """
 select project_id,
        experiment_id,
@@ -215,7 +215,7 @@ order by
 @register_resource(resolution=None, partition=False)
 def experiments_configurations(dbs, confs):
     """
-    The experiments (read: pipeline runs) have a number of configuration parameters that define
+    The experiments have a number of configuration parameters that define
     them uniquely.
 
     project_id:    Defines what project this experiment was made for
@@ -232,7 +232,7 @@ def experiments_configurations(dbs, confs):
     # The configurations are not taken into account here.
     chart = {}
     chart['table_description'] = [('Project id',               'string'),
-                                  ('Replicate id',            'string'),
+                                  ('Experiment id',            'string'),
                                   ('Read Length',              'number'),
                                   ('Cell Type',                'string'),
                                   ('RNA Type',                 'string'),
@@ -280,8 +280,8 @@ from experiments;"""
 
 
 @register_resource(resolution='project', partition=False)
-def project_experiments(dbs, confs):
-    """Query the database for a list of experiments for a project."""
+def project_replicates(dbs, confs):
+    """Query the database for a list of replicates for a project."""
     conf = confs['configurations'][0]
     projectid = conf['projectid']
 
@@ -355,7 +355,7 @@ and
     results = []
     url = '/project/%(projectid)s/'
     url += '%(parameter_list)s/%(parameter_values)s'
-    url += '/tab/experiments'
+    url += '/tab/replicates'
     for row in rows:
         # Augment the information from the database with a url and a text
         row = list(row)
@@ -380,33 +380,33 @@ and
 
 
 @register_resource(resolution='project', partition=False)
-def project_experiment_subset(dbs, confs):
-    """Return a subset of experiments for a project."""
-    return _project_experimentstable(dbs, confs, raw=True, where=True)
+def project_replicate_subset(dbs, confs):
+    """Return a subset of replicates for a project."""
+    return _project_replicatestable(dbs, confs, raw=True, where=True)
 
 
 @register_resource(resolution='project', partition=False)
-def project_experimentstableraw(dbs, confs):
-    """Return a list of experiments for a project using raw values."""
-    return _project_experimentstable(dbs, confs, raw=True, where=False)
+def project_replicatestableraw(dbs, confs):
+    """Return a list of replicates for a project using raw values."""
+    return _project_replicatestable(dbs, confs, raw=True, where=False)
 
 
 @register_resource(resolution='project', partition=False)
-def project_experimentstable(dbs, confs):
-    """Return a list of experiments for a project."""
-    return _project_experimentstable(dbs, confs, raw=False, where=False)
+def project_replicatestable(dbs, confs):
+    """Return a list of replicates for a project."""
+    return _project_replicatestable(dbs, confs, raw=False, where=False)
 
 
-def _project_experimentstable(dbs, confs, raw=True, where=False):
-    """Return a list of experiments for a project."""
-    chart = get_experiment_chart(confs)
-    experimentids = _project_experimentstable_experiments(dbs,
+def _project_replicatestable(dbs, confs, raw=True, where=False):
+    """Return a list of replicates for a project."""
+    chart = get_replicate_chart(confs)
+    replicateids = _project_replicatestable_replicates(dbs,
                                                           confs,
                                                           raw,
                                                           where)
     results = []
-    for value in experimentids.values():
-        results.append(get_experiment_result(confs, value))
+    for value in replicateids.values():
+        results.append(get_replicate_result(confs, value))
     results.sort()
 
     if len(results) == 0:
@@ -416,10 +416,10 @@ def _project_experimentstable(dbs, confs, raw=True, where=False):
     return chart
 
 
-def _project_experimentstable_experiments(dbs, confs, raw=True, where=False):
-    """Return a list of experiments for a project."""
+def _project_replicatestable_replicates(dbs, confs, raw=True, where=False):
+    """Return a list of replicates for a project."""
     conf = confs['configurations'][0]
-    # Only return the experiment infos if this is an official project
+    # Only return the replicate infos if this is an official project
     sql = """
 select experiment_id,
        species_info.species,
@@ -449,11 +449,11 @@ from experiments,
      annotation_files
 """
     if where:
-        meta = get_experiment_dict(confs)
+        meta = get_replicate_dict(confs)
         sql = """%s
 %s
 and
-""" % (sql, get_experiment_where(confs, meta))
+""" % (sql, get_replicate_where(confs, meta))
     else:
         sql = """%s
 where
@@ -470,12 +470,12 @@ and
 """ % sql
 
     sql = """%s
-%s""" % (sql, get_experiment_order_by(confs))
+%s""" % (sql, get_replicate_order_by(confs))
 
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    experimentids = {}
+    replicateids = {}
 
     rna_types = get_rna_type_display_mapping(dbs)
     cell_types = get_cell_type_display_mapping(dbs)
@@ -499,25 +499,25 @@ and
         meta['parameter_values'] = get_parameter_values(confs, meta)
 
         if not raw:
-            get_experiment_labels(meta, rna_types, cell_types, compartments)
+            get_replicate_labels(meta, rna_types, cell_types, compartments)
 
-        if meta['parameter_values'] in experimentids:
-            experimentids[meta['parameter_values']].append(meta)
+        if meta['parameter_values'] in replicateids:
+            replicateids[meta['parameter_values']].append(meta)
         else:
-            experimentids[meta['parameter_values']] = [meta]
-    return experimentids
+            replicateids[meta['parameter_values']] = [meta]
+    return replicateids
 
 
 @register_resource(resolution='project', partition=False)
-def project_experiment_subset_selection(dbs, confs):
+def project_replicate_subset_selection(dbs, confs):
     """XXX Needs refactoring"""
-    experimentids = _project_experimentstable_experiments(dbs,
+    replicateids = _project_replicatestable_replicates(dbs,
                                                           confs,
                                                           raw=True,
                                                           where=True)
     conf = confs['configurations'][0]
     projectid = conf['projectid']
-    meta = get_experiment_dict(confs)
+    meta = get_replicate_dict(confs)
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
 
@@ -533,18 +533,18 @@ def project_experiment_subset_selection(dbs, confs):
 
     variations = {}
     variation_count = {}
-    for experiment_list in experimentids.values():
+    for replicate_list in replicateids.values():
         for parameter in parameter_mapping[projectid]:
             if parameter in variation_count:
-                variation_count[parameter].append(experiment_list[0][parameter])
+                variation_count[parameter].append(replicate_list[0][parameter])
             else:
-                variation_count[parameter] = [experiment_list[0][parameter]]
-            for experiment in experiment_list:
-                if parameter in experiment:
+                variation_count[parameter] = [replicate_list[0][parameter]]
+            for replicate in replicate_list:
+                if parameter in replicate:
                     if parameter in variations:
-                        variations[parameter].add(experiment[parameter])
+                        variations[parameter].add(replicate[parameter])
                     else:
-                        variations[parameter] = set([experiment[parameter]])
+                        variations[parameter] = set([replicate[parameter]])
 
     links = []
 
@@ -588,35 +588,35 @@ def project_experiment_subset_selection(dbs, confs):
 
 
 @register_resource(resolution='project', partition=False)
-def project_experiment_subset_start(dbs, confs):
+def project_replicate_subset_start(dbs, confs):
     """XXX This is not used yet
 
     The idea is to use this as a start for searching the parameter space
     of a project.
     """
-    experimentids = _project_experimentstable_experiments(dbs,
+    replicateids = _project_replicatestable_replicates(dbs,
                                                           confs,
                                                           raw=True,
                                                           where=True)
     conf = confs['configurations'][0]
     projectid = conf['projectid']
-    meta = get_experiment_dict(confs)
+    meta = get_replicate_dict(confs)
     parameter_labels = confs['request'].environ['parameter_labels']
 
     variations = {}
     variation_count = {}
-    for experiment_list in experimentids.values():
+    for replicate_list in replicateids.values():
         for parameter in meta['parameter_list']:
             if parameter in variation_count:
-                variation_count[parameter].append(experiment_list[0][parameter])
+                variation_count[parameter].append(replicate_list[0][parameter])
             else:
-                variation_count[parameter] = [experiment_list[0][parameter]]
-            for experiment in experiment_list:
-                if parameter in experiment:
+                variation_count[parameter] = [replicate_list[0][parameter]]
+            for replicate in replicate_list:
+                if parameter in replicate:
                     if parameter in variations:
-                        variations[parameter].add(experiment[parameter])
+                        variations[parameter].add(replicate[parameter])
                     else:
-                        variations[parameter] = set([experiment[parameter]])
+                        variations[parameter] = set([replicate[parameter]])
 
     links = []
 
@@ -654,15 +654,15 @@ def project_experiment_subset_start(dbs, confs):
 
 
 @register_resource(resolution='project', partition=False)
-def project_experiment_subset_pending(dbs, confs):
-    """Return a subset of pending experiments for a project."""
+def project_replicate_subset_pending(dbs, confs):
+    """Return a subset of pending replicates for a project."""
     confs['configurations'][0]['hgversion'] = 'hg19'
     dashboard = rnadashboard_results_pending(dbs, confs)
-    grape = _project_experimentstable_experiments(dbs,
+    grape = _project_replicatestable_replicates(dbs,
                                                   confs,
                                                   raw=True,
                                                   where=True)
-    meta = get_experiment_dict(confs)
+    meta = get_replicate_dict(confs)
     parameter_labels = confs['request'].environ['parameter_labels']
 
     chart = {}

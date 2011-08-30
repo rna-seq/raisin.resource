@@ -56,11 +56,11 @@ class Root(resource.Resource):
         cachefilebase = "projects"
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('experiments')
-    def experiments(self, request, segments, **kwargs):
+    @resource.child('replicates')
+    def replicates(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'experiments'
-        cachefilebase = "experiments"
+        key = 'replicates'
+        cachefilebase = "replicates"
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('experiments_configurations')
@@ -77,11 +77,11 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/info" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/experiments')
-    def project_experiments(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/replicates')
+    def project_replicates(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_experiments'
-        cachefilebase = "project/%(projectid)s/experiments" % kwargs
+        key = 'project_replicates'
+        cachefilebase = "project/%(projectid)s/replicates" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/runs')
@@ -92,45 +92,45 @@ class Root(resource.Resource):
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/runs')
-    def experiment_runs(self, request, segments, **kwargs):
+    def replicate_runs(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'experiment_runs'
+        key = 'replicate_runs'
         cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/runs" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/experiments/table')
-    def project_experimentstable(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/replicates/table')
+    def project_replicatestable(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_experimentstable'
-        cachefilebase = "project/%(projectid)s/experiments/table" % kwargs
+        key = 'project_replicatestable'
+        cachefilebase = "project/%(projectid)s/replicates/table" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/experiment/subset/{parameter_list}/{parameter_values}')
-    def project_experiment_subset(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/replicate/subset/{parameter_list}/{parameter_values}')
+    def project_replicate_subset(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_experiment_subset'
-        cachefilebase = "project/%(projectid)s/experiment/subset/%(parameter_list)s/%(parameter_values)s" % kwargs
+        key = 'project_replicate_subset'
+        cachefilebase = "project/%(projectid)s/replicate/subset/%(parameter_list)s/%(parameter_values)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/experiment/subset/pending/{parameter_list}/{parameter_values}')
-    def project_experiment_subset_pending(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/replicate/subset/pending/{parameter_list}/{parameter_values}')
+    def project_replicate_subset_pending(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_experiment_subset_pending'
-        cachefilebase = "project/%(projectid)s/experiment/subset/pending/%(parameter_list)s/%(parameter_values)s" % kwargs
+        key = 'project_replicate_subset_pending'
+        cachefilebase = "project/%(projectid)s/replicate/subset/pending/%(parameter_list)s/%(parameter_values)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/experiment/subset/selection/{parameter_list}/{parameter_values}')
-    def project_experiment_subset_selection(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/replicate/subset/selection/{parameter_list}/{parameter_values}')
+    def project_replicate_subset_selection(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_experiment_subset_selection'
-        cachefilebase = "project/%(projectid)s/experiment/subset/selection/%(parameter_list)s/%(parameter_values)s" % kwargs
+        key = 'project_replicate_subset_selection'
+        cachefilebase = "project/%(projectid)s/replicate/subset/selection/%(parameter_list)s/%(parameter_values)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/experiment/subset/start/{parameter_list}')
-    def project_experiment_subset_start(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/replicate/subset/start/{parameter_list}')
+    def project_replicate_subset_start(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_experiment_subset_start'
-        cachefilebase = "project/%(projectid)s/experiment/subset/start/%(parameter_list)s" % kwargs
+        key = 'project_replicate_subset_start'
+        cachefilebase = "project/%(projectid)s/replicate/subset/start/%(parameter_list)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/downloads')
@@ -147,11 +147,11 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/accessions" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/experiments/tableraw')
-    def project_experimentstableraw(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/replicates/tableraw')
+    def project_replicatestableraw(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_experimentstableraw'
-        cachefilebase = "project/%(projectid)s/experiments/tableraw" % kwargs
+        key = 'project_replicatestableraw'
+        cachefilebase = "project/%(projectid)s/replicates/tableraw" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/rnadashboard/{hgversion}/technologies')
@@ -218,14 +218,14 @@ class Root(resource.Resource):
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}')
-    def experiment_info(self, request, segments, **kwargs):
+    def replicate_info(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'experiment_info'
+        key = 'replicate_info'
         cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/info" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/statistics/{stattype}/{statid}')
-    def experiment_statistics(self, request, segments, **kwargs):
+    def replicate_statistics(self, request, segments, **kwargs):
         """Define resource child"""
         key = kwargs['statid']
         cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/statistics/%(stattype)s/%(statid)s" % kwargs
