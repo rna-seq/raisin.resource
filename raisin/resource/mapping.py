@@ -41,7 +41,7 @@ select
     uniqueReads,
     mappedReads
 from
-    %(projectid)s_%(runid)s_merged_mapping
+    %(projectid)s_%(experimentid)s_merged_mapping
 where
     LaneName = '%(readid)s'""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
@@ -154,7 +154,7 @@ select
     uniqueReads,
     100uniqueReads
 from
-    %(projectid)s_%(runid)s_%(tableid)s
+    %(projectid)s_%(experimentid)s_%(tableid)s
 where
      LaneName = '%(readid)s'
 """ % conf

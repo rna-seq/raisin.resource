@@ -7,7 +7,7 @@ from utils import aggregate
 from utils import run
 
 
-@register_resource(resolution="run", partition=False)
+@register_resource(resolution="experiment", partition=False)
 def expression_summary(dbs, confs):
     """Return the expression summary."""
     chart = {}
@@ -43,7 +43,7 @@ def _expression_summary(dbs, conf):
 select type,
        total,
        detected
-from %(projectid)s_%(runid)s_expression_summary""" % conf
+from %(projectid)s_%(experimentid)s_expression_summary""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -79,7 +79,7 @@ def _percentage_expression_summary(data, average_by):
     return result
 
 
-@register_resource(resolution="run", partition=False)
+@register_resource(resolution="experiment", partition=False)
 def detected_genes(dbs, confs):
     """Return a list of detected genes."""
     chart = {}
@@ -102,13 +102,13 @@ def detected_genes(dbs, confs):
     else:
         biotypes = set()
         reliabilities = set()
-        runids = set()
-        for runid, biotype, reliability in stats.keys():
-            runids.add(runid)
+        experimentids = set()
+        for expid, biotype, reliability in stats.keys():
+            experimentids.add(expid)
             reliabilities.add(reliability)
             biotypes.add(biotype)
-        runids = list(runids)
-        runids.sort()
+        experimentids = list(experimentids)
+        experimentids.sort()
         reliabilities = list(reliabilities)
         reliabilities.sort()
         biotypes = list(biotypes)
@@ -126,17 +126,17 @@ def detected_genes(dbs, confs):
         chart['table_description'] = description
 
         results = []
-        for runid in runids:
+        for expid in experimentids:
             for biotype in biotypes:
                 row = [biotype]
                 for reliability in reliabilities:
-                    detected = stats.get((runid, biotype, reliability), None)
+                    detected = stats.get((expid, biotype, reliability), None)
                     if detected is None:
                         row.append(None)
                     else:
                         row.append(int(detected['detected']))
                 if row[1] or row[2]:
-                    results.append(row + [runid])
+                    results.append(row + [expid])
         results.sort()
         chart['table_data'] = results
     return chart
@@ -148,7 +148,7 @@ def _detected_genes(dbs, conf):
 select type,
        reliability,
        sum(detected)
-from %(projectid)s_%(runid)s_detected_genes
+from %(projectid)s_%(experimentid)s_detected_genes
 group by type, reliability;
 """ % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
@@ -156,7 +156,7 @@ group by type, reliability;
     cursor.close()
     cells = {}
     for row in rows:
-        key = (conf['runid'], row[0], row[1])
+        key = (conf['experimentid'], row[0], row[1])
         if key in cells:
             raise AttributeError
         else:
@@ -194,7 +194,7 @@ def gene_expression_profile(dbs, confs):
                         coords[y] = [(index, x, y)]
 
     sample = []
-    if confs['level']['id'] in ['lane', 'run'] or datapoints < 4000:
+    if confs['level']['id'] in ['lane', 'experiment'] or datapoints < 4000:
         # no random sampling
         for y, values in coords.items():
             sample = sample + values
@@ -242,7 +242,7 @@ select
     rpkm,
     support
 from
-    %(projectid)s_%(runid)s_gene_RPKM_dist
+    %(projectid)s_%(experimentid)s_gene_RPKM_dist
 where
     LaneName = '%(laneid)s'
 """ % conf
@@ -274,7 +274,7 @@ def gene_expression_levels(dbs, confs):
 
     topgenes = {}
     for conf in confs['configurations']:
-        key = (conf['runid'], conf['laneid'])
+        key = (conf['experimentid'], conf['laneid'])
         topgenes[key] = _top_gene_expression_levels(dbs, conf)
         # Reverse. Items will be popped starting with most highly expressed.
         topgenes[key].reverse()
@@ -283,14 +283,15 @@ def gene_expression_levels(dbs, confs):
     random.seed(tuple([c['laneid'] for c in confs['configurations']]))
 
     # These keys can be used to select from the top genes
-    runid_laneid_keys = topgenes.keys()
+    experimentid_laneid_keys = topgenes.keys()
 
     genes = []
     while len(genes) < 100:
-        # Take out a random runid and laneid to choose the next gene candidate
-        runid, laneid = random.choice(runid_laneid_keys)
+        # Take out a random experimentid and laneid to choose the next
+        # gene candidate
+        experimentid, laneid = random.choice(experimentid_laneid_keys)
         try:
-            gene = topgenes[(runid, laneid)].pop()
+            gene = topgenes[(experimentid, laneid)].pop()
         except IndexError:
             # This lane does not provide any more values
             continue
@@ -309,7 +310,7 @@ def gene_expression_levels(dbs, confs):
         ordered = []
         for gene in genes:
             ordered.append(selected.get(gene, None))
-        result.append(["%(runid)s %(laneid)s" % conf] + ordered)
+        result.append(["%(experimentid)s %(laneid)s" % conf] + ordered)
 
     chart['table_data'] = result
     return chart
@@ -322,7 +323,7 @@ def _top_gene_expression_levels(dbs, conf):
 select
     gene_id
 from
-    %(projectid)s_%(runid)s_gene_RPKM
+    %(projectid)s_%(experimentid)s_gene_RPKM
 where
     LaneName = '%(laneid)s'
 order by
@@ -342,7 +343,7 @@ select
     gene_id,
     RPKM
 from
-    %(projectid)s_%(runid)s_gene_RPKM
+    %(projectid)s_%(experimentid)s_gene_RPKM
 where
     LaneName = '%(laneid)s'""" % conf
     sql = """%s
@@ -383,7 +384,7 @@ def top_genes(dbs, confs, dumper=None):
             stats, success = run(dbs, _all_genes, conf)
         if success:
             for row in stats:
-                line = row + (conf['runid'], conf['laneid'])
+                line = row + (conf['experimentid'], conf['laneid'])
                 if dumper is None:
                     result.append(line)
                 else:
@@ -411,7 +412,7 @@ select gene_id,
        no_transcripts,
        %(laneid)s
 from
-    %(projectid)s_%(runid)s_top_genes_expressed""" % conf
+    %(projectid)s_%(experimentid)s_top_genes_expressed""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -430,7 +431,7 @@ select gene_id,
        no_transcripts,
        %(laneid)s
 from
-    %(projectid)s_%(runid)s_top_genes_expressed
+    %(projectid)s_%(experimentid)s_top_genes_expressed
 order by
     %(laneid)s desc
 ) x
@@ -466,7 +467,7 @@ def top_transcripts(dbs, confs, dumper=None):
             stats, success = run(dbs, _all_transcripts, conf)
         if success:
             for row in stats:
-                line = row + (conf['runid'], conf['laneid'])
+                line = row + (conf['experimentid'], conf['laneid'])
                 if dumper is None:
                     result.append(line)
                 else:
@@ -495,7 +496,7 @@ select transcript_id,
        no_exons,
        %(laneid)s
 from
-    %(projectid)s_%(runid)s_top_transcripts_expressed""" % conf
+    %(projectid)s_%(experimentid)s_top_transcripts_expressed""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -513,7 +514,7 @@ select transcript_id,
        no_exons,
        %(laneid)s
 from
-    %(projectid)s_%(runid)s_top_transcripts_expressed
+    %(projectid)s_%(experimentid)s_top_transcripts_expressed
 order by
     %(laneid)s desc
 ) x
@@ -549,7 +550,7 @@ def top_exons(dbs, confs, dumper=None):
             stats, success = run(dbs, _all_exons, conf)
         if success:
             for row in stats:
-                line = row + (conf['runid'], conf['laneid'])
+                line = row + (conf['experimentid'], conf['laneid'])
                 if dumper is None:
                     result.append(line)
                 else:
@@ -578,7 +579,7 @@ select
     locus,
     %(laneid)s
 from
-    %(projectid)s_%(runid)s_top_exons_expressed""" % conf
+    %(projectid)s_%(experimentid)s_top_exons_expressed""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -596,7 +597,7 @@ select
     locus,
     %(laneid)s
 from
-    %(projectid)s_%(runid)s_top_exons_expressed
+    %(projectid)s_%(experimentid)s_top_exons_expressed
 order by
     %(laneid)s desc
 ) x

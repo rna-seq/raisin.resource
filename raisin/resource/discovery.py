@@ -4,7 +4,7 @@ from utils import register_resource
 from utils import collect
 
 
-@register_resource(resolution="run", partition=False)
+@register_resource(resolution="experiment", partition=False)
 def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
     """List novel junctions from annotated exons."""
     chart = {}
@@ -20,8 +20,8 @@ def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
         dumper.writeheader(chart['table_description'])
 
     def strategy(conf, row):
-        """Insert runid"""
-        return (row[: -1] + (conf['runid'], row[-1]))
+        """Insert experimentid"""
+        return (row[: -1] + (conf['experimentid'], row[-1]))
 
     if dumper is None:
         stats = collect(dbs,
@@ -58,7 +58,7 @@ select chr,
        support,
        sample
 from
-    %(projectid)s_%(runid)s_novel_junctions_summary;""" % conf
+    %(projectid)s_%(experimentid)s_novel_junctions_summary;""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -75,7 +75,7 @@ select chr,
        support,
        sample
 from
-    %(projectid)s_%(runid)s_novel_junctions_summary
+    %(projectid)s_%(experimentid)s_novel_junctions_summary
 order by
     support desc
 ) x
@@ -86,7 +86,7 @@ limit 20;""" % conf
     return rows
 
 
-@register_resource(resolution="run", partition=False)
+@register_resource(resolution="experiment", partition=False)
 def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
     """List novel junctions from unannotated exons."""
     chart = {}
@@ -103,8 +103,8 @@ def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
         dumper.writeheader(chart['table_description'])
 
     def strategy(conf, row):
-        """Insert runid"""
-        return (row[:-1] + (conf['runid'], row[-1]))
+        """Insert experimentid"""
+        return (row[:-1] + (conf['experimentid'], row[-1]))
 
     if dumper is None:
         stats = collect(dbs,
@@ -143,7 +143,7 @@ select
     number,
     filename
 from
-    %(projectid)s_%(runid)s_split_mapping_breakdown
+    %(projectid)s_%(experimentid)s_split_mapping_breakdown
 where
     type != 'close';""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
@@ -164,7 +164,7 @@ select
     number,
     filename
 from
-    %(projectid)s_%(runid)s_split_mapping_breakdown
+    %(projectid)s_%(experimentid)s_split_mapping_breakdown
 where
     type != 'close'
 order by

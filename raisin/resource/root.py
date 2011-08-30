@@ -84,18 +84,18 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/replicates" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/runs')
-    def project_runs(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/experiments')
+    def project_experiments(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'project_runs'
-        cachefilebase = "project/%(projectid)s/runs" % kwargs
+        key = 'project_experiments'
+        cachefilebase = "project/%(projectid)s/experiments" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/runs')
-    def replicate_runs(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/experiments')
+    def replicate_experiments(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'replicate_runs'
-        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/runs" % kwargs
+        key = 'replicate_experiments'
+        cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/experiments" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/replicates/table')
@@ -203,18 +203,18 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/accessions" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/rnadashboard/{hgversion}/runs')
-    def rnadashboard_runs(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/{parameter_list}/{parameter_values}/rnadashboard/{hgversion}/experiments')
+    def rnadashboard_experiments(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'rnadashboard_runs'
-        cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/runs" % kwargs
+        key = 'rnadashboard_experiments'
+        cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/experiments" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/run/{runid}')
-    def run_info(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/experiment/{experimentid}')
+    def experiment_info(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'run_info'
-        cachefilebase = "project/%(projectid)s/run/%(runid)s/info" % kwargs
+        key = 'experiment_info'
+        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/info" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/{parameter_list}/{parameter_values}')
@@ -231,18 +231,18 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/%(parameter_list)s/%(parameter_values)s/statistics/%(stattype)s/%(statid)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/run/{runid}/statistics/{stattype}/{statid}')
-    def run_statistics(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/experiment/{experimentid}/statistics/{stattype}/{statid}')
+    def experiment_statistics(self, request, segments, **kwargs):
         """Define resource child"""
         key = kwargs['statid']
-        cachefilebase = "project/%(projectid)s/run/%(runid)s/statistics/%(stattype)s/%(statid)s" % kwargs
+        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/statistics/%(stattype)s/%(statid)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/run/{runid}/lane/{laneid}/statistics/{stattype}/{statid}')
+    @resource.child('project/{projectid}/experiment/{experimentid}/lane/{laneid}/statistics/{stattype}/{statid}')
     def lane_statistics(self, request, segments, **kwargs):
         """Define resource child"""
         key = kwargs['statid']
-        cachefilebase = "project/%(projectid)s/run/%(runid)s/lane/%(laneid)s/statistics/%(stattype)s/%(statid)s" % kwargs
+        cachefilebase = "project/%(projectid)s/experiment/%(experimentid)s/lane/%(laneid)s/statistics/%(stattype)s/%(statid)s" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
 
@@ -272,7 +272,7 @@ class Resource(resource.Resource):
                             .replace('_', '')\
                             .replace('.', '').isalnum():
                     raise AttributeError
-            elif key == 'runid':
+            elif key == 'experimentid':
                 if not value.replace('_', '').isalnum():
                     raise AttributeError
             elif key == 'laneid':

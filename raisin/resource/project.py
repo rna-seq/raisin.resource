@@ -716,10 +716,10 @@ AND
 
 
 @register_resource(resolution=None, partition=False)
-def rnadashboard_runs(dbs, confs):
-    """Produce runs with information obtained from the RNA dashboard
+def rnadashboard_experiments(dbs, confs):
+    """Produce experiments with information obtained from the RNA dashboard
 
-    The runs file can be fetched like this to fetch runs accessions for the lab CSHL
+    The experiments file can be fetched like this to fetch experiments accessions for the lab CSHL
 
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab/CSHL/rnadashboard/hg19/accessions
     """
@@ -737,11 +737,11 @@ def rnadashboard_runs(dbs, confs):
 
     chart['table_description'] = description
 
-    seen_runs = []
+    seen_experiments = []
 
     result = []
     for accession in table['table_data']:
-        if not accession[0] in seen_runs:
+        if not accession[0] in seen_experiments:
             result.append((accession[0],
                            "z3c.recipe.runscript",
                            "prepare.py:main",
@@ -749,14 +749,14 @@ def rnadashboard_runs(dbs, confs):
                            GENDER_MAPPING[accession[1]],
                            accession[0])
                          )
-        seen_runs.append(accession[0])
+        seen_experiments.append(accession[0])
 
     chart['table_data'] = result
     return chart
 
 
 def rnadashboard_results_pending(dbs, confs):
-    """Return the RNA dashboard items pending being run in the pipeline."""
+    """Return the RNA dashboard experiments pending in the pipeline."""
     description = _rnadashboard_results_description()
     description_keys = [d[0] for d in description]
     wheres = _rnadashboard_results_wheres(confs)

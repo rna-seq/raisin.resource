@@ -10,9 +10,9 @@ from utils import get_parameter_values
 from utils import register_resource
 
 
-@register_resource(resolution="run", partition=False)
-def run_info(dbs, confs):
-    """Collect some general information about a run"""
+@register_resource(resolution="experiment", partition=False)
+def experiment_info(dbs, confs):
+    """Collect some general information about a experiment"""
     chart = {}
     chart['table_description'] = [('Read Length',        'number'),
                                   ('Mismatches',         'number'),
@@ -52,7 +52,7 @@ select experiment_id,
        paired
 from experiments
 where project_id='%(projectid)s'
-      and experiment_id='%(runid)s'""" % conf
+      and experiment_id='%(experimentid)s'""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -126,8 +126,8 @@ from genome_files where genome_id='%s'
 
 
 @register_resource(resolution=None, partition=False)
-def project_runs(dbs, confs):
-    """Compile the list of runs for the project"""
+def project_experiments(dbs, confs):
+    """Compile the list of experiments for the project"""
     conf = confs['configurations'][0]
     projectid = conf['projectid']
 
@@ -201,7 +201,7 @@ and
 
     url = ('/project/%(projectid)s/'
            '%(parameter_list)s/%(parameter_values)s/'
-           'run/%(runid)s/tab/overview')
+           'experiment/%(experimentid)s/tab/overview')
     results = []
     for row in rows:
         row = list(row)
@@ -209,7 +209,7 @@ and
             row[22] = ord(row[22])
         # Augment the information from the database with a url and a text
         meta = {'projectid': row[0],
-                'runid': row[1],
+                'experimentid': row[1],
                 'read_length': row[11],
                 'cell_type': row[15],
                 'rna_type': row[16],
@@ -282,8 +282,8 @@ and
 
 
 @register_resource(resolution=None, partition=False)
-def replicate_runs(dbs, confs):
-    """Compile the list of runs for the replicate"""
+def replicate_experiments(dbs, confs):
+    """Compile the list of experiments for the replicate"""
     chart = {}
     chart['table_description'] = [('Project Id',       'string'),
                                   ('Parameter List',   'string'),
@@ -305,18 +305,18 @@ order by
     cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    runids = [row[0] for row in rows]
+    experimentids = [row[0] for row in rows]
     results = []
-    url = '/project/%s/%s/%s/run/%s/tab/overview'
-    for runid in runids:
+    url = '/project/%s/%s/%s/experiment/%s/tab/overview'
+    for experimentid in experimentids:
         results.append((projectid,
                         parameter_list,
                         parameter_values,
-                        runid,
+                        experimentid,
                         url % (projectid,
                                parameter_list,
                                parameter_values,
-                               runid),
+                               experimentid),
                        )
                       )
     chart['table_data'] = results

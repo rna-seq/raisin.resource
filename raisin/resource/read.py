@@ -37,7 +37,7 @@ select
     AmbiguousBases,
     UniqueReads
 from
-    %(projectid)s_%(runid)s_read_stats
+    %(projectid)s_%(experimentid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -111,7 +111,7 @@ select
     TotalReads,
     AmbiguousBases
 from
-    %(projectid)s_%(runid)s_read_stats
+    %(projectid)s_%(experimentid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -164,7 +164,7 @@ select
     TotalReads,
     NoAmbiguousBases
 from
-    %(projectid)s_%(runid)s_read_stats
+    %(projectid)s_%(experimentid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -221,7 +221,7 @@ select
     TotalReads,
     UniqueReads
 from
-    %(projectid)s_%(runid)s_read_stats
+    %(projectid)s_%(experimentid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -286,7 +286,7 @@ select
     NoAmbiguousBases,
     AmbiguousBases
 from
-    %(projectid)s_%(runid)s_read_stats
+    %(projectid)s_%(experimentid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -343,7 +343,7 @@ select
     TotalReads,
     UniqueReads
 from
-    %(projectid)s_%(runid)s_read_stats
+    %(projectid)s_%(experimentid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -397,7 +397,7 @@ select
     position,
     mean
 from
-    %(projectid)s_%(runid)s_qualitiespos
+    %(projectid)s_%(experimentid)s_qualitiespos
 where
     LaneName = '%(readid)s'
 order by
@@ -450,7 +450,7 @@ select
     position,
     ambiguous
 from
-    %(projectid)s_%(runid)s_ambiguous
+    %(projectid)s_%(experimentid)s_ambiguous
 where
     LaneName = '%(readid)s'
 order by
