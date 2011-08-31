@@ -3,11 +3,11 @@
 raisin/__init__.py -text
 raisin/resource/__init__.py -text
 raisin/resource/discovery.py -text
-raisin/resource/experiment.py -text
 raisin/resource/expression.py -text
 raisin/resource/mapping.py -text
 raisin/resource/project.py -text
 raisin/resource/read.py -text
+raisin/resource/replicate.py -text
 raisin/resource/root.py -text
 raisin/resource/run.py -text
 raisin/resource/splicing.py -text
