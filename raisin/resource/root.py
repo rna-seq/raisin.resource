@@ -18,8 +18,8 @@ from restish import http, resource
 
 STATS_REGISTRY = {}
 
+import replicate
 import experiment
-import run
 import project
 import read
 import mapping
