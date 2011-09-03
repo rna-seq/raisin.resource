@@ -52,7 +52,8 @@ select experiment_id,
        paired
 from experiments
 where project_id='%(projectid)s'
-      and experiment_id='%(experimentid)s'""" % conf
+      and experiment_id='%(replicateid)s'""" % conf
+    print sql
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
