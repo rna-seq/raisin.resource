@@ -37,7 +37,7 @@ select
     AmbiguousBases,
     UniqueReads
 from
-    %(projectid)s_%(experimentid)s_read_stats
+    %(projectid)s_%(replicateid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -111,7 +111,7 @@ select
     TotalReads,
     AmbiguousBases
 from
-    %(projectid)s_%(experimentid)s_read_stats
+    %(projectid)s_%(replicateid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -164,7 +164,7 @@ select
     TotalReads,
     NoAmbiguousBases
 from
-    %(projectid)s_%(experimentid)s_read_stats
+    %(projectid)s_%(replicateid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -221,7 +221,7 @@ select
     TotalReads,
     UniqueReads
 from
-    %(projectid)s_%(experimentid)s_read_stats
+    %(projectid)s_%(replicateid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -286,7 +286,7 @@ select
     NoAmbiguousBases,
     AmbiguousBases
 from
-    %(projectid)s_%(experimentid)s_read_stats
+    %(projectid)s_%(replicateid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -304,8 +304,8 @@ where
 def average_and_average_unique_reads(dbs, confs):
     """Return the average and average unique reads"""
     chart = {}
-    chart['table_description'] = [('', 'string'),
-                                  ('Average number of reads', 'number'),
+    chart['table_description'] = [('',                               'string'),
+                                  ('Average number of reads',        'number'),
                                   ('Average number of unique reads', 'number'),
                                  ]
     result = []
@@ -343,7 +343,7 @@ select
     TotalReads,
     UniqueReads
 from
-    %(projectid)s_%(experimentid)s_read_stats
+    %(projectid)s_%(replicateid)s_read_stats
 where
      LaneName = '%(readid)s'
 """ % conf
@@ -397,7 +397,7 @@ select
     position,
     mean
 from
-    %(projectid)s_%(experimentid)s_qualitiespos
+    %(projectid)s_%(replicateid)s_qualitiespos
 where
     LaneName = '%(readid)s'
 order by
@@ -450,7 +450,7 @@ select
     position,
     ambiguous
 from
-    %(projectid)s_%(experimentid)s_ambiguous
+    %(projectid)s_%(replicateid)s_ambiguous
 where
     LaneName = '%(readid)s'
 order by

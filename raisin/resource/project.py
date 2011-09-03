@@ -4,7 +4,7 @@ import random
 import datetime
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
-from raisin.resource.utils import get_replicate_dict
+from raisin.resource.utils import get_experiment_dict
 
 # http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html#sex
 # XXX Needs to be verified
@@ -48,7 +48,7 @@ def projects(dbs, confs):
                                  ]
     results = []
     for projectid in dbs.keys():
-        results.append((projectid, '/project/%s/tab/replicates/' % projectid))
+        results.append((projectid, '/project/%s/tab/experiments/' % projectid))
     chart['table_data'] = results
     return chart
 
@@ -192,11 +192,11 @@ def rnadashboard(dbs, confs):
                                   ('Sample Replicate',          'number'),
                                   ('Sample Id',                 'string'),
                                   ('Sample Internal Name',      'string'),
-                                  ('Experiment Lab',            'string'),
-                                  ('Experiment Read Type',      'string'),
-                                  ('Experiment Insert Length',  'string'),
-                                  ('Experiment Tech Replicate', 'number'),
-                                  ('Experiment Id',             'string'),
+                                  ('Replicate Lab',             'string'),
+                                  ('Replicate Read Type',       'string'),
+                                  ('Replicate Insert Length',   'string'),
+                                  ('Replicate Tech Replicate',  'number'),
+                                  ('Replicate Id',              'string'),
                                   ('File Type',                 'string'),
                                   ('File View',                 'string'),
                                   ('File Lab',                  'string'),
@@ -378,11 +378,11 @@ def _rnadashboard_results_description():
     description.append(('Sample Replicate',          'number'))
     description.append(('Sample Id',                 'string'))
     description.append(('Sample Internal Name',      'string'))
-    description.append(('Experiment Lab',            'string'))
-    description.append(('Experiment Read Type',      'string'))
-    description.append(('Experiment Insert Length',  'string'))
-    description.append(('Experiment Tech Replicate', 'number'))
-    description.append(('Experiment Id',             'string'))
+    description.append(('Replicate Lab',             'string'))
+    description.append(('Replicate Read Type',       'string'))
+    description.append(('Replicate Insert Length',   'string'))
+    description.append(('Replicate Tech Replicate',  'number'))
+    description.append(('Replicate Id',              'string'))
     return description
 
 
@@ -409,7 +409,7 @@ def _rnadashboard_results_restricted(rows, description_keys):
 def _rnadashboard_results_wheres(confs):
     """Return the RNA dashboard where clause."""
     wheres = ""
-    meta = get_replicate_dict(confs)
+    meta = get_experiment_dict(confs)
     if 'cell_type' in meta:
         wheres = wheres + """
 AND
@@ -523,7 +523,7 @@ def rnadashboard_accessions(dbs, confs):
 
     This is an example of an accession:
 
-        [ExampleExperimentId]
+        [ExampleReplicateId]
         file_location = http://www.example.com/download/file-1-1.fastq.gz
                         http://www.example.com/download/file-2-1.fastq.gz
                         http://www.example.com/download/file-2-2.fastq.gz
@@ -716,10 +716,10 @@ AND
 
 
 @register_resource(resolution=None, partition=False)
-def rnadashboard_experiments(dbs, confs):
-    """Produce experiments with information obtained from the RNA dashboard
+def rnadashboard_replicates(dbs, confs):
+    """Produce replicates with information obtained from the RNA dashboard
 
-    The experiments file can be fetched like this to fetch experiments accessions for the lab CSHL
+    The replicates file can be fetched like this to fetch replicates accessions for the lab CSHL
 
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab/CSHL/rnadashboard/hg19/accessions
     """
@@ -737,11 +737,11 @@ def rnadashboard_experiments(dbs, confs):
 
     chart['table_description'] = description
 
-    seen_experiments = []
+    seen_replicates = []
 
     result = []
     for accession in table['table_data']:
-        if not accession[0] in seen_experiments:
+        if not accession[0] in seen_replicates:
             result.append((accession[0],
                            "z3c.recipe.runscript",
                            "prepare.py:main",
@@ -749,14 +749,14 @@ def rnadashboard_experiments(dbs, confs):
                            GENDER_MAPPING[accession[1]],
                            accession[0])
                          )
-        seen_experiments.append(accession[0])
+        seen_replicates.append(accession[0])
 
     chart['table_data'] = result
     return chart
 
 
 def rnadashboard_results_pending(dbs, confs):
-    """Return the RNA dashboard experiments pending in the pipeline."""
+    """Return the RNA dashboard replicates pending in the pipeline."""
     description = _rnadashboard_results_description()
     description_keys = [d[0] for d in description]
     wheres = _rnadashboard_results_wheres(confs)
@@ -769,12 +769,12 @@ def rnadashboard_results_pending(dbs, confs):
         if rest['Technology Id'] != 'RNASEQ':
             continue
         key = []
-        key.append(rest['Experiment Lab'])
+        key.append(rest['Replicate Lab'])
         key.append(rest['Cell Type Id'])
         key.append(rest['Localization Id'])
         key.append(rest['RNA Extract Id'])
         key.append('GENCODEv3c')
-        read_type = rest['Experiment Read Type']
+        read_type = rest['Replicate Read Type']
         if read_type is None:
             read_length = None
             paired = None

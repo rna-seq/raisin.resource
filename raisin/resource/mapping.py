@@ -24,8 +24,8 @@ def mapping_summary(dbs, confs):
         label = 'Average over %s sets of %ss' % (average_by,
                                                  confs['resolution']['id'])
 
-    chart['table_description'] = [(label, 'string'),
-                                  ('Total', 'number'),
+    chart['table_description'] = [(label,     'string'),
+                                  ('Total',   'number'),
                                   ('Percent', 'number'),
                                  ]
 
@@ -41,7 +41,7 @@ select
     uniqueReads,
     mappedReads
 from
-    %(projectid)s_%(experimentid)s_merged_mapping
+    %(projectid)s_%(replicateid)s_merged_mapping
 where
     LaneName = '%(readid)s'""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
@@ -154,7 +154,7 @@ select
     uniqueReads,
     100uniqueReads
 from
-    %(projectid)s_%(experimentid)s_%(tableid)s
+    %(projectid)s_%(replicateid)s_%(tableid)s
 where
      LaneName = '%(readid)s'
 """ % conf

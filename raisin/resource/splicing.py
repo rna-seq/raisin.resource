@@ -5,7 +5,7 @@ from utils import aggregate
 from utils import run
 
 
-@register_resource(resolution="experiment", partition=False)
+@register_resource(resolution="replicate", partition=False)
 def splicing_summary(dbs, confs):
     """Fetch splicing summary chart"""
     chart = {}
@@ -33,8 +33,8 @@ def splicing_summary(dbs, confs):
     else:
         label = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
 
-    chart['table_description'] = [(label, 'string'),
-                                  ('Total', 'number'),
+    chart['table_description'] = [(label,     'string'),
+                                  ('Total',   'number'),
                                   ('Percent', 'number'),
                                  ]
 
@@ -49,7 +49,7 @@ def _splicing_summary(dbs, conf):
 select junc_type,
        detected,
        total
-from %(projectid)s_%(experimentid)s_splicing_summary""" % conf
+from %(projectid)s_%(replicateid)s_splicing_summary""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -137,7 +137,7 @@ def _exon_inclusion_profile(dbs, conf):
     sql = """
 select incl_percent,
        support
-from %(projectid)s_%(experimentid)s_inclusion_dist
+from %(projectid)s_%(replicateid)s_inclusion_dist
 where LaneName = "%(laneid)s"
 """ % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
@@ -146,7 +146,7 @@ where LaneName = "%(laneid)s"
     return rows
 
 
-@register_resource(resolution="experiment", partition=False)
+@register_resource(resolution="replicate", partition=False)
 def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
     """Fetch reads_supporting_exon_inclusions chart"""
     chart = {}
@@ -157,7 +157,7 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
                                   ('Inclusion Junctions',  'number'),
                                   ('Exclusion Junctions',  'number'),
                                   ('Inclusion Percentage', 'number'),
-                                  ('Experiment Id',        'string'),
+                                  ('Replicate Id',         'string'),
                                   ('Lane Id',              'string'),
                                  ]
 
@@ -174,7 +174,7 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
                                  _all_reads_supporting_exon_inclusions, conf)
         if success:
             for row in stats:
-                line = row[:-1] + (conf['experimentid'], row[-1])
+                line = row[:-1] + (conf['replicateid'], row[-1])
                 if dumper is None:
                     result.append(line)
                 else:
@@ -206,7 +206,7 @@ select chr,
        inc_rate * 100,
        sample_id
 from
-    %(projectid)s_%(experimentid)s_exon_inclusion_reads""" % conf
+    %(projectid)s_%(replicateid)s_exon_inclusion_reads""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -226,7 +226,7 @@ select chr,
        inc_rate * 100,
        sample_id
 from
-    %(projectid)s_%(experimentid)s_exon_inclusion_reads
+    %(projectid)s_%(replicateid)s_exon_inclusion_reads
 order by
     JuncInc desc
 ) x

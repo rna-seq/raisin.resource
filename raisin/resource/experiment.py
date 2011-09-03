@@ -4,15 +4,15 @@ from utils import get_rna_type_display_mapping
 from utils import get_cell_type_display_mapping
 from utils import get_compartment_display_mapping
 from utils import get_parameter_list
-from utils import get_replicate_where
-from utils import get_replicate_dict
+from utils import get_experiment_where
+from utils import get_experiment_dict
 from utils import get_parameter_values
 from utils import register_resource
 
 
-@register_resource(resolution="experiment", partition=False)
-def experiment_info(dbs, confs):
-    """Collect some general information about a experiment"""
+@register_resource(resolution="replicate", partition=False)
+def replicate_info(dbs, confs):
+    """Collect some general information about a replicate"""
     chart = {}
     chart['table_description'] = [('Read Length',        'number'),
                                   ('Mismatches',         'number'),
@@ -52,7 +52,7 @@ select experiment_id,
        paired
 from experiments
 where project_id='%(projectid)s'
-      and experiment_id='%(experimentid)s'""" % conf
+      and experiment_id='%(experiment_id)s'""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
@@ -126,14 +126,14 @@ from genome_files where genome_id='%s'
 
 
 @register_resource(resolution=None, partition=False)
-def project_experiments(dbs, confs):
-    """Compile the list of experiments for the project"""
+def project_replicates(dbs, confs):
+    """Compile the list of replicates for the project"""
     conf = confs['configurations'][0]
     projectid = conf['projectid']
 
     chart = {}
     chart['table_description'] = [('Project Id',               'string'),
-                                  ('Experiment Id',            'string'),
+                                  ('Replicate Id',             'string'),
                                   ('Species',                  'string'),
                                   ('Genome file name',         'string'),
                                   ('Genome file location',     'string'),
@@ -145,8 +145,8 @@ def project_experiments(dbs, confs):
                                   ('Template File',            'string'),
                                   ('Read Length',              'number'),
                                   ('Mismatches',               'number'),
-                                  ('Experiment Description',   'string'),
-                                  ('Experiment Date',          'string'),
+                                  ('Replicate Description',    'string'),
+                                  ('Replicate Date',           'string'),
                                   ('Cell Type',                'string'),
                                   ('RNA Type',                 'string'),
                                   ('Compartment',              'string'),
@@ -201,7 +201,7 @@ and
 
     url = ('/project/%(projectid)s/'
            '%(parameter_list)s/%(parameter_values)s/'
-           'experiment/%(experimentid)s/tab/overview')
+           'replicate/%(replicateid)s/tab/overview')
     results = []
     for row in rows:
         row = list(row)
@@ -209,7 +209,7 @@ and
             row[22] = ord(row[22])
         # Augment the information from the database with a url and a text
         meta = {'projectid': row[0],
-                'experimentid': row[1],
+                'replicateid': row[1],
                 'read_length': row[11],
                 'cell_type': row[15],
                 'rna_type': row[16],
@@ -237,14 +237,14 @@ def project_accessions(dbs, confs):
     """
     projectid = confs['configurations'][0]['projectid']
     chart = {}
-    chart['table_description'] = [('accession',               'string'),
-                                  ('species',                 'string'),
-                                  ('rnaExtract',              'string'),
-                                  ('localization',            'string'),
-                                  ('replicate',               'string'),
-                                  ('gender',                  'string'),
-                                  ('readType',                'string'),
-                                  ('cell',                    'string'),
+    chart['table_description'] = [('accession',    'string'),
+                                  ('species',      'string'),
+                                  ('rnaExtract',   'string'),
+                                  ('localization', 'string'),
+                                  ('replicate',    'string'),
+                                  ('gender',       'string'),
+                                  ('readType',     'string'),
+                                  ('cell',         'string'),
                                  ]
 
     sql = """
@@ -282,41 +282,41 @@ and
 
 
 @register_resource(resolution=None, partition=False)
-def replicate_experiments(dbs, confs):
-    """Compile the list of experiments for the replicate"""
+def experiment_replicates(dbs, confs):
+    """Compile the list of replicates for the experiment"""
     chart = {}
     chart['table_description'] = [('Project Id',       'string'),
                                   ('Parameter List',   'string'),
                                   ('Parameter Values', 'string'),
-                                  ('Experiment Id',    'string'),
-                                  ('Experiment Url',   'string'),
+                                  ('Replicate Id',     'string'),
+                                  ('Replicate Url',    'string'),
                                  ]
     projectid = confs['kwargs']['projectid']
     parameter_list = confs['kwargs']['parameter_list']
     parameter_values = confs['kwargs']['parameter_values']
-    meta = get_replicate_dict(confs)
-    # Only return the replicate infos if this is an official project
+    meta = get_experiment_dict(confs)
+    # Only return the experiment infos if this is an official project
     sql = """
 select experiment_id
 from experiments
 %s
 order by
-    experiment_id;""" % get_replicate_where(confs, meta)
+    experiment_id;""" % get_experiment_where(confs, meta)
     cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
-    experimentids = [row[0] for row in rows]
+    replicateids = [row[0] for row in rows]
     results = []
-    url = '/project/%s/%s/%s/experiment/%s/tab/overview'
-    for experimentid in experimentids:
+    url = '/project/%s/%s/%s/replicate/%s/tab/overview'
+    for replicateid in replicateids:
         results.append((projectid,
                         parameter_list,
                         parameter_values,
-                        experimentid,
+                        replicateid,
                         url % (projectid,
                                parameter_list,
                                parameter_values,
-                               experimentid),
+                               replicateid),
                        )
                       )
     chart['table_data'] = results
