@@ -67,11 +67,11 @@ def get_parameter_list(confs, separator='-'):
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
-    replicateid_parts = []
+    experimentid_parts = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
-        replicateid_parts.append(parameter)
-    replicateid = separator.join(replicateid_parts)
-    return replicateid
+        experimentid_parts.append(parameter)
+    experimentid = separator.join(experimentid_parts)
+    return experimentid
 
 
 def get_parameter_values(confs, meta, separator='-'):
@@ -98,7 +98,7 @@ def get_parameter_values(confs, meta, separator='-'):
     return replicateid
 
 
-def get_replicate_dict(confs):
+def get_experiment_dict(confs):
     """Make a dict out of the parameters defined in parameter_list and
     parameter_values.
     """
@@ -132,8 +132,8 @@ def get_replicate_dict(confs):
     return meta
 
 
-def get_replicate_labels(meta, rna_types, cell_types, compartments):
-    """Return replicate labels"""
+def get_experiment_labels(meta, rna_types, cell_types, compartments):
+    """Return experiment labels"""
     if meta['cell_type']  in cell_types:
         meta['cell_type'] = cell_types[meta['cell_type']]
     if meta['rna_type'] in rna_types:
@@ -142,8 +142,8 @@ def get_replicate_labels(meta, rna_types, cell_types, compartments):
         meta['compartment'] = compartments[meta['compartment']]
 
 
-def get_replicate_chart(confs):
-    """Return replicate chart"""
+def get_experiment_chart(confs):
+    """Return experiment chart"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
@@ -151,7 +151,7 @@ def get_replicate_chart(confs):
     chart['table_description'] = [('Project id',       'string'),
                                   ('Parameter List',   'string'),
                                   ('Parameter Values', 'string'),
-                                  ('# Experiments',           'string'),
+                                  ('# Replicates',           'string'),
                                  ]
     # Either take the parameter mapping defined for the project
     # or take all parameters
@@ -160,24 +160,24 @@ def get_replicate_chart(confs):
     return chart
 
 
-def get_replicate_result(confs, meta):
-    """Return replicate results"""
+def get_experiment_result(confs, meta):
+    """Return experiment results"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
-    number_of_experiments = len(meta)
+    number_of_replicates = len(meta)
     meta = meta[0]
-    replicateid_parts = [meta['projectid'],
+    experimentid_parts = [meta['projectid'],
                           meta['parameter_list'],
                           meta['parameter_values'],
-                          str(number_of_experiments)]
+                          str(number_of_replicates)]
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
-        replicateid_parts.append(meta[parameter])
-    return replicateid_parts
+        experimentid_parts.append(meta[parameter])
+    return experimentid_parts
 
 
-def get_replicate_order_by(confs):
-    """Return replicate order by"""
+def get_experiment_order_by(confs):
+    """Return experiment order by"""
     projectid = confs['kwargs']['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
@@ -193,8 +193,8 @@ order by
     return order_by
 
 
-def get_replicate_where(confs, meta):
-    """Return replicate where clause"""
+def get_experiment_where(confs, meta):
+    """Return experiment where clause"""
     projectid = meta['projectid']
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_columns = confs['request'].environ['parameter_columns']
@@ -214,17 +214,17 @@ def get_replicate_where(confs, meta):
     return where % ('\nand\n    '.join(ands))
 
 
-def get_replicate_experiments(dbs, confs):
-    """Return replicate experiments"""
+def get_experiment_replicates(dbs, confs):
+    """Return experiment replicates"""
     projectid = confs['kwargs']['projectid']
     if 'parameter_values' in confs['kwargs']:
-        meta = get_replicate_dict(confs)
+        meta = get_experiment_dict(confs)
         sql = """
     select experiment_id
     from experiments
     %s
     order by
-        experiment_id;""" % get_replicate_where(confs, meta)
+        experiment_id;""" % get_experiment_where(confs, meta)
         cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
     else:
         sql = """
@@ -237,21 +237,21 @@ def get_replicate_experiments(dbs, confs):
 
     rows = cursor.fetchall()
     cursor.close()
-    experimentids = [row[0] for row in rows]
-    return experimentids
+    replicateids = [row[0] for row in rows]
+    return replicateids
 
 
-def get_level(experimentid, laneid, readid):
+def get_level(replicateid, laneid, readid):
     """Return level"""
     level = {}
     # Collect all valid additional parameters
-    parameters = [experimentid, laneid, readid]
+    parameters = [replicateid, laneid, readid]
     level['parameters'] = [p for p in parameters if not p is None]
     # Define what level we are on depending on the number of paramaters
     level['id'] = {3: 'Read',
                    2: 'Lane',
-                   1: 'Experiment',
-                   0: 'Replicate'}[len(level['parameters'])]
+                   1: 'Replicate',
+                   0: 'Experiment'}[len(level['parameters'])]
     return level
 
 
@@ -263,16 +263,16 @@ def configurations_for_level(request, dbs, configurations, level):
             return configurations
         elif level == 'project':
             return configurations
-        elif level == 'replicate':
-            items, success = run(dbs,
-                                 get_project_replicates,
-                                 {'kwargs': kwargs, 'request': request})
         elif level == 'experiment':
             items, success = run(dbs,
-                                 get_replicate_experiments,
+                                 get_project_experiments,
+                                 {'kwargs': kwargs, 'request': request})
+        elif level == 'replicate':
+            items, success = run(dbs,
+                                 get_experiment_replicates,
                                  {'kwargs': kwargs, 'request': request})
         elif level == 'lane':
-            items, success = run(dbs, get_experiment_lanes, kwargs)
+            items, success = run(dbs, get_replicate_lanes, kwargs)
         elif level == 'read':
             items, success = run(dbs, get_lane_reads, kwargs)
         if success:
@@ -299,26 +299,26 @@ def partition_configurations(configurations, level):
 def get_configurations(request, level, resolution, partition, dbs, **kwargs):
     """Return configurations"""
     level_titles = {'project':    'Project Id',
-                    'replicate': 'Replicate Id',
-                    'experiment':        'Experiment Id',
+                    'experiment': 'Experiment Id',
+                    'replicate':  'Replicate Id',
                     'lane':       'Lane Id',
                     'read':       'Read Id',
                     None: None,
                     }
     resolution_titles = {'project':    'Project Level',
-                          'replicate': 'Replicate Level',
-                          'experiment':        'Experiment Level',
-                          'lane':       'Lane Level',
-                          'read':       'Read Level',
-                          None: None,
-                         }
+                         'experiment': 'Experiment Level',
+                         'replicate':  'Replicate Level',
+                         'lane':       'Lane Level',
+                         'read':       'Read Level',
+                         None: None,
+                        }
     # Create the configuration partitions for this level
     configurations = [kwargs.copy()]
-    levels = [None, 'project', 'replicate', 'experiment', 'lane', 'read']
+    levels = [None, 'project', 'experiment', 'replicate', 'lane', 'read']
     partition_levels = {None: 'project',
-                        'project': 'replicate',
-                        'replicate': 'experiment',
-                        'experiment': 'lane',
+                        'project': 'experiment',
+                        'experiment': 'replicate',
+                        'replicate': 'lane',
                         'lane': 'read',
                         'read': 'read'}
     level_range = levels[levels.index(level) + 1:levels.index(resolution) + 1]
@@ -357,8 +357,8 @@ def get_configurations(request, level, resolution, partition, dbs, **kwargs):
     return result
 
 
-def get_project_replicates(dbs, confs):
-    """Return project replicates"""
+def get_project_experiments(dbs, confs):
+    """Return project experiments"""
     projectid = confs['kwargs']['projectid']
     sql = """
 select project_id,
@@ -399,18 +399,18 @@ where
             meta['parameter_list'] = get_parameter_list(confs)
             meta['parameter_values'] = get_parameter_values(confs, meta)
             results[row] = meta['parameter_values']
-    replicates = list(set(results.values()))
-    replicates.sort()
-    return replicates
+    experiments = list(set(results.values()))
+    experiments.sort()
+    return experiments
 
 
-def get_experiment_lanes(dbs, conf):
-    """Return experiment lanes"""
+def get_replicate_lanes(dbs, conf):
+    """Return replicate lanes"""
     sql = """
 select
     distinct pair_id
 from
-    %(projectid)s_%(experimentid)s_dataset
+    %(projectid)s_%(replicateid)s_dataset
 order by
     pair_id
 """ % conf
@@ -427,7 +427,7 @@ def get_lane_reads(dbs, conf):
 select distinct
     lane_id
 from
-    %(projectid)s_%(experimentid)s_dataset
+    %(projectid)s_%(replicateid)s_dataset
 where
     pair_id = '%(laneid)s'
 order by
@@ -555,7 +555,7 @@ class register_resource(object):
         if not wrapped:
             return
         # All levels at which there are statistics in the database
-        levels = [None, 'project', 'replicate', 'experiment', 'lane', 'read']
+        levels = [None, 'project', 'experiment', 'replicate', 'lane', 'read']
         # Only levels that are higher than the base resolution
         # level are possible
         for level in levels[:levels.index(self.resolution) + 1]:
