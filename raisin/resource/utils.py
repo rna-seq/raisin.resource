@@ -91,11 +91,11 @@ def get_parameter_values(confs, meta, separator='-'):
         pass
     else:
         meta['paired'] = 0
-    replicateid_parts = []
+    experimentid_parts = []
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
-        replicateid_parts.append(meta[parameter])
-    replicateid = separator.join([str(part) for part in replicateid_parts])
-    return replicateid
+        experimentid_parts.append(meta[parameter])
+    experimentid = separator.join([str(part) for part in experimentid_parts])
+    return experimentid
 
 
 def get_experiment_dict(confs):
