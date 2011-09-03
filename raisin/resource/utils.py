@@ -151,7 +151,7 @@ def get_experiment_chart(confs):
     chart['table_description'] = [('Project id',       'string'),
                                   ('Parameter List',   'string'),
                                   ('Parameter Values', 'string'),
-                                  ('# Replicates',           'string'),
+                                  ('# Replicates',     'string'),
                                  ]
     # Either take the parameter mapping defined for the project
     # or take all parameters
