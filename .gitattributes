@@ -1,18 +1,1 @@
 * text=auto !eol
-/README.txt -text
-raisin/__init__.py -text
-raisin/resource/__init__.py -text
-raisin/resource/discovery.py -text
-raisin/resource/experiment.py -text
-raisin/resource/expression.py -text
-raisin/resource/mapping.py -text
-raisin/resource/project.py -text
-raisin/resource/read.py -text
-raisin/resource/replicate.py -text
-raisin/resource/root.py -text
-raisin/resource/splicing.py -text
-raisin/resource/tests/test_resource.py -text
-raisin/resource/utils.py -text
-/setup.cfg -text
-/setup.py -text
-/version.txt -text

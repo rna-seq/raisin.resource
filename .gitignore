@@ -1,0 +1,8 @@
+/*.pyc
+/*.pyo
+raisin/*.pyc
+raisin/*.pyo
+raisin/resource/*.pyc
+raisin/resource/*.pyo
+raisin/resource/tests/*.pyc
+raisin/resource/tests/*.pyo
