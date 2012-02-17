@@ -1,9 +1,9 @@
 """Experiment level resources"""
 
 from utils import run
-from utils import get_rna_type_display_mapping
-from utils import get_cell_type_display_mapping
-from utils import get_compartment_display_mapping
+from utils import get_rna_extract_display_mapping
+from utils import get_cell_display_mapping
+from utils import get_localization_display_mapping
 from utils import get_experiment_chart
 from utils import get_parameter_list
 from utils import get_parameter_values
@@ -28,7 +28,7 @@ def experiment_info(dbs, confs):
                                   ('Date',               'string'),
                                   ('Cell Type',          'string'),
                                   ('RNA Type',           'string'),
-                                  ('Compartment',        'string'),
+                                  ('Localization',       'string'),
                                   ('Bio Replicate',      'string'),
                                   ('Partition',          'string'),
                                   ('Paired',             'number'),
@@ -83,11 +83,11 @@ order by
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10],
+    result.append(get_cell_display_mapping(dbs).get(rows[0][10],
                                                          rows[0][10]))
-    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11],
+    result.append(get_rna_extract_display_mapping(dbs).get(rows[0][11],
                                                         rows[0][11]))
-    result.append(get_compartment_display_mapping(dbs).get(rows[0][12],
+    result.append(get_localization_display_mapping(dbs).get(rows[0][12],
                                                            rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
@@ -223,7 +223,7 @@ def replicates_configurations(dbs, confs):
     read_length:   Replicates in a project can have different read lengths
     CellType:      Replicates may come from different cell types
     RNAType:       Replicates may have been done with different rna types
-    Compartment:   Replicates may have been prepared from different cell compartments
+    Localization:  Replicates may have been prepared from different cell localizations
     Bioreplicate:  Replicates are done for a bio experiment
     partition:     Replicates can be done for samples coming from different conditions
     paired:        Replicates can be done for paired end
@@ -236,7 +236,7 @@ def replicates_configurations(dbs, confs):
                                   ('Read Length',              'number'),
                                   ('Cell Type',                'string'),
                                   ('RNA Type',                 'string'),
-                                  ('Compartment',              'string'),
+                                  ('Localization',             'string'),
                                   ('Bio Replicate',            'string'),
                                   ('Partition',                'string'),
                                   ('Paired',                   'number'),
@@ -303,7 +303,7 @@ def project_experiments(dbs, confs):
                                   ('Replicate Date',           'string'),
                                   ('Cell Type',                'string'),
                                   ('RNA Type',                 'string'),
-                                  ('Compartment',              'string'),
+                                  ('Localization',             'string'),
                                   ('Bioreplicate',             'string'),
                                   ('Partition',                'string'),
                                   ('Annotation Version',       'string'),
@@ -363,9 +363,9 @@ and
             row[22] = ord(row[22])
         meta = {'projectid': row[0],
                 'read_length': row[11],
-                'cell_type': row[15],
-                'rna_type': row[16],
-                'compartment': row[17],
+                'cell': row[15],
+                'rna_extract': row[16],
+                'localization': row[17],
                 'bio_replicate': row[18],
                 'partition': row[19],
                 'annotation_version': row[20],
@@ -409,7 +409,7 @@ def project_experimentstable(dbs, confs):
                                   ('Lab',                'string'),
                                   ('Paired',             'string'),
                                   ('RNA Type',           'string'),
-                                  ('Compartment',        'string'),
+                                  ('Localization',       'string'),
                                   ('# Replicates',       'string'),
                                  ]
     sql = """
@@ -534,17 +534,17 @@ and
     cursor.close()
     experimentids = {}
 
-    rna_types = get_rna_type_display_mapping(dbs)
-    cell_types = get_cell_type_display_mapping(dbs)
-    compartments = get_compartment_display_mapping(dbs)
+    rna_extracts = get_rna_extract_display_mapping(dbs)
+    cells = get_cell_display_mapping(dbs)
+    localizations = get_localization_display_mapping(dbs)
 
     for row in rows:
         meta = {}
         meta['projectid'] = conf['projectid']
         meta['read_length'] = row[10]
-        meta['cell_type'] = row[14]
-        meta['rna_type'] = row[15]
-        meta['compartment'] = row[16]
+        meta['cell'] = row[14]
+        meta['rnaExtract'] = row[15]
+        meta['localization'] = row[16]
         meta['bio_replicate'] = row[17]
         meta['partition'] = row[18]
         meta['annotation_version'] = row[19]
@@ -556,7 +556,7 @@ and
         meta['parameter_values'] = get_parameter_values(confs, meta)
 
         if not raw:
-            get_experiment_labels(meta, rna_types, cell_types, compartments)
+            get_experiment_labels(meta, rnaExtract, cells, localizations)
 
         if meta['parameter_values'] in experimentids:
             experimentids[meta['parameter_values']].append(meta)
@@ -726,7 +726,7 @@ def project_experiment_subset_pending(dbs, confs):
     description = [('Replicate',   'string'),
                    ('Lab',         'string'),
                    ('Cell Type',   'string'),
-                   ('Compartment', 'string'),
+                   ('Localization', 'string'),
                    ('RNA Type',    'string'),
                    ('Read Length', 'string'),
                    ('Paired',      'string'),
@@ -739,7 +739,7 @@ def project_experiment_subset_pending(dbs, confs):
     for key in dashboard_set.difference(grape_set):
         item = dashboard[key]
         item['RNA Type'] = item['RNA Extract Id']
-        item['Compartment'] = item['Localization Id']
+        item['Localization'] = item['Localization Id']
         item['Lab'] = item['Replicate Lab']
         filter_out = False
         index = 0
