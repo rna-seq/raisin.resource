@@ -5,7 +5,7 @@ from raisin.mysqldb import run_method_using_mysqldb
 from restish import http
 
 
-def get_rna_type_display_mapping(dbs):
+def get_rna_extract_display_mapping(dbs):
     """Query the RNA dasboard database for rna type labels"""
     sql = """
 select ucscName, displayName
@@ -27,7 +27,7 @@ from rnaExtract"""
     return mapping
 
 
-def get_cell_type_display_mapping(dbs):
+def get_cell_display_mapping(dbs):
     """Query the RNA dasboard database for cell type labels"""
     sql = """
 select ucscName,
@@ -45,8 +45,8 @@ from cell"""
     return mapping
 
 
-def get_compartment_display_mapping(dbs):
-    """Query the RNA dasboard database for compartment labels"""
+def get_localization_display_mapping(dbs):
+    """Query the RNA dasboard database for localization labels"""
     sql = """
 select ucscName, displayName
 from localization"""
@@ -81,9 +81,9 @@ def get_parameter_values(confs, meta, separator='-'):
     parameter_labels = confs['request'].environ['parameter_labels']
     meta['partition'] = meta['partition'] or '@'
     meta['bio_replicate'] = meta['bio_replicate'] or '1'
-    meta['cell_type'] = meta['cell_type'] or '@'
-    meta['compartment'] = meta['compartment'] or 'CELL'
-    meta['rna_type'] = meta['rna_type'] or '@'
+    meta['cell'] = meta['cell'] or '@'
+    meta['localization'] = meta['localization'] or 'CELL'
+    meta['rnaExtract'] = meta['rnaExtract'] or '@'
     meta['annotation_version'] = meta['annotation_version'] or '@'
     meta['lab'] = meta['lab'] or '@'
     meta['read_length'] = meta['read_length'] or '@'
@@ -132,14 +132,14 @@ def get_experiment_dict(confs):
     return meta
 
 
-def get_experiment_labels(meta, rna_types, cell_types, compartments):
+def get_experiment_labels(meta, rna_extracts, cells, localizations):
     """Return experiment labels"""
-    if meta['cell_type']  in cell_types:
-        meta['cell_type'] = cell_types[meta['cell_type']]
-    if meta['rna_type'] in rna_types:
-        meta['rna_type'] = rna_types[meta['rna_type']]
-    if meta['compartment'] in compartments:
-        meta['compartment'] = compartments[meta['compartment']]
+    if meta['cell']  in cells:
+        meta['cell'] = cells[meta['cell']]
+    if meta['rnaExtract'] in rna_extracts:
+        meta['rnaExtract'] = rna_extracts[meta['rnaExtract']]
+    if meta['localization'] in localizations:
+        meta['localization'] = localizations[meta['localization']]
 
 
 def get_experiment_chart(confs):
@@ -384,9 +384,9 @@ where
             pass
         else:
             meta = {'projectid': projectid,
-                    'cell_type': row[1],
-                    'rna_type': row[2],
-                    'compartment': row[3],
+                    'cell': row[1],
+                    'rnaExtract': row[2],
+                    'localization': row[3],
                     'bio_replicate': row[4],
                     'partition': row[5],
                     'annotation_version': row[6],
