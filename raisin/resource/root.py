@@ -168,11 +168,11 @@ class Root(resource.Resource):
         cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/rna_fractions" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
-    @resource.child('project/{projectid}/rnadashboard/{hgversion}/compartments')
-    def rnadashboard_compartments(self, request, segments, **kwargs):
+    @resource.child('project/{projectid}/rnadashboard/{hgversion}/localizations')
+    def rnadashboard_localizations(self, request, segments, **kwargs):
         """Define resource child"""
-        key = 'rnadashboard_compartments'
-        cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/compartments" % kwargs
+        key = 'rnadashboard_localizations'
+        cachefilebase = "project/%(projectid)s/rnadashboard/%(hgversion)s/localizations" % kwargs
         return Resource(key, cachefilebase, **kwargs), segments
 
     @resource.child('project/{projectid}/rnadashboard/{hgversion}/files')
