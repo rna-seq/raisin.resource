@@ -394,7 +394,64 @@ def project_experimentstableraw(dbs, confs):
 @register_resource(resolution='project', partition=False)
 def project_experimentstable(dbs, confs):
     """Return a list of experiments for a project."""
-    return _project_experimentstable(dbs, confs, raw=False, where=False)
+    chart = get_experiment_chart(confs)
+    projectid = confs['kwargs']['projectid']
+    parameter_mapping = confs['request'].environ['parameter_mapping']
+    parameter_labels = confs['request'].environ['parameter_labels']
+    chart = {}
+    chart['table_description'] = [('Project id',         'string'),
+                                  ('Parameter List',     'string'),
+                                  ('Parameter Values',   'string'),
+                                  ('Cell Type',          'string'),
+                                  ('Annotation Version', 'string'),
+                                  ('Read Length',        'number'),
+                                  ('Partition',          'string'),
+                                  ('Lab',                'string'),
+                                  ('Paired',             'string'),
+                                  ('RNA Type',           'string'),
+                                  ('Compartment',        'string'),
+                                  ('# Replicates',       'string'),
+                                 ]
+    sql = """
+select
+    cell,
+    annotatation_version,
+    read_length,
+    partition,
+    lab,
+    paired,
+    rnaExtract,
+    localization,
+    number_of_replicates
+from 
+    experiments
+where
+    project_id = '%s'
+""" % projectid
+    cursor = dbs[projectid]['RNAseqPipelineWarehouse'].cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+
+    results = []
+    for row in rows:
+        results.append( (projectid, 
+                         '',
+                         '',
+                         row[0],
+                         row[1],
+                         int(row[2]),
+                         row[3],
+                         row[4],
+                         int(row[5]),
+                         row[6],
+                         row[7],
+                         row[8])
+                      )
+    if len(results) == 0:
+        results = [[None] * len(chart['table_description'])]
+
+    chart['table_data'] = results
+    return chart
 
 
 def _project_experimentstable(dbs, confs, raw=True, where=False):
