@@ -1,8 +1,8 @@
 """Run related resources"""
 
-from utils import get_rna_type_display_mapping
-from utils import get_cell_type_display_mapping
-from utils import get_compartment_display_mapping
+from utils import get_rna_extract_display_mapping
+from utils import get_cell_display_mapping
+from utils import get_localization_display_mapping
 from utils import get_parameter_list
 from utils import get_experiment_where
 from utils import get_experiment_dict
@@ -20,7 +20,7 @@ def replicate_info(dbs, confs):
                                   ('Date',               'string'),
                                   ('Cell Type',          'string'),
                                   ('RNA Type',           'string'),
-                                  ('Compartment',        'string'),
+                                  ('Localization',       'string'),
                                   ('Bio Replicate',      'string'),
                                   ('Partition',          'string'),
                                   ('Paired',             'number'),
@@ -65,11 +65,11 @@ where project_id='%(projectid)s'
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_type_display_mapping(dbs).get(rows[0][10],
+    result.append(get_cell_display_mapping(dbs).get(rows[0][10],
                                                          rows[0][10]))
-    result.append(get_rna_type_display_mapping(dbs).get(rows[0][11],
-                                                        rows[0][11]))
-    result.append(get_compartment_display_mapping(dbs).get(rows[0][12],
+    result.append(get_rna_extract_display_mapping(dbs).get(rows[0][11],
+                                                           rows[0][11]))
+    result.append(get_localization_display_mapping(dbs).get(rows[0][12],
                                                            rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
@@ -149,7 +149,7 @@ def project_replicates(dbs, confs):
                                   ('Replicate Date',           'string'),
                                   ('Cell Type',                'string'),
                                   ('RNA Type',                 'string'),
-                                  ('Compartment',              'string'),
+                                  ('Localization',             'string'),
                                   ('Bioreplicate',             'string'),
                                   ('Partition',                'string'),
                                   ('Annotation Version',       'string'),
@@ -211,9 +211,9 @@ and
         meta = {'projectid': row[0],
                 'replicateid': row[1],
                 'read_length': row[11],
-                'cell_type': row[15],
-                'rna_type': row[16],
-                'compartment': row[17],
+                'cell': row[15],
+                'rnaExtract': row[16],
+                'localization': row[17],
                 'bio_replicate': row[18],
                 'partition': row[19],
                 'annotation_version': row[20],
