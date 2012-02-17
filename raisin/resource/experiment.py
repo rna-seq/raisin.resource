@@ -248,28 +248,20 @@ def project_accessions(dbs, confs):
                                  ]
 
     sql = """
-select experiment_id,
-       species_info.species,
-       RNAType,
-       Compartment,
-       Bioreplicate,
-       genome_files.gender,
+select accession_id,
+       species,
+       rnaExtract,
+       localization,
+       replicate,
+       gender,
        read_length,
-       CellType
-from experiments,
-     species_info,
-     genome_files,
-     annotation_files
+       cell
+from accessions
 where
       project_id='%s'
-and
-      experiments.species_id = species_info.species_id
-and
-      experiments.genome_id = genome_files.genome_id
-and
-      experiments.annotation_id = annotation_files.annotation_id;
 """ % projectid
-    cursor = dbs[projectid]['RNAseqPipelineCommon'].query(sql)
+    cursor = dbs[projectid]['RNAseqPipelineWarehouse'].cursor()
+    cursor.execute(sql)
     rows = cursor.fetchall()
     cursor.close()
 
