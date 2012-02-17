@@ -117,8 +117,8 @@ from rnaExtract"""
 
 
 @register_resource(resolution=None, partition=False)
-def rnadashboard_compartments(dbs, confs):
-    """Return the compartments for the RNA dashboard."""
+def rnadashboard_localizations(dbs, confs):
+    """Return the localizations for the RNA dashboard."""
     chart = {}
     chart['table_description'] = [('Id',           'string'),
                                   ('Title',        'string'),
@@ -410,20 +410,20 @@ def _rnadashboard_results_wheres(confs):
     """Return the RNA dashboard where clause."""
     wheres = ""
     meta = get_experiment_dict(confs)
-    if 'cell_type' in meta:
+    if 'cell' in meta:
         wheres = wheres + """
 AND
-    sample.cell = '%(cell_type)s'""" % meta
+    sample.cell = '%(cell)s'""" % meta
 
-    if 'compartment' in meta:
+    if 'localization' in meta:
         wheres = wheres + """
 AND
-    sample.localization = '%(compartment)s'""" % meta
+    sample.localization = '%(localization)s'""" % meta
 
-    if 'rna_type' in meta:
+    if 'rnaExtract' in meta:
         wheres = wheres + """
 AND
-    sample.rnaExtract = '%(rna_type)s'""" % meta
+    sample.rnaExtract = '%(rnaExtract)s'""" % meta
 
     if 'lab' in meta:
         wheres = wheres + """
@@ -508,18 +508,18 @@ def rnadashboard_accessions(dbs, confs):
 
     Selecting rna type subsets can also be useful:
 
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-LONGPOLYA/rnadashboard/hg19/accessions
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-LONGNONPOLYA/rnadashboard/hg19/accessions
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-TOTAL/rnadashboard/hg19/accessions
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CSHL-SHORT/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rnaExtract/CSHL-LONGPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rnaExtract/CSHL-LONGNONPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rnaExtract/CSHL-TOTAL/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rnaExtract/CSHL-SHORT/rnadashboard/hg19/accessions
 
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rna_type/CALTECH-LONGPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/lab-rnaExtract/CALTECH-LONGPOLYA/rnadashboard/hg19/accessions
 
 
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/TOTAL/rnadashboard/hg19/accessions
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/SHORT/rnadashboard/hg19/accessions
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/LONGPOLYA/rnadashboard/hg19/accessions
-        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rna_type/LONGNONPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rnaExtract/TOTAL/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rnaExtract/SHORT/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rnaExtract/LONGPOLYA/rnadashboard/hg19/accessions
+        curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/rnaExtract/LONGNONPOLYA/rnadashboard/hg19/accessions
 
     This is an example of an accession:
 
