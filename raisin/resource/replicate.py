@@ -414,6 +414,9 @@ def project_experimentstable(dbs, confs):
                                  ]
     sql = """
 select
+    project_id,
+    parameter_list,
+    parameter_values,
     cell,
     annotatation_version,
     read_length,
@@ -430,23 +433,7 @@ where
 """ % projectid
     cursor = dbs[projectid]['RNAseqPipelineWarehouse'].cursor()
     cursor.execute(sql)
-    rows = cursor.fetchall()
-
-    results = []
-    for row in rows:
-        results.append( (projectid, 
-                         '',
-                         '',
-                         row[0],
-                         row[1],
-                         int(row[2]),
-                         row[3],
-                         row[4],
-                         int(row[5]),
-                         row[6],
-                         row[7],
-                         row[8])
-                      )
+    results = cursor.fetchall()
     if len(results) == 0:
         results = [[None] * len(chart['table_description'])]
 
