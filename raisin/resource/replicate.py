@@ -418,7 +418,7 @@ select
     parameter_list,
     parameter_values,
     cell,
-    annotatation_version,
+    annotation_version,
     read_length,
     partition,
     lab,
