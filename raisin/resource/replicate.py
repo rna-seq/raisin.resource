@@ -394,51 +394,7 @@ def project_experimentstableraw(dbs, confs):
 @register_resource(resolution='project', partition=False)
 def project_experimentstable(dbs, confs):
     """Return a list of experiments for a project."""
-    chart = get_experiment_chart(confs)
-    projectid = confs['kwargs']['projectid']
-    parameter_mapping = confs['request'].environ['parameter_mapping']
-    parameter_labels = confs['request'].environ['parameter_labels']
-    chart = {}
-    chart['table_description'] = [('Project id',         'string'),
-                                  ('Parameter List',     'string'),
-                                  ('Parameter Values',   'string'),
-                                  ('Cell Type',          'string'),
-                                  ('Annotation Version', 'string'),
-                                  ('Read Length',        'number'),
-                                  ('Partition',          'string'),
-                                  ('Lab',                'string'),
-                                  ('Paired',             'string'),
-                                  ('RNA Type',           'string'),
-                                  ('Localization',       'string'),
-                                  ('# Replicates',       'string'),
-                                 ]
-    sql = """
-select
-    project_id,
-    parameter_list,
-    parameter_values,
-    cell,
-    annotation_version,
-    read_length,
-    partition,
-    lab,
-    paired,
-    rnaExtract,
-    localization,
-    number_of_replicates
-from 
-    experiments
-where
-    project_id = '%s'
-""" % projectid
-    cursor = dbs[projectid]['RNAseqPipelineWarehouse'].cursor()
-    cursor.execute(sql)
-    results = cursor.fetchall()
-    if len(results) == 0:
-        results = [[None] * len(chart['table_description'])]
-
-    chart['table_data'] = results
-    return chart
+    return _project_experimentstable(dbs, confs, raw=False, where=False)
 
 
 def _project_experimentstable(dbs, confs, raw=True, where=False):
