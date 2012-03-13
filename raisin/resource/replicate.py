@@ -499,7 +499,7 @@ and
         meta['parameter_values'] = get_parameter_values(confs, meta)
 
         if not raw:
-            get_experiment_labels(meta, rnaExtract, cells, localizations)
+            get_experiment_labels(meta, rna_extracts, cells, localizations)
 
         if meta['parameter_values'] in experimentids:
             experimentids[meta['parameter_values']].append(meta)
