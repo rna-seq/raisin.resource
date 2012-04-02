@@ -1,0 +1,14 @@
+1.1.1 (2012-04-02)
+==================
+
+Bug Fixes
+---------
+
+- Fix replicates.py:project_experiment_subset_pending
+  Now works when a parameter is not found in parameter_labels
+
+
+1.1 (2012-03-28)
+==================
+
+First release
