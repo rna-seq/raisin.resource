@@ -687,7 +687,10 @@ def project_experiment_subset_pending(dbs, confs):
         filter_out = False
         index = 0
         for parameter in meta['parameter_list']:
-            value = item[parameter_labels[parameter][0]]
+            if parameter in parameter_labels:
+                value = item[parameter_labels[parameter][0]]
+            else:
+                value = None
             if value != meta['parameter_values'][index]:
                 filter_out = True
             index += 1
