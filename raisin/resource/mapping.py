@@ -2,7 +2,82 @@
 
 from utils import register_resource
 from utils import aggregate
+from utils import collect
+from raisin.mysqldb import run_method_using_mysqldb
+from restish import http
 
+
+@register_resource(resolution="lane", partition=False)
+def read_distribution(dbs, confs):
+    chart = {}
+    chart['table_description'] = [
+                                  ('Lane', 'string'),
+                                  ('Start', 'number'),
+                                  ('Transcript Length', 'number'), 
+                                  ('Read Coverage', 'number'), 
+                                 ]
+    def strategy(conf, row):
+        """Insert lane"""
+        return (conf['laneid'], row[0], row[1], row[2])
+
+    stats = []
+    for conf in confs['configurations']:
+        data = run_method_using_mysqldb(_read_distribution, dbs, conf, http.not_found)
+        if data == http.not_found:
+            print "Can't collect because of missing data."
+        else:
+            results.extend(stats)
+
+    if stats:
+        chart['table_data'] = stats
+    else:
+        chart['table_data'] = [[None] * len(chart['table_description'])]
+    return chart
+
+
+def _read_distribution(dbs, conf):
+    """Query the database for the read distribution
+      Table: Down_GFD1_read_dist_transcripts
+
+      (('length_cat', 'varchar(50)', 'NO', 'MUL', None, ''),
+       ('start', 'smallint(5) unsigned', 'NO', '', None, ''),
+       ('position', 'tinyint(3) unsigned', 'NO', '', None, ''),
+       ('hits', 'mediumint(8) unsigned', 'NO', '', None, ''),
+       ('LaneName', 'varchar(50)', 'NO', 'MUL', None, ''))
+             
+      (('6000_8999', 6000, 0, 5433, 'GFD-1'),
+       ('6000_8999', 6000, 1, 57575, 'GFD-1'),
+       ('6000_8999', 6000, 2, 117959, 'GFD-1'),
+       ('6000_8999', 6000, 3, 141873, 'GFD-1'),
+       ('6000_8999', 6000, 4, 228211, 'GFD-1'),
+      ('9000_n', 9000, 96, 152595, 'GFD-2'),
+      ('9000_n', 9000, 97, 158966, 'GFD-2'),
+      ('9000_n', 9000, 98, 134037, 'GFD-2'),
+      ('9000_n', 9000, 99, 90585, 'GFD-2'),
+      ('9000_n', 9000, 100, 17966, 'GFD-2'),
+       ('100_999', 100, 98, 31299, 'GFD-2'),
+       ('100_999', 100, 99, 15882, 'GFD-2'),
+       ('100_999', 100, 100, 2682, 'GFD-2'),
+       ('1_99', 1, 97, 5, 'GFD-2'),
+       ('1_99', 1, 98, 14, 'GFD-2'),
+       ('1_99', 1, 99, 5, 'GFD-2'))
+       ('All', 0, 98, 1058910, 'GFD-2'),
+       ('All', 0, 99, 589849, 'GFD-2'),
+       ('All', 0, 100, 71349, 'GFD-2'))    
+    """
+    sql = """
+select start, 
+       position, 
+       hits 
+from %(projectid)s_%(replicateid)s_read_dist_transcripts 
+where
+    LaneName = '%(laneid)s'
+order by start, 
+         position""" % conf
+    cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    return rows
 
 @register_resource(resolution="read", partition=False)
 def mapping_summary(dbs, confs):
