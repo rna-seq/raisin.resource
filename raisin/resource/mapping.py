@@ -26,7 +26,7 @@ def read_distribution(dbs, confs):
         if data == http.not_found:
             print "Can't collect because of missing data."
         else:
-            results.extend(stats)
+            stats.extend(data)
 
     if stats:
         chart['table_data'] = stats
@@ -66,7 +66,8 @@ def _read_distribution(dbs, conf):
        ('All', 0, 100, 71349, 'GFD-2'))    
     """
     sql = """
-select start, 
+select LaneName,
+       start, 
        position, 
        hits 
 from %(projectid)s_%(replicateid)s_read_dist_transcripts 
