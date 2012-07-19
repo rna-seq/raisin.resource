@@ -11,14 +11,12 @@ from restish import http
 def read_distribution(dbs, confs):
     chart = {}
     chart['table_description'] = [
+                                  ('Replicate', 'string'),
                                   ('Lane', 'string'),
                                   ('Start', 'number'),
                                   ('Transcript Length', 'number'), 
                                   ('Read Coverage', 'number'), 
                                  ]
-    def strategy(conf, row):
-        """Insert lane"""
-        return (conf['laneid'], row[0], row[1], row[2])
 
     stats = []
     for conf in confs['configurations']:
@@ -26,12 +24,16 @@ def read_distribution(dbs, confs):
         if data == http.not_found:
             print "Can't collect because of missing data."
         else:
-            stats.extend(data)
+            lines = []
+            for line in data:
+                lines.append((conf['replicateid'], line[0], line[1], line[2], line[3]))
+            stats.extend(lines)
 
     if stats:
         chart['table_data'] = stats
     else:
         chart['table_data'] = [[None] * len(chart['table_description'])]
+
     return chart
 
 
