@@ -32,7 +32,7 @@ def read_distribution(dbs, confs):
     if stats:
         chart['table_data'] = stats
     else:
-        chart['table_data'] = [[None] * len(chart['table_description'])]
+        chart['table_data'] = [['', '', 0, 0, 0]]
 
     return chart
 
