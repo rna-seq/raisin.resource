@@ -1,4 +1,6 @@
-- URLs to replicates do not need to contain tab/overview any more
+- URLs pointing to experiments do not need to contain tab/experiments any more
+
+- URLs pointing to replicates do not need to contain tab/overview any more
 
 1.2 (2012-07-20)
 ==================
