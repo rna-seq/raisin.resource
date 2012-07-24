@@ -48,7 +48,7 @@ def projects(dbs, confs):
                                  ]
     results = []
     for projectid in dbs.keys():
-        results.append((projectid, '/project/%s/tab/experiments/' % projectid))
+        results.append((projectid, '/project/%s' % projectid))
     chart['table_data'] = results
     return chart
 

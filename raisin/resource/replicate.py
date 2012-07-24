@@ -355,7 +355,6 @@ and
     results = []
     url = '/project/%(projectid)s/'
     url += '%(parameter_list)s/%(parameter_values)s'
-    url += '/tab/experiments'
     for row in rows:
         # Augment the information from the database with a url and a text
         row = list(row)
