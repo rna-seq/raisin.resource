@@ -201,7 +201,7 @@ and
 
     url = ('/project/%(projectid)s/'
            '%(parameter_list)s/%(parameter_values)s/'
-           'replicate/%(replicateid)s/tab/overview')
+           'replicate/%(replicateid)s')
     results = []
     for row in rows:
         row = list(row)
@@ -307,7 +307,7 @@ order by
     cursor.close()
     replicateids = [row[0] for row in rows]
     results = []
-    url = '/project/%s/%s/%s/replicate/%s/tab/overview'
+    url = '/project/%s/%s/%s/replicate/%s'
     for replicateid in replicateids:
         results.append((projectid,
                         parameter_list,
