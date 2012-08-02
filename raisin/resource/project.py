@@ -2,6 +2,8 @@
 
 import random
 import datetime
+import urlparse
+
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
 from raisin.resource.utils import get_experiment_dict
@@ -318,13 +320,16 @@ def project_downloads(dbs, confs):
               "Number of Reads",
               "novel_junctions_from_unannotated_exons_number_of_reads"))
 
-    ftp = "http://genome.crg.es/~mroder/rnaseq/%s/%s.csv.gz"
-    filename = "%s.csv"
-
     table = []
-    for title, category, key in stats:
-        table.append([filename % key, title, category, ftp % (projectid, key)])
-
+    downloads = dbs[projectid]['downloads']
+    if downloads is None:
+        # No downloads for this project, so just return a single empty line
+        table.append(["","","",""])
+    else:
+        url = urlparse.urljoin(downloads, "%s.csv.gz")
+        filename = "%s.csv"
+        for title, category, key in stats:
+            table.append([filename % key, title, category, url % key])
     chart['table_data'] = table
     return chart
 
