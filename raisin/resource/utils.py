@@ -561,7 +561,7 @@ class register_resource(object):
         for level in levels[:levels.index(self.resolution) + 1]:
             # Every statistic is known under its name prefixed with
             # the level for which it is summarized
-            if level == None:
+            if level is None:
                 # This is a top level resource, so no prefix needed
                 key = "%s" % wrapped.__name__
             else:
