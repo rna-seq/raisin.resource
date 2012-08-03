@@ -1,6 +1,5 @@
 """Root object dispatching to restish resources"""
 
-import os.path
 import pickle
 import logging
 from gvizapi import gviz_api
