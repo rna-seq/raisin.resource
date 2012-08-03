@@ -134,7 +134,7 @@ def get_experiment_dict(confs):
 
 def get_experiment_labels(meta, rna_extracts, cells, localizations):
     """Return experiment labels"""
-    if meta['cell']  in cells:
+    if meta['cell'] in cells:
         meta['cell'] = cells[meta['cell']]
     if meta['rnaExtract'] in rna_extracts:
         meta['rnaExtract'] = rna_extracts[meta['rnaExtract']]
