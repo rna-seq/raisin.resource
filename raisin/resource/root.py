@@ -29,7 +29,7 @@ import discovery
 from raisin.mysqldb import run_method_using_mysqldb
 from utils import get_configurations
 from utils import to_cfg
-
+from utils import remove_chars
 
 log = logging.getLogger(__name__)  # pylint: disable-msg=C0103
 
@@ -233,24 +233,19 @@ class Resource(resource.Resource):
         # Check the values passed in through the URL to avoid SQL injection
         for key, value in kwargs.items():
             if key == 'parameter_list':
-                if not value.replace('-', '')\
-                            .replace('_', '')\
-                            .replace('.', '').isalnum():
+                if not remove_chars(value, '-_.').isalnum():
                     raise AttributeError
             elif key == 'parameter_values':
-                if not value.replace('-', '')\
-                            .replace('_', '')\
-                            .replace('.', '').isalnum():
+                if not remove_chars(value, '-_.').isalnum():
                     raise AttributeError
             elif key == 'replicateid':
-                if not value.replace('_', '').isalnum():
+                if not remove_chars(value, '_').isalnum():
                     raise AttributeError
             elif key == 'laneid':
-                if not value.replace('_', '')\
-                            .replace('.', '').isalnum():
+                if not remove_chars(value, '_.').isalnum():
                     raise AttributeError
             elif key == 'projectid':
-                if not value.replace('_', '').isalnum():
+                if not remove_chars(value, '_').isalnum():
                     raise AttributeError
             elif key == 'statid':
                 if not value in STATS_REGISTRY:
