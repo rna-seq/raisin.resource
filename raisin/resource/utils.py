@@ -148,11 +148,11 @@ def get_experiment_chart(confs):
     parameter_mapping = confs['request'].environ['parameter_mapping']
     parameter_labels = confs['request'].environ['parameter_labels']
     chart = {}
-    chart['table_description'] = [('Project id',       'string'),
-                                  ('Parameter List',   'string'),
+    chart['table_description'] = [('Project id', 'string'),
+                                  ('Parameter List', 'string'),
                                   ('Parameter Values', 'string'),
-                                  ('# Replicates',     'string'),
-                                 ]
+                                  ('# Replicates', 'string'),
+                                  ]
     # Either take the parameter mapping defined for the project
     # or take all parameters
     for parameter in parameter_mapping.get(projectid, parameter_labels.keys()):
@@ -298,20 +298,20 @@ def partition_configurations(configurations, level):
 
 def get_configurations(request, level, resolution, partition, dbs, **kwargs):
     """Return configurations"""
-    level_titles = {'project':    'Project Id',
+    level_titles = {'project': 'Project Id',
                     'experiment': 'Experiment Id',
-                    'replicate':  'Replicate Id',
-                    'lane':       'Lane Id',
-                    'read':       'Read Id',
+                    'replicate': 'Replicate Id',
+                    'lane': 'Lane Id',
+                    'read': 'Read Id',
                     None: None,
                     }
-    resolution_titles = {'project':    'Project Level',
+    resolution_titles = {'project': 'Project Level',
                          'experiment': 'Experiment Level',
-                         'replicate':  'Replicate Level',
-                         'lane':       'Lane Level',
-                         'read':       'Read Level',
+                         'replicate': 'Replicate Level',
+                         'lane': 'Lane Level',
+                         'read': 'Read Level',
                          None: None,
-                        }
+                         }
     # Create the configuration partitions for this level
     configurations = [kwargs.copy()]
     levels = [None, 'project', 'experiment', 'replicate', 'lane', 'read']
@@ -610,3 +610,12 @@ def to_cfg(data):
                     parts.append(" " * (len(key) + 1) + str(row_dict[key]))
         parts.append("")
     return "\n".join(parts)
+
+
+def remove_chars(value, chars):
+    """
+    Takes a string and remove all the chars.
+    """
+    for char in chars:
+        value = value.replace(char, '')
+    return value
