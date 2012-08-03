@@ -14,8 +14,8 @@ def read_distribution(dbs, confs):
                                   ('Replicate', 'string'),
                                   ('Lane', 'string'),
                                   ('Start', 'number'),
-                                  ('Transcript Length', 'number'), 
-                                  ('Read Coverage', 'number'), 
+                                  ('Transcript Length', 'number'),
+                                  ('Read Coverage', 'number'),
                                  ]
 
     stats = []
@@ -46,7 +46,7 @@ def _read_distribution(dbs, conf):
        ('position', 'tinyint(3) unsigned', 'NO', '', None, ''),
        ('hits', 'mediumint(8) unsigned', 'NO', '', None, ''),
        ('LaneName', 'varchar(50)', 'NO', 'MUL', None, ''))
-             
+
       (('6000_8999', 6000, 0, 5433, 'GFD-1'),
        ('6000_8999', 6000, 1, 57575, 'GFD-1'),
        ('6000_8999', 6000, 2, 117959, 'GFD-1'),
@@ -65,22 +65,23 @@ def _read_distribution(dbs, conf):
        ('1_99', 1, 99, 5, 'GFD-2'))
        ('All', 0, 98, 1058910, 'GFD-2'),
        ('All', 0, 99, 589849, 'GFD-2'),
-       ('All', 0, 100, 71349, 'GFD-2'))    
+       ('All', 0, 100, 71349, 'GFD-2'))
     """
     sql = """
 select LaneName,
-       start, 
-       position, 
-       hits 
-from %(projectid)s_%(replicateid)s_read_dist_transcripts 
+       start,
+       position,
+       hits
+from %(projectid)s_%(replicateid)s_read_dist_transcripts
 where
     LaneName = '%(laneid)s'
-order by start, 
+order by start,
          position""" % conf
     cursor = dbs[conf['projectid']]['RNAseqPipeline'].query(sql)
     rows = cursor.fetchall()
     cursor.close()
     return rows
+
 
 @register_resource(resolution="read", partition=False)
 def mapping_summary(dbs, confs):
