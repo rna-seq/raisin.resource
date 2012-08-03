@@ -493,7 +493,7 @@ def collect(dbs, confs, method, strategy, **kwargs):
 
 def merge(d_1, d_2, strategy=None):
     """
-    http://stackoverflow.com/questions/38987/how-can-i-merge-two-python-dictionaries-as-a-single-expression
+    http://stackoverflow.com/q/38987/203926
 
     Merges two dictionaries, non-destructively, combining
     values on duplicate keys as defined by the optional strategy
