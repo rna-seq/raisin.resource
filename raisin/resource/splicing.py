@@ -147,7 +147,7 @@ where LaneName = "%(laneid)s"
 
 
 @register_resource(resolution="replicate", partition=False)
-def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
+def reads_supporting_exon_inclusions(dbs, confs):
     """Fetch reads_supporting_exon_inclusions chart"""
     chart = {}
     chart['table_description'] = [('chr', 'string'),
@@ -160,30 +160,14 @@ def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
                                   ('Replicate Id', 'string'),
                                   ('Lane Id', 'string'),
                                   ]
-
-    if not dumper is None:
-        dumper.writeheader(chart['table_description'])
-
     result = []
     for conf in confs['configurations']:
-        if dumper is None:
-            stats, success = run(dbs,
-                                 _top_reads_supporting_exon_inclusions, conf)
-        else:
-            stats, success = run(dbs,
-                                 _all_reads_supporting_exon_inclusions, conf)
+        stats, success = run(dbs,
+                             _top_reads_supporting_exon_inclusions, conf)
         if success:
             for row in stats:
                 line = row[:-1] + (conf['replicateid'], row[-1])
-                if dumper is None:
-                    result.append(line)
-                else:
-                    dumper.writerow(line)
-
-    if not dumper is None:
-        dumper.close()
-        return
-
+                result.append(line)
     if result:
         result = sorted(result, key=lambda row: row[4])
         result.reverse()

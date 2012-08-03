@@ -5,7 +5,7 @@ from utils import collect
 
 
 @register_resource(resolution="replicate", partition=False)
-def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
+def novel_junctions_from_annotated_exons(dbs, confs):
     """List novel junctions from annotated exons."""
     description = [('chr', 'string'),
                    ('start', 'number'),
@@ -17,29 +17,14 @@ def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
     chart = {}
     chart['table_description'] = description
 
-    if not dumper is None:
-        dumper.writeheader(chart['table_description'])
-
     def strategy(conf, row):
         """Insert replicateid"""
         return (row[: -1] + (conf['replicateid'], row[-1]))
 
-    if dumper is None:
-        stats = collect(dbs,
-                        confs['configurations'],
-                        _top_novel_junctions_from_annotated_exons,
-                        strategy)
-    else:
-        stats = collect(dbs,
-                        confs['configurations'],
-                        _all_novel_junctions_from_annotated_exons,
-                        strategy)
-
-    if not dumper is None:
-        for line in stats:
-            dumper.writerow(line)
-        dumper.close()
-        return
+    stats = collect(dbs,
+                    confs['configurations'],
+                    _top_novel_junctions_from_annotated_exons,
+                    strategy)
 
     if stats:
         stats = sorted(stats, key=lambda row: row[3])
@@ -88,7 +73,7 @@ limit 20;""" % conf
 
 
 @register_resource(resolution="replicate", partition=False)
-def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
+def novel_junctions_from_unannotated_exons(dbs, confs):
     """List novel junctions from unannotated exons."""
     description = [('start chr', 'string'),
                    ('end chr', 'string'),
@@ -101,29 +86,14 @@ def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
     chart = {}
     chart['table_description'] = description
 
-    if not dumper is None:
-        dumper.writeheader(chart['table_description'])
-
     def strategy(conf, row):
         """Insert replicateid"""
         return (row[:-1] + (conf['replicateid'], row[-1]))
 
-    if dumper is None:
-        stats = collect(dbs,
-                        confs['configurations'],
-                        _top_novel_junctions_from_unannotated_exons,
-                        strategy)
-    else:
-        stats = collect(dbs,
-                        confs['configurations'],
-                        _all_novel_junctions_from_unannotated_exons,
-                        strategy)
-
-    if not dumper is None:
-        for line in stats:
-            dumper.writerow(line)
-        dumper.close()
-        return
+    stats = collect(dbs,
+                    confs['configurations'],
+                    _top_novel_junctions_from_unannotated_exons,
+                    strategy)
 
     if stats:
         stats = sorted(stats, key=lambda row: row[4])

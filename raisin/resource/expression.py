@@ -360,7 +360,7 @@ and
 
 
 @register_resource(resolution="lane", partition=False)
-def top_genes(dbs, confs, dumper=None):
+def top_genes(dbs, confs):
     """Return a list of top genes."""
     chart = {}
     chart['table_description'] = [('Gene Id', 'string'),
@@ -373,30 +373,17 @@ def top_genes(dbs, confs, dumper=None):
                                   ('Replicate Id', 'string'),
                                   ('Lane Id', 'string'),
                                   ]
-
-    if not dumper is None:
-        dumper.writeheader(chart['table_description'])
-
     result = []
     for conf in confs['configurations']:
-        if dumper is None:
-            stats, success = run(dbs, _top_genes, conf)
-        else:
-            stats, success = run(dbs, _all_genes, conf)
+        stats, success = run(dbs, _top_genes, conf)
         if success:
             for row in stats:
                 line = row + (conf['replicateid'], conf['laneid'])
-                if dumper is None:
-                    result.append(line)
-                else:
-                    dumper.writerow(line)
+                result.append(line)
     if result:
-        if dumper is None:
-            result = sorted(result, key=lambda row: row[6])
-            result.reverse()
-            chart['table_data'] = result[:20]
-        else:
-            chart['table_data'] = result
+        result = sorted(result, key=lambda row: row[6])
+        result.reverse()
+        chart['table_data'] = result[:20]
     else:
         chart['table_data'] = [[None] * len(chart['table_description'])]
     return chart
@@ -444,7 +431,7 @@ limit 20;""" % conf
 
 
 @register_resource(resolution="lane", partition=False)
-def top_transcripts(dbs, confs, dumper=None):
+def top_transcripts(dbs, confs):
     """Query the database for the top 20 transcripts."""
     description = [('Gene Id', 'string'),
                    ('Length', 'number'),
@@ -457,27 +444,13 @@ def top_transcripts(dbs, confs, dumper=None):
                    ]
     chart = {}
     chart['table_description'] = description
-
-    if not dumper is None:
-        dumper.writeheader(chart['table_description'])
-
     result = []
     for conf in confs['configurations']:
-        if dumper is None:
-            stats, success = run(dbs, _top_transcripts, conf)
-        else:
-            stats, success = run(dbs, _all_transcripts, conf)
+        stats, success = run(dbs, _top_transcripts, conf)
         if success:
             for row in stats:
                 line = row + (conf['replicateid'], conf['laneid'])
-                if dumper is None:
-                    result.append(line)
-                else:
-                    dumper.writerow(line)
-
-    if not dumper is None:
-        dumper.close()
-        return
+                result.append(line)
 
     if result:
         result = sorted(result, key=lambda row: row[5])
@@ -528,7 +501,7 @@ limit 20;""" % conf
 
 
 @register_resource(resolution="lane", partition=False)
-def top_exons(dbs, confs, dumper=None):
+def top_exons(dbs, confs):
     """Return the top 20 exons."""
     chart = {}
     description = [('Exon Id', 'string'),
@@ -540,28 +513,14 @@ def top_exons(dbs, confs, dumper=None):
                    ('Lane Id', 'string'),
                    ]
     chart['table_description'] = description
-
-    if not dumper is None:
-        dumper.writeheader(chart['table_description'])
-
     result = []
     for conf in confs['configurations']:
-        if dumper is None:
-            stats, success = run(dbs, _top_exons, conf)
-        else:
-            stats, success = run(dbs, _all_exons, conf)
+        stats, success = run(dbs, _top_exons, conf)
         if success:
             for row in stats:
                 line = row + (conf['replicateid'], conf['laneid'])
-                if dumper is None:
-                    result.append(line)
-                else:
-                    dumper.writerow(line)
-
-    if not dumper is None:
-        dumper.close()
-        return
-
+                result.append(line)
+                
     if result:
         result = sorted(result, key=lambda row: row[4])
         result.reverse()
