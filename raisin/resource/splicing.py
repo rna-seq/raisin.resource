@@ -33,10 +33,10 @@ def splicing_summary(dbs, confs):
     else:
         label = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
 
-    chart['table_description'] = [(label,     'string'),
-                                  ('Total',   'number'),
+    chart['table_description'] = [(label, 'string'),
+                                  ('Total', 'number'),
                                   ('Percent', 'number'),
-                                 ]
+                                  ]
 
     chart['table_data'] = _percentage_splicing_summary(stats, average_by)
     return chart
@@ -150,16 +150,16 @@ where LaneName = "%(laneid)s"
 def reads_supporting_exon_inclusions(dbs, confs, dumper=None):
     """Fetch reads_supporting_exon_inclusions chart"""
     chart = {}
-    chart['table_description'] = [('chr',                  'string'),
-                                  ('start',                'number'),
-                                  ('end',                  'number'),
-                                  ('Exonic',               'number'),
-                                  ('Inclusion Junctions',  'number'),
-                                  ('Exclusion Junctions',  'number'),
+    chart['table_description'] = [('chr', 'string'),
+                                  ('start', 'number'),
+                                  ('end', 'number'),
+                                  ('Exonic', 'number'),
+                                  ('Inclusion Junctions', 'number'),
+                                  ('Exclusion Junctions', 'number'),
                                   ('Inclusion Percentage', 'number'),
-                                  ('Replicate Id',         'string'),
-                                  ('Lane Id',              'string'),
-                                 ]
+                                  ('Replicate Id', 'string'),
+                                  ('Lane Id', 'string'),
+                                  ]
 
     if not dumper is None:
         dumper.writeheader(chart['table_description'])
