@@ -22,23 +22,23 @@ def experiment_info(dbs, confs):
     """XXX Needs refactoring"""
     conf = confs['configurations'][0]
     chart = {}
-    chart['table_description'] = [('Read Length',        'number'),
-                                  ('Mismatches',         'number'),
-                                  ('Description',        'string'),
-                                  ('Date',               'string'),
-                                  ('Cell Type',          'string'),
-                                  ('RNA Type',           'string'),
-                                  ('Localization',       'string'),
-                                  ('Bio Replicate',      'string'),
-                                  ('Partition',          'string'),
-                                  ('Paired',             'number'),
-                                  ('Species',            'string'),
+    chart['table_description'] = [('Read Length', 'number'),
+                                  ('Mismatches', 'number'),
+                                  ('Description', 'string'),
+                                  ('Date', 'string'),
+                                  ('Cell Type', 'string'),
+                                  ('RNA Type', 'string'),
+                                  ('Localization', 'string'),
+                                  ('Bio Replicate', 'string'),
+                                  ('Partition', 'string'),
+                                  ('Paired', 'number'),
+                                  ('Species', 'string'),
                                   ('Annotation Version', 'string'),
-                                  ('Annotation Source',  'string'),
-                                  ('Genome Assembly',    'string'),
-                                  ('Genome Source',      'string'),
-                                  ('Genome Gender',      'string'),
-                                 ]
+                                  ('Annotation Source', 'string'),
+                                  ('Genome Assembly', 'string'),
+                                  ('Genome Source', 'string'),
+                                  ('Genome Gender', 'string'),
+                                  ]
 
     conf = confs['configurations'][0]
 
@@ -83,12 +83,12 @@ order by
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_display_mapping(dbs).get(rows[0][10],
-                                                         rows[0][10]))
-    result.append(get_rna_extract_display_mapping(dbs).get(rows[0][11],
-                                                        rows[0][11]))
-    result.append(get_localization_display_mapping(dbs).get(rows[0][12],
-                                                           rows[0][12]))
+    mapping = get_cell_display_mapping(dbs)
+    result.append(mapping.get(rows[0][10], rows[0][10]))
+    mapping = get_rna_extract_display_mapping(dbs)
+    result.append(mapping.get(rows[0][11], rows[0][11]))
+    mapping = get_localization_display_mapping(dbs)
+    result.append(mapping.get(rows[0][12], rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
     result.append(rows[0][15])
@@ -150,20 +150,20 @@ def experiments(dbs, confs):
     # pylint: disable-msg=W0613
     # Configurations are not used here
     chart = {}
-    chart['table_description'] = [('Project id',               'string'),
-                                  ('Replicate id',             'string'),
-                                  ('Species',                  'string'),
-                                  ('Genome file name',         'string'),
-                                  ('Genome file location',     'string'),
-                                  ('Genome assembly',          'string'),
-                                  ('Genome gender',            'string'),
-                                  ('Annotation file name',     'string'),
+    chart['table_description'] = [('Project id', 'string'),
+                                  ('Replicate id', 'string'),
+                                  ('Species', 'string'),
+                                  ('Genome file name', 'string'),
+                                  ('Genome file location', 'string'),
+                                  ('Genome assembly', 'string'),
+                                  ('Genome gender', 'string'),
+                                  ('Annotation file name', 'string'),
                                   ('Annotation file location', 'string'),
-                                  ('Annotation version',       'string'),
-                                  ('Template file',            'string'),
-                                  ('Mismatches',               'number'),
-                                  ('Description',              'string'),
-                                 ]
+                                  ('Annotation version', 'string'),
+                                  ('Template file', 'string'),
+                                  ('Mismatches', 'number'),
+                                  ('Description', 'string'),
+                                  ]
 
     results = []
     for projectid in dbs.keys():
@@ -231,16 +231,16 @@ def replicates_configurations(dbs, confs):
     # pylint: disable-msg=W0613
     # The configurations are not taken into account here.
     chart = {}
-    chart['table_description'] = [('Project id',               'string'),
-                                  ('Replicate id',             'string'),
-                                  ('Read Length',              'number'),
-                                  ('Cell Type',                'string'),
-                                  ('RNA Type',                 'string'),
-                                  ('Localization',             'string'),
-                                  ('Bio Replicate',            'string'),
-                                  ('Partition',                'string'),
-                                  ('Paired',                   'number'),
-                                 ]
+    chart['table_description'] = [('Project id', 'string'),
+                                  ('Replicate id', 'string'),
+                                  ('Read Length', 'number'),
+                                  ('Cell Type', 'string'),
+                                  ('RNA Type', 'string'),
+                                  ('Localization', 'string'),
+                                  ('Bio Replicate', 'string'),
+                                  ('Partition', 'string'),
+                                  ('Paired', 'number'),
+                                  ]
 
     results = []
     for projectid in dbs.keys():
@@ -286,31 +286,31 @@ def project_experiments(dbs, confs):
     projectid = conf['projectid']
 
     chart = {}
-    chart['table_description'] = [('Project Id',               'string'),
-                                  ('Replicate Id',             'string'),
-                                  ('Species',                  'string'),
-                                  ('Genome file name',         'string'),
-                                  ('Genome file location',     'string'),
-                                  ('Genome assembly',          'string'),
-                                  ('Genome gender',            'string'),
-                                  ('Annotation file name',     'string'),
+    chart['table_description'] = [('Project Id', 'string'),
+                                  ('Replicate Id', 'string'),
+                                  ('Species', 'string'),
+                                  ('Genome file name', 'string'),
+                                  ('Genome file location', 'string'),
+                                  ('Genome assembly', 'string'),
+                                  ('Genome gender', 'string'),
+                                  ('Annotation file name', 'string'),
                                   ('Annotation file location', 'string'),
-                                  ('Annotation version',       'string'),
-                                  ('Template File',            'string'),
-                                  ('Read Length',              'number'),
-                                  ('Mismatches',               'number'),
-                                  ('Replicate Description',    'string'),
-                                  ('Replicate Date',           'string'),
-                                  ('Cell Type',                'string'),
-                                  ('RNA Type',                 'string'),
-                                  ('Localization',             'string'),
-                                  ('Bioreplicate',             'string'),
-                                  ('Partition',                'string'),
-                                  ('Annotation Version',       'string'),
-                                  ('Lab',                      'string'),
-                                  ('Paired',                   'number'),
-                                  ('URL',                      'string'),
-                                 ]
+                                  ('Annotation version', 'string'),
+                                  ('Template File', 'string'),
+                                  ('Read Length', 'number'),
+                                  ('Mismatches', 'number'),
+                                  ('Replicate Description', 'string'),
+                                  ('Replicate Date', 'string'),
+                                  ('Cell Type', 'string'),
+                                  ('RNA Type', 'string'),
+                                  ('Localization', 'string'),
+                                  ('Bioreplicate', 'string'),
+                                  ('Partition', 'string'),
+                                  ('Annotation Version', 'string'),
+                                  ('Lab', 'string'),
+                                  ('Paired', 'number'),
+                                  ('URL', 'string'),
+                                  ]
 
     sql = """
 select project_id,
@@ -555,21 +555,21 @@ def project_experiment_subset_selection(dbs, confs):
             continue
         for variation in variations[subset]:
             link = ('%s-%s' % (confs['kwargs']['parameter_list'], subset),
-                   '%s-%s' % (confs['kwargs']['parameter_values'], variation),
-                   parameter_labels[subset][0],
-                   variation,
-                   subset,
-                  )
+                    '%s-%s' % (confs['kwargs']['parameter_values'], variation),
+                    parameter_labels[subset][0],
+                    variation,
+                    subset,
+                    )
             links.append(link)
 
     chart = {}
-    description = [('Project',                             'string'),
-                   ('Parameter Names',                     'string'),
-                   ('Parameter Values',                    'string'),
-                   ('Parameter Type',                      'string'),
-                   ('Parameter Value',                     'string'),
+    description = [('Project', 'string'),
+                   ('Parameter Names', 'string'),
+                   ('Parameter Values', 'string'),
+                   ('Parameter Type', 'string'),
+                   ('Parameter Value', 'string'),
                    ('Replicates for this Parameter Value', 'string'),
-                  ]
+                   ]
     chart['table_description'] = description
     chart['table_data'] = []
     for names, values, name, value, subset in links:
@@ -625,17 +625,17 @@ def project_experiment_subset_start(dbs, confs):
                     parameter_labels[parameter][0],
                     variation,
                     parameter,
-                  )
+                    )
             links.append(link)
 
     chart = {}
-    description = [('Project',                              'string'),
-                   ('Parameter Names',                      'string'),
-                   ('Parameter Values',                     'string'),
-                   ('Parameter Type',                       'string'),
-                   ('Parameter Value',                      'string'),
-                   ('Replicates for this Parameter Value',  'string'),
-                  ]
+    description = [('Project', 'string'),
+                   ('Parameter Names', 'string'),
+                   ('Parameter Values', 'string'),
+                   ('Parameter Type', 'string'),
+                   ('Parameter Value', 'string'),
+                   ('Replicates for this Parameter Value', 'string'),
+                   ]
     chart['table_description'] = description
     chart['table_data'] = []
 
@@ -665,14 +665,14 @@ def project_experiment_subset_pending(dbs, confs):
     parameter_labels = confs['request'].environ['parameter_labels']
 
     chart = {}
-    description = [('Replicate',   'string'),
-                   ('Lab',         'string'),
-                   ('Cell Type',   'string'),
+    description = [('Replicate', 'string'),
+                   ('Lab', 'string'),
+                   ('Cell Type', 'string'),
                    ('Localization', 'string'),
-                   ('RNA Type',    'string'),
+                   ('RNA Type', 'string'),
                    ('Read Length', 'string'),
-                   ('Paired',      'string'),
-                  ]
+                   ('Paired', 'string'),
+                   ]
 
     results = []
 

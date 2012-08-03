@@ -7,14 +7,16 @@ import urlparse
 from raisin.resource.utils import register_resource
 from raisin.resource.utils import get_dashboard_db
 from raisin.resource.utils import get_experiment_dict
+from raisin.resource.utils import escape_html
 
 # http://genome-test.cse.ucsc.edu/ENCODE/otherTerms.html#sex
 # XXX Needs to be verified
-GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both
-                                  # male and female cells
-                  'F': 'female',  # Female
-                  'M': 'male',    # Male
-                  'U': 'male',    # Unknown
+# B stands for both: a cell population with both male and female cells
+# U stands for unknown
+GENDER_MAPPING = {'B': 'male',
+                  'F': 'female',
+                  'M': 'male',
+                  'U': 'male',
                   }
 
 
@@ -22,10 +24,11 @@ GENDER_MAPPING = {'B': 'male',    # Both: a cell population with both
 def info(dbs, confs):
     """Return the project info."""
     conf = confs['configurations'][0]
+    description = [('Project Description', 'string'),
+                   ('Species', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Project Description', 'string'),
-                                  ('Species',             'string'),
-                                 ]
+    chart['table_description'] = description
     sql = """
 select proj_description,
        species
@@ -42,12 +45,11 @@ where project_id='%(projectid)s';
 @register_resource(resolution="project", partition=False)
 def projects(dbs, confs):
     """Return the projects and their URLs."""
-    # pylint: disable-msg=W0613
-    # The configurations are not taken into account here.
+    description = [('Project Id', 'string'),
+                   ('URL', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Project Id', 'string'),
-                                  ('URL',        'string'),
-                                 ]
+    chart['table_description'] = description
     results = []
     for projectid in dbs.keys():
         results.append((projectid, '/project/%s' % projectid))
@@ -58,12 +60,13 @@ def projects(dbs, confs):
 @register_resource(resolution=None, partition=False)
 def rnadashboard_technologies(dbs, confs):
     """Return the technologies for the RNA dashboard."""
+    description = [('Id', 'string'),
+                   ('Title', 'string'),
+                   ('Description', 'string'),
+                   ('URL', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Id',          'string'),
-                                  ('Title',       'string'),
-                                  ('Description', 'string'),
-                                  ('URL',         'string'),
-                                 ]
+    chart['table_description'] = description
 
     hgversion = confs['configurations'][0]['hgversion']
     dashboard_db = get_dashboard_db(dbs, hgversion)
@@ -77,18 +80,9 @@ from technology"""
     cursor = dashboard_db.query(sql)
     rows = cursor.fetchall()
     cursor.close()
-
-    def escape(html):
-        """Returns the given HTML with ampersands, quotes and carets encoded."""
-        return html.replace('&', '&amp;')\
-                   .replace('<', '&lt;')\
-                   .replace('>', '&gt;')\
-                   .replace('"', '&quot;')\
-                   .replace("'", '&#39;')
-
     results = []
     for row in rows:
-        results.append((row[0], row[1], escape(row[2]), row[3]))
+        results.append((row[0], row[1], escape_html(row[2]), row[3]))
     chart['table_data'] = results
     return chart
 
@@ -96,12 +90,12 @@ from technology"""
 @register_resource(resolution=None, partition=False)
 def rnadashboard_rna_fractions(dbs, confs):
     """Return the RNA fractions for the RNA dashboard."""
+    description = [('Id', 'string'),
+                   ('Title', 'string'),
+                   ('Description', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Id',           'string'),
-                                  ('Title',        'string'),
-                                  ('Description',  'string'),
-                                 ]
-
+    chart['table_description'] = description
     hgversion = confs['configurations'][0]['hgversion']
     dashboard_db = get_dashboard_db(dbs, hgversion)
 
@@ -121,12 +115,12 @@ from rnaExtract"""
 @register_resource(resolution=None, partition=False)
 def rnadashboard_localizations(dbs, confs):
     """Return the localizations for the RNA dashboard."""
+    description = [('Id', 'string'),
+                   ('Title', 'string'),
+                   ('Description', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Id',           'string'),
-                                  ('Title',        'string'),
-                                  ('Description',  'string'),
-                                 ]
-
+    chart['table_description'] = description
     hgversion = confs['configurations'][0]['hgversion']
     dashboard_db = get_dashboard_db(dbs, hgversion)
 
@@ -154,11 +148,11 @@ def rnadashboard_files(dbs, confs):
 
     for more info about file attributes.
     """
+    description = [('Url', 'string'),
+                   ('Attributes', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Url',        'string'),
-                                  ('Attributes', 'string'),
-                                 ]
-
+    chart['table_description'] = description
     hgversion = confs['configurations'][0]['hgversion']
     dashboard_db = get_dashboard_db(dbs, hgversion)
 
@@ -178,36 +172,36 @@ from
 @register_resource(resolution=None, partition=False)
 def rnadashboard(dbs, confs):
     """Return RNA dashboard."""
+    description = [('Sample Grant Name', 'string'),
+                   ('Cell Type', 'string'),
+                   ('Cell Type Id', 'string'),
+                   ('Tier', 'number'),
+                   ('Localization', 'string'),
+                   ('Localization Id', 'string'),
+                   ('RNA Extract', 'string'),
+                   ('RNA Extract Id', 'string'),
+                   ('Technology', 'string'),
+                   ('Technology Id', 'string'),
+                   ('File at UCSC', 'number'),
+                   ('File Raw Type', 'number'),
+                   ('Sample Replicate', 'number'),
+                   ('Sample Id', 'string'),
+                   ('Sample Internal Name', 'string'),
+                   ('Replicate Lab', 'string'),
+                   ('Replicate Read Type', 'string'),
+                   ('Replicate Insert Length', 'string'),
+                   ('Replicate Tech Replicate', 'number'),
+                   ('Replicate Id', 'string'),
+                   ('File Type', 'string'),
+                   ('File View', 'string'),
+                   ('File Lab', 'string'),
+                   ('File URL', 'string'),
+                   ('File Size', 'string'),
+                   ('File View de novo', 'number'),
+                   ('Restricted until', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Sample Grant Name',         'string'),
-                                  ('Cell Type',                 'string'),
-                                  ('Cell Type Id',              'string'),
-                                  ('Tier',                      'number'),
-                                  ('Localization',              'string'),
-                                  ('Localization Id',           'string'),
-                                  ('RNA Extract',               'string'),
-                                  ('RNA Extract Id',            'string'),
-                                  ('Technology',                'string'),
-                                  ('Technology Id',             'string'),
-                                  ('File at UCSC',              'number'),
-                                  ('File Raw Type',             'number'),
-                                  ('Sample Replicate',          'number'),
-                                  ('Sample Id',                 'string'),
-                                  ('Sample Internal Name',      'string'),
-                                  ('Replicate Lab',             'string'),
-                                  ('Replicate Read Type',       'string'),
-                                  ('Replicate Insert Length',   'string'),
-                                  ('Replicate Tech Replicate',  'number'),
-                                  ('Replicate Id',              'string'),
-                                  ('File Type',                 'string'),
-                                  ('File View',                 'string'),
-                                  ('File Lab',                  'string'),
-                                  ('File URL',                  'string'),
-                                  ('File Size',                 'string'),
-                                  ('File View de novo',         'number'),
-                                  ('Restricted until',          'string'),
-                                 ]
-
+    chart['table_description'] = description
     hgversion = confs['configurations'][0]['hgversion']
     dashboard_db = get_dashboard_db(dbs, hgversion)
 
@@ -294,13 +288,13 @@ def project_downloads(dbs, confs):
     # pylint: disable-msg=W0613
     # The database is not needed for this static resource.
     projectid = confs['configurations'][0]['projectid']
+    description = [('File Name', 'string'),
+                   ('Feature', 'string'),
+                   ('Measurement', 'string'),
+                   ('.csv File Download Link', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('File Name',               'string'),
-                                  ('Feature',                 'string'),
-                                  ('Measurement',             'string'),
-                                  ('.csv File Download Link', 'string'),
-                                 ]
-
+    chart['table_description'] = description
     stats = (("Gene",
               "Expression (RPKM)",
               "gene_expression_rpkm"),
@@ -361,33 +355,33 @@ def _rnadashboard_results(dbs, confs):
 def _rnadashboard_results_description():
     """Return the RNA dashboard results descriptions."""
     description = []
-    description.append(('Restricted until',          'string'))
-    description.append(('File Type',                 'string'))
-    description.append(('File View',                 'string'))
-    description.append(('File Lab',                  'string'))
-    description.append(('File URL',                  'string'))
-    description.append(('File Size',                 'string'))
-    description.append(('File View de novo',         'number'))
-    description.append(('Sample Grant Name',         'string'))
-    description.append(('Cell Type',                 'string'))
-    description.append(('Cell Type Id',              'string'))
-    description.append(('Tier',                      'number'))
-    description.append(('Localization',              'string'))
-    description.append(('Localization Id',           'string'))
-    description.append(('RNA Extract',               'string'))
-    description.append(('RNA Extract Id',            'string'))
-    description.append(('Technology',                'string'))
-    description.append(('Technology Id',             'string'))
-    description.append(('File at UCSC',              'number'))
-    description.append(('File Raw Type',             'number'))
-    description.append(('Sample Replicate',          'number'))
-    description.append(('Sample Id',                 'string'))
-    description.append(('Sample Internal Name',      'string'))
-    description.append(('Replicate Lab',             'string'))
-    description.append(('Replicate Read Type',       'string'))
-    description.append(('Replicate Insert Length',   'string'))
-    description.append(('Replicate Tech Replicate',  'number'))
-    description.append(('Replicate Id',              'string'))
+    description.append(('Restricted until', 'string'))
+    description.append(('File Type', 'string'))
+    description.append(('File View', 'string'))
+    description.append(('File Lab', 'string'))
+    description.append(('File URL', 'string'))
+    description.append(('File Size', 'string'))
+    description.append(('File View de novo', 'number'))
+    description.append(('Sample Grant Name', 'string'))
+    description.append(('Cell Type', 'string'))
+    description.append(('Cell Type Id', 'string'))
+    description.append(('Tier', 'number'))
+    description.append(('Localization', 'string'))
+    description.append(('Localization Id', 'string'))
+    description.append(('RNA Extract', 'string'))
+    description.append(('RNA Extract Id', 'string'))
+    description.append(('Technology', 'string'))
+    description.append(('Technology Id', 'string'))
+    description.append(('File at UCSC', 'number'))
+    description.append(('File Raw Type', 'number'))
+    description.append(('Sample Replicate', 'number'))
+    description.append(('Sample Id', 'string'))
+    description.append(('Sample Internal Name', 'string'))
+    description.append(('Replicate Lab', 'string'))
+    description.append(('Replicate Read Type', 'string'))
+    description.append(('Replicate Insert Length', 'string'))
+    description.append(('Replicate Tech Replicate', 'number'))
+    description.append(('Replicate Id', 'string'))
     return description
 
 
@@ -560,17 +554,17 @@ def _rnadashboard_accessions(dbs, confs):
     chart = {}
 
     description = []
-    description.append(('accession',     'string'))
-    description.append(('gender',        'string'))
+    description.append(('accession', 'string'))
+    description.append(('gender', 'string'))
     description.append(('file_location', 'string'))
-    description.append(('readType',      'string'))
-    description.append(('rnaExtract',    'string'))
-    description.append(('localization',  'string'))
-    description.append(('replicate',     'number'))
-    description.append(('cell',          'string'))
-    description.append(('species',       'string'))
-    description.append(('qualities',     'string'))
-    description.append(('file_type',     'string'))
+    description.append(('readType', 'string'))
+    description.append(('rnaExtract', 'string'))
+    description.append(('localization', 'string'))
+    description.append(('replicate', 'number'))
+    description.append(('cell', 'string'))
+    description.append(('species', 'string'))
+    description.append(('qualities', 'string'))
+    description.append(('file_type', 'string'))
 
     chart['table_description'] = description
 
@@ -733,12 +727,12 @@ def rnadashboard_replicates(dbs, confs):
     chart = {}
 
     description = []
-    description.append(('run',            'string'))
-    description.append(('recipe',         'string'))
-    description.append(('update-script',  'string'))
+    description.append(('run', 'string'))
+    description.append(('recipe', 'string'))
+    description.append(('update-script', 'string'))
     description.append(('install-script', 'string'))
-    description.append(('pipeline',       'string'))
-    description.append(('accession',      'string'))
+    description.append(('pipeline', 'string'))
+    description.append(('accession', 'string'))
 
     chart['table_description'] = description
 
@@ -753,7 +747,7 @@ def rnadashboard_replicates(dbs, confs):
                            "prepare.py:main",
                            GENDER_MAPPING[accession[1]],
                            accession[0])
-                         )
+                          )
         seen_replicates.append(accession[0])
 
     chart['table_data'] = result

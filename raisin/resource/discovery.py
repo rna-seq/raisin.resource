@@ -7,14 +7,15 @@ from utils import collect
 @register_resource(resolution="replicate", partition=False)
 def novel_junctions_from_annotated_exons(dbs, confs, dumper=None):
     """List novel junctions from annotated exons."""
+    description = [('chr', 'string'),
+                   ('start', 'number'),
+                   ('end', 'number'),
+                   ('# Reads', 'number'),
+                   ('Replicate Id', 'string'),
+                   ('Lane Id', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('chr',          'string'),
-                                  ('start',        'number'),
-                                  ('end',          'number'),
-                                  ('# Reads',      'number'),
-                                  ('Replicate Id', 'string'),
-                                  ('Lane Id',      'string'),
-                                 ]
+    chart['table_description'] = description
 
     if not dumper is None:
         dumper.writeheader(chart['table_description'])
@@ -89,15 +90,16 @@ limit 20;""" % conf
 @register_resource(resolution="replicate", partition=False)
 def novel_junctions_from_unannotated_exons(dbs, confs, dumper=None):
     """List novel junctions from unannotated exons."""
+    description = [('start chr', 'string'),
+                   ('end chr', 'string'),
+                   ('start', 'number'),
+                   ('end', 'number'),
+                   ('# Reads', 'number'),
+                   ('Replicate Id', 'string'),
+                   ('Lane Id', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('start chr',     'string'),
-                                  ('end chr',       'string'),
-                                  ('start',         'number'),
-                                  ('end',           'number'),
-                                  ('# Reads',       'number'),
-                                  ('Replicate Id',  'string'),
-                                  ('Lane Id',       'string'),
-                                  ]
+    chart['table_description'] = description
 
     if not dumper is None:
         dumper.writeheader(chart['table_description'])

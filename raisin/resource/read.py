@@ -22,7 +22,7 @@ def read_summary(dbs, confs):
     chart['table_description'] = [(label, 'string'),
                                   ('Total', 'number'),
                                   ('Percent', 'number'),
-                                 ]
+                                  ]
     chart['table_data'] = _percentage_read_summary(stats, average_by)
     return chart
 
@@ -48,7 +48,7 @@ where
             'unambiguous': rows[0][1],
             'ambiguous': rows[0][2],
             'unique': rows[0][3],
-           }
+            }
     return data
 
 
@@ -120,7 +120,7 @@ where
     cursor.close()
     data = {'total_number_of_reads': rows[0][0],
             'reads_containing_ambiguous_nucleotides': rows[0][1],
-           }
+            }
     return data
 
 
@@ -173,7 +173,7 @@ where
     cursor.close()
     data = {'total_number_of_reads': rows[0][0],
             'reads_containing_only_unambiguous_nucleotides': rows[0][1],
-           }
+            }
     return data
 
 
@@ -183,7 +183,7 @@ def average_percentage_of_unique_reads(dbs, confs):
     chart = {}
     chart['table_description'] = [(confs['level']['title'], 'string'),
                                   ('Unique Reads', 'number'),
-                                 ]
+                                  ]
     results = []
     for partition_id, partition_confs in confs['configurations'].items():
         result = _partition_average_percentage_of_unique_reads(dbs,
@@ -211,7 +211,7 @@ def _partition_average_percentage_of_unique_reads(dbs, confs, partition_id):
         total_number_of_reads = float(stats['total_number_of_reads'])
         percent = unique_reads / total_number_of_reads * 100.0
 
-    return [partition_id,  percent]
+    return [partition_id, percent]
 
 
 def _average_percentage_of_unique_reads(dbs, conf):
@@ -230,19 +230,20 @@ where
     cursor.close()
     data = {'total_number_of_reads': rows[0][0],
             'unique_reads': rows[0][1],
-           }
+            }
     return data
 
 
 @register_resource(resolution="read", partition=True)
 def total_ambiguous_and_unambiguous_reads(dbs, confs):
     """Return the total ambiguous and unambiguous reads"""
+    description = [('', 'string'),
+                   ('Total', 'number'),
+                   ('Unambiguous', 'number'),
+                   ('Ambiguous', 'number'),
+                   ]
     chart = {}
-    chart['table_description'] = [('', 'string'),
-                                  ('Total', 'number'),
-                                  ('Unambiguous', 'number'),
-                                  ('Ambiguous', 'number'),
-                                 ]
+    chart['table_description'] = description
     total = [0, 0, 0, ]
     result = []
     for partition_id, partition_confs in confs['configurations'].items():
@@ -296,18 +297,19 @@ where
     data = {'total': rows[0][0],
             'unambiguous': rows[0][1],
             'ambiguous': rows[0][2],
-           }
+            }
     return data
 
 
 @register_resource(resolution="read", partition=True)
 def average_and_average_unique_reads(dbs, confs):
     """Return the average and average unique reads"""
+    description = [('', 'string'),
+                   ('Average number of reads', 'number'),
+                   ('Average number of unique reads', 'number'),
+                   ]
     chart = {}
-    chart['table_description'] = [('',                               'string'),
-                                  ('Average number of reads',        'number'),
-                                  ('Average number of unique reads', 'number'),
-                                 ]
+    chart['table_description'] = description
     result = []
     for partition_id, partition_confs in confs['configurations'].items():
         line = _partition_average_and_average_unique_reads(dbs,
@@ -352,7 +354,7 @@ where
     cursor.close()
     data = {'total': rows[0][0],
             'unique': rows[0][1],
-           }
+            }
     return data
 
 

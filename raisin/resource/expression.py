@@ -26,11 +26,12 @@ def expression_summary(dbs, confs):
     else:
         label = 'Average over %s %ss' % (average_by, confs['resolution']['id'])
 
-    chart['table_description'] = [(label,      'string'),
-                                  ('Total',    'number'),
-                                  ('Detected', 'number'),
-                                  ('Percent',  'number'),
-                                 ]
+    description = [(label, 'string'),
+                   ('Total', 'number'),
+                   ('Detected', 'number'),
+                   ('Percent', 'number'),
+                   ]
+    chart['table_description'] = description
 
     chart['table_data'] = _percentage_expression_summary(stats, average_by)
     return chart
@@ -362,16 +363,16 @@ and
 def top_genes(dbs, confs, dumper=None):
     """Return a list of top genes."""
     chart = {}
-    chart['table_description'] = [('Gene Id',          'string'),
-                                  ('Length',           'number'),
-                                  ('Strand (+/-)',     'string'),
-                                  ('Locus',            'string'),
-                                  ('# Exons',          'number'),
-                                  ('# Transcripts',    'number'),
+    chart['table_description'] = [('Gene Id', 'string'),
+                                  ('Length', 'number'),
+                                  ('Strand (+/-)', 'string'),
+                                  ('Locus', 'string'),
+                                  ('# Exons', 'number'),
+                                  ('# Transcripts', 'number'),
                                   ('Expression Value', 'number'),
-                                  ('Replicate Id',     'string'),
-                                  ('Lane Id',          'string'),
-                                 ]
+                                  ('Replicate Id', 'string'),
+                                  ('Lane Id', 'string'),
+                                  ]
 
     if not dumper is None:
         dumper.writeheader(chart['table_description'])
@@ -445,16 +446,17 @@ limit 20;""" % conf
 @register_resource(resolution="lane", partition=False)
 def top_transcripts(dbs, confs, dumper=None):
     """Query the database for the top 20 transcripts."""
+    description = [('Gene Id', 'string'),
+                   ('Length', 'number'),
+                   ('Strand (+/-)', 'string'),
+                   ('Locus', 'string'),
+                   ('# Exons', 'number'),
+                   ('Expression Value', 'number'),
+                   ('Replicate Id', 'string'),
+                   ('Lane Id', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Gene Id',          'string'),
-                                  ('Length',           'number'),
-                                  ('Strand (+/-)',     'string'),
-                                  ('Locus',            'string'),
-                                  ('# Exons',          'number'),
-                                  ('Expression Value', 'number'),
-                                  ('Replicate Id',     'string'),
-                                  ('Lane Id',          'string'),
-               ]
+    chart['table_description'] = description
 
     if not dumper is None:
         dumper.writeheader(chart['table_description'])
@@ -529,14 +531,14 @@ limit 20;""" % conf
 def top_exons(dbs, confs, dumper=None):
     """Return the top 20 exons."""
     chart = {}
-    description = [('Exon Id',          'string'),
-                   ('Length',           'number'),
-                   ('Strand (+/-)',     'string'),
-                   ('Locus',            'string'),
+    description = [('Exon Id', 'string'),
+                   ('Length', 'number'),
+                   ('Strand (+/-)', 'string'),
+                   ('Locus', 'string'),
                    ('Expression Value', 'number'),
-                   ('Replicate Id',     'string'),
-                   ('Lane Id',          'string'),
-                  ]
+                   ('Replicate Id', 'string'),
+                   ('Lane Id', 'string'),
+                   ]
     chart['table_description'] = description
 
     if not dumper is None:

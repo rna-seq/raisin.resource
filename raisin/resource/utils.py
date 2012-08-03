@@ -619,3 +619,17 @@ def remove_chars(value, chars):
     for char in chars:
         value = value.replace(char, '')
     return value
+
+
+def escape_html(html):
+    """
+    Returns the given HTML with ampersands, quotes and carets encoded.
+    """
+    replace = {'&': '&amp;',
+               '<': '&lt;',
+               '>': '&gt;',
+               '"': '&quot;',
+               "'": '&#39;'}
+    for key, value in replace.items():
+        html = html.replace(key, value)
+    return html

@@ -13,24 +13,25 @@ from utils import register_resource
 @register_resource(resolution="replicate", partition=False)
 def replicate_info(dbs, confs):
     """Collect some general information about a replicate"""
+    description = [('Read Length', 'number'),
+                   ('Mismatches', 'number'),
+                   ('Description', 'string'),
+                   ('Date', 'string'),
+                   ('Cell Type', 'string'),
+                   ('RNA Type', 'string'),
+                   ('Localization', 'string'),
+                   ('Bio Replicate', 'string'),
+                   ('Partition', 'string'),
+                   ('Paired', 'number'),
+                   ('Species', 'string'),
+                   ('Annotation Version', 'string'),
+                   ('Annotation Source', 'string'),
+                   ('Genome Assembly', 'string'),
+                   ('Genome Source', 'string'),
+                   ('Genome Gender', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Read Length',        'number'),
-                                  ('Mismatches',         'number'),
-                                  ('Description',        'string'),
-                                  ('Date',               'string'),
-                                  ('Cell Type',          'string'),
-                                  ('RNA Type',           'string'),
-                                  ('Localization',       'string'),
-                                  ('Bio Replicate',      'string'),
-                                  ('Partition',          'string'),
-                                  ('Paired',             'number'),
-                                  ('Species',            'string'),
-                                  ('Annotation Version', 'string'),
-                                  ('Annotation Source',  'string'),
-                                  ('Genome Assembly',    'string'),
-                                  ('Genome Source',      'string'),
-                                  ('Genome Gender',      'string'),
-                                 ]
+    chart['table_description'] = description
     result = []
     conf = confs['configurations'][0]
     sql = """
@@ -65,12 +66,12 @@ where project_id='%(projectid)s'
     result.append(rows[0][8])
     result.append(str(rows[0][9]))
     # Use labels instead of the raw values
-    result.append(get_cell_display_mapping(dbs).get(rows[0][10],
-                                                         rows[0][10]))
-    result.append(get_rna_extract_display_mapping(dbs).get(rows[0][11],
-                                                           rows[0][11]))
-    result.append(get_localization_display_mapping(dbs).get(rows[0][12],
-                                                           rows[0][12]))
+    mapping = get_cell_display_mapping(dbs)
+    result.append(mapping.get(rows[0][10], rows[0][10]))
+    mapping = get_rna_extract_display_mapping(dbs)
+    result.append(mapping.get(rows[0][11], rows[0][11]))
+    mapping = get_localization_display_mapping(dbs)
+    result.append(mapping.get(rows[0][12], rows[0][12]))
     result.append(rows[0][13])
     result.append(rows[0][14])
     result.append(rows[0][15])
@@ -130,33 +131,33 @@ def project_replicates(dbs, confs):
     """Compile the list of replicates for the project"""
     conf = confs['configurations'][0]
     projectid = conf['projectid']
-
+    description = [('Project Id', 'string'),
+                   ('Replicate Id', 'string'),
+                   ('Species', 'string'),
+                   ('Genome file name', 'string'),
+                   ('Genome file location', 'string'),
+                   ('Genome assembly', 'string'),
+                   ('Genome gender', 'string'),
+                   ('Annotation file name', 'string'),
+                   ('Annotation file location', 'string'),
+                   ('Annotation version', 'string'),
+                   ('Template File', 'string'),
+                   ('Read Length', 'number'),
+                   ('Mismatches', 'number'),
+                   ('Replicate Description', 'string'),
+                   ('Replicate Date', 'string'),
+                   ('Cell Type', 'string'),
+                   ('RNA Type', 'string'),
+                   ('Localization', 'string'),
+                   ('Bioreplicate', 'string'),
+                   ('Partition', 'string'),
+                   ('Annotation Version', 'string'),
+                   ('Lab', 'string'),
+                   ('Paired', 'number'),
+                   ('URL', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Project Id',               'string'),
-                                  ('Replicate Id',             'string'),
-                                  ('Species',                  'string'),
-                                  ('Genome file name',         'string'),
-                                  ('Genome file location',     'string'),
-                                  ('Genome assembly',          'string'),
-                                  ('Genome gender',            'string'),
-                                  ('Annotation file name',     'string'),
-                                  ('Annotation file location', 'string'),
-                                  ('Annotation version',       'string'),
-                                  ('Template File',            'string'),
-                                  ('Read Length',              'number'),
-                                  ('Mismatches',               'number'),
-                                  ('Replicate Description',    'string'),
-                                  ('Replicate Date',           'string'),
-                                  ('Cell Type',                'string'),
-                                  ('RNA Type',                 'string'),
-                                  ('Localization',             'string'),
-                                  ('Bioreplicate',             'string'),
-                                  ('Partition',                'string'),
-                                  ('Annotation Version',       'string'),
-                                  ('Lab',                      'string'),
-                                  ('Paired',                   'number'),
-                                  ('URL',                      'string'),
-                                 ]
+    chart['table_description'] = description
 
     sql = """
 select project_id,
@@ -219,7 +220,7 @@ and
                 'annotation_version': row[20],
                 'lab': row[21],
                 'paired': row[22],
-               }
+                }
         meta['parameter_list'] = get_parameter_list(confs)
         meta['parameter_values'] = get_parameter_values(confs, meta)
         results.append(row + [url % meta])
@@ -236,16 +237,17 @@ def project_accessions(dbs, confs):
         curl -H "Accept:text/x-cfg" http://localhost:6464/project/ENCODE/accessions
     """
     projectid = confs['configurations'][0]['projectid']
+    description = [('accession', 'string'),
+                   ('species', 'string'),
+                   ('rnaExtract', 'string'),
+                   ('localization', 'string'),
+                   ('replicate', 'string'),
+                   ('gender', 'string'),
+                   ('readType', 'string'),
+                   ('cell', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('accession',    'string'),
-                                  ('species',      'string'),
-                                  ('rnaExtract',   'string'),
-                                  ('localization', 'string'),
-                                  ('replicate',    'string'),
-                                  ('gender',       'string'),
-                                  ('readType',     'string'),
-                                  ('cell',         'string'),
-                                 ]
+    chart['table_description'] = description
 
     sql = """
 select experiment_id,
@@ -284,13 +286,14 @@ and
 @register_resource(resolution=None, partition=False)
 def experiment_replicates(dbs, confs):
     """Compile the list of replicates for the experiment"""
+    description = [('Project Id', 'string'),
+                   ('Parameter List', 'string'),
+                   ('Parameter Values', 'string'),
+                   ('Replicate Id', 'string'),
+                   ('Replicate Url', 'string'),
+                   ]
     chart = {}
-    chart['table_description'] = [('Project Id',       'string'),
-                                  ('Parameter List',   'string'),
-                                  ('Parameter Values', 'string'),
-                                  ('Replicate Id',     'string'),
-                                  ('Replicate Url',    'string'),
-                                 ]
+    chart['table_description'] = description
     projectid = confs['kwargs']['projectid']
     parameter_list = confs['kwargs']['parameter_list']
     parameter_values = confs['kwargs']['parameter_values']
@@ -317,7 +320,7 @@ order by
                                parameter_list,
                                parameter_values,
                                replicateid),
+                        )
                        )
-                      )
     chart['table_data'] = results
     return chart

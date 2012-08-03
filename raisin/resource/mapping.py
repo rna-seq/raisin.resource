@@ -9,15 +9,14 @@ from restish import http
 
 @register_resource(resolution="lane", partition=False)
 def read_distribution(dbs, confs):
+    description = [('Replicate', 'string'),
+                   ('Lane', 'string'),
+                   ('Start', 'number'),
+                   ('Transcript Length', 'number'),
+                   ('Read Coverage', 'number'),
+                   ]
     chart = {}
-    chart['table_description'] = [
-                                  ('Replicate', 'string'),
-                                  ('Lane', 'string'),
-                                  ('Start', 'number'),
-                                  ('Transcript Length', 'number'),
-                                  ('Read Coverage', 'number'),
-                                 ]
-
+    chart['table_description'] = description
     stats = []
     for conf in confs['configurations']:
         data = run_method_using_mysqldb(_read_distribution, dbs, conf, http.not_found)
@@ -103,11 +102,11 @@ def mapping_summary(dbs, confs):
         label = 'Average over %s sets of %ss' % (average_by,
                                                  confs['resolution']['id'])
 
-    chart['table_description'] = [(label,     'string'),
-                                  ('Total',   'number'),
-                                  ('Percent', 'number'),
-                                 ]
-
+    description = [(label, 'string'),
+                   ('Total', 'number'),
+                   ('Percent', 'number'),
+                   ]
+    chart['table_description'] = description
     chart['table_data'] = _percentage_mapping_summary(stats, average_by)
     return chart
 
@@ -132,7 +131,7 @@ where
                 'unique': unique,
                 'multimapped': mapped - unique,
                 'unmapped': total - mapped,
-               }
+                }
     else:
         data = None
     return data
@@ -189,13 +188,14 @@ def split_mapped_reads(dbs, confs):
 
 def mapped_reads(dbs, confs, tableid):
     """Calculate partitioned read mappings using different SQL tables"""
+    description = [(confs['level']['title'], 'string'),
+                   ('Total Reads', 'number'),
+                   ('Mapped Reads', 'number'),
+                   ('Unique Reads', 'number'),
+                   ('1:0:0 Reads', 'number'),
+                   ]
     chart = {}
-    chart['table_description'] = [(confs['level']['title'], 'string'),
-                                  ('Total Reads',  'number'),
-                                  ('Mapped Reads', 'number'),
-                                  ('Unique Reads', 'number'),
-                                  ('1:0:0 Reads',  'number'),
-                                 ]
+    chart['table_description'] = description
     result = []
     for partition, partition_confs in confs['configurations'].items():
         result.append(_mapped_reads(dbs, partition_confs, partition, tableid))
@@ -241,11 +241,11 @@ where
     rows = cursor.fetchall()
     cursor.close()
     if rows:
-        data = {'totalReads':     rows[0][0],
-                'mappedReads':    rows[0][1],
-                'uniqueReads':    rows[0][2],
+        data = {'totalReads': rows[0][0],
+                'mappedReads': rows[0][1],
+                'uniqueReads': rows[0][2],
                 '100uniqueReads': rows[0][3],
-               }
+                }
     else:
         data = {}
     return data
