@@ -324,7 +324,7 @@ def project_downloads(dbs, confs):
     downloads = dbs[projectid]['downloads']
     if downloads is None:
         # No downloads for this project, so just return a single empty line
-        table.append(["","","",""])
+        table.append(["", "", "", ""])
     else:
         url = urlparse.urljoin(downloads, "%s.csv.gz")
         filename = "%s.csv"
