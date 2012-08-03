@@ -339,21 +339,21 @@ def get_configurations(request, level, resolution, partition, dbs, **kwargs):
 
     result = {'request': request,
               'level': {
-                       'id': level,
-                       'title': level_titles[level]
-                       },
+                  'id': level,
+                  'title': level_titles[level],
+              },
               'resolution': {
-                       'id': resolution,
-                       'title': resolution_titles[resolution]
-                       },
+                  'id': resolution,
+                  'title': resolution_titles[resolution],
+              },
               'partition': partition,
               'partition_level': {
-                       'id': partition_levels[level],
-                       'title': level_titles[partition_levels[level]],
-                       },
+                  'id': partition_levels[level],
+                  'title': level_titles[partition_levels[level]],
+              },
               'configurations': configurations,
               'kwargs': kwargs,
-             }
+              }
     return result
 
 
@@ -393,7 +393,7 @@ where
                     'lab': row[7],
                     'read_length': row[8],
                     'paired': row[9],
-                   }
+                    }
             if not meta['paired'] is None:
                 meta['paired'] = ord(meta['paired'])
             meta['parameter_list'] = get_parameter_list(confs)
