@@ -236,7 +236,7 @@ class Resource(resource.Resource):
                 if not remove_chars(value, '-_.').isalnum():
                     raise AttributeError
             elif key == 'parameter_values':
-                if not remove_chars(value, '-_.').isalnum():
+                if not remove_chars(value, '+-_.').isalnum():
                     raise AttributeError
             elif key == 'replicateid':
                 if not remove_chars(value, '_').isalnum():
